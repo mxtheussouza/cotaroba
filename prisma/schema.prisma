@@ -9,6 +9,7 @@ datasource db {
 
 model Region {
   id              String           @id @default(uuid()) @db.Uuid
+  // Case-insensitive uniqueness is also enforced by an expression index in SQL.
   name            String           @unique @db.VarChar(120)
   slaughterhouses Slaughterhouse[]
   quotes          Quote[]
@@ -28,9 +29,10 @@ model Slaughterhouse {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
-  region Region  @relation(fields: [regionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  quotes Quote[]
-  users  User[]
+  region           Region            @relation(fields: [regionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  quotes           Quote[]
+  users            User[]
+  managementEvents ManagementEvent[]
 
   @@index([regionId])
 }
@@ -74,9 +76,11 @@ model User {
   createdAt        DateTime @default(now()) @db.Timestamptz(3)
   updatedAt        DateTime @updatedAt @db.Timestamptz(3)
 
-  slaughterhouse Slaughterhouse? @relation(fields: [slaughterhouseId], references: [id], onDelete: Restrict)
-  sessions       Session[]
-  accounts       Account[]
+  slaughterhouse            Slaughterhouse?   @relation(fields: [slaughterhouseId], references: [id], onDelete: Restrict)
+  sessions                  Session[]
+  accounts                  Account[]
+  performedManagementEvents ManagementEvent[] @relation("ManagementActor")
+  accessManagementEvents    ManagementEvent[] @relation("ManagementTarget")
 
   @@index([slaughterhouseId])
 }
@@ -132,4 +136,32 @@ model RateLimit {
   key         String @unique
   count       Int
   lastRequest BigInt
+}
+
+enum ManagementAction {
+  REGION_CREATED
+  SLAUGHTERHOUSE_CREATED
+  SLAUGHTERHOUSE_UPDATED
+  ACCESS_CREATED
+  ACCESS_UPDATED
+  ACCESS_PASSWORD_RESET
+}
+
+/// Administrative history contains only explicitly selected fields, never credentials.
+model ManagementEvent {
+  id               String           @id @default(uuid()) @db.Uuid
+  actorId          String           @db.Uuid
+  slaughterhouseId String?          @db.Uuid
+  targetUserId     String?          @db.Uuid
+  action           ManagementAction
+  changes          Json
+  createdAt        DateTime         @default(now()) @db.Timestamptz(3)
+
+  actor          User            @relation("ManagementActor", fields: [actorId], references: [id], onDelete: Restrict)
+  slaughterhouse Slaughterhouse? @relation(fields: [slaughterhouseId], references: [id], onDelete: Restrict)
+  targetUser     User?           @relation("ManagementTarget", fields: [targetUserId], references: [id], onDelete: Restrict)
+
+  @@index([slaughterhouseId, createdAt])
+  @@index([actorId, createdAt])
+  @@index([targetUserId])
 }

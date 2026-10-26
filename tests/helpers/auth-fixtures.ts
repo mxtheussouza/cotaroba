@@ -50,13 +50,42 @@ export async function createAuthFixtures(database: PrismaClient) {
     slaughterhouses,
     password,
     async cleanup() {
+      const events = await database.managementEvent.findMany({
+        where: { actorId: manager.id },
+      });
+      const createdUsers = events
+        .filter((event) => event.action === "ACCESS_CREATED")
+        .map((event) => event.targetUserId!)
+        .filter(Boolean);
+      const createdCompanies = events
+        .filter((event) => event.action === "SLAUGHTERHOUSE_CREATED")
+        .map((event) => event.slaughterhouseId!)
+        .filter(Boolean);
+      const createdRegions = events
+        .filter((event) => event.action === "REGION_CREATED")
+        .map((event) => (event.changes as { after: { id: string } }).after.id);
+      await database.rateLimit.deleteMany({
+        where: { key: `management:${manager.id}` },
+      });
+      await database.managementEvent.deleteMany({
+        where: { actorId: manager.id },
+      });
       await database.user.deleteMany({
-        where: { id: { in: [manager.id, ...users.map((u) => u.id)] } },
+        where: {
+          id: { in: [manager.id, ...users.map((u) => u.id), ...createdUsers] },
+        },
       });
       await database.slaughterhouse.deleteMany({
-        where: { id: { in: slaughterhouses.map((s) => s.id) } },
+        where: {
+          id: {
+            in: [...slaughterhouses.map((s) => s.id), ...createdCompanies],
+          },
+        },
       });
       await database.region.delete({ where: { id: region.id } });
+      await database.region.deleteMany({
+        where: { id: { in: createdRegions } },
+      });
     },
   };
 }

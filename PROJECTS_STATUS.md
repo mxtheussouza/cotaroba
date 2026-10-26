@@ -4,16 +4,18 @@
 
 ## Estado atual
 - Data de referência: 2026-10-26.
-- Fase atual: **F2 — login e permissões**.
-- Etapa atual: **F2-T01 — VALIDADA (correção do login aprovada)**.
+- Fase atual: **F3 — gestão de frigoríficos e acessos**.
+- Etapa atual: **F3-T01 — IMPLEMENTADA_AGUARDANDO_VALIDACAO**.
 - Aprovação do usuário: **F0-T01, F1-T01 e F2-T01 VALIDADAS**; correção da F2-T01 aprovada explicitamente em 2026-10-26.
-- Implementações concluídas: **F0-T01, F1-T01 e F2-T01 VALIDADAS**; correção do login confirmada pelo usuário.
+- Implementações concluídas: **F0-T01, F1-T01 e F2-T01 VALIDADAS**; **F3-T01 IMPLEMENTADA_AGUARDANDO_VALIDACAO**, com cadastro de regiões autorizado e concluído.
 - Commit da F0-T01: `d42c693` — `chore(setup): initialize Next.js project foundation`.
 - Testes atuais da F2-T01: **27 de autenticação + 8 de banco + 4 de navegador aprovados**; navegador repetido em desenvolvimento e produção, com JavaScript desativado/ativado, POST/Enter, origem canônica e proteção de URLs/logs. Lint, typecheck, formatação, build, instalação limpa e auditoria npm aprovados; detalhes no histórico.
 - Commit da F1-T01: `c9650fd` — `feat(database): add PostgreSQL schema and initial migration`.
 - Commit original da F2-T01: `746e44d` — `feat(auth): add login and role-based access`.
 - Commit da correção validada: `3805007` — `fix(auth): make login work before hydration`.
-- Próxima ação: aguardar autorização para iniciar F3-T01; nenhuma etapa seguinte iniciada. A troca local de senha recomendada na entrega não foi confirmada pelo usuário.
+- Testes da F3-T01: **19 de gestão + 27 de autenticação + 8 de banco + 8 de navegador aprovados (62 distintos)**; navegador aprovado em desenvolvimento e produção. Lint, typecheck, formatação, validação Prisma e build aprovados.
+- Commit da F3-T01: `feat(slaughterhouses): manage regions, slaughterhouses and accesses`; hash: consultar Git após a criação.
+- Próxima ação: usuário testar e validar explicitamente a F3-T01; F4-T01 não iniciada. A troca local de senha recomendada na F2 não foi confirmada pelo usuário.
 
 ## Quadro de etapas
 | ID | Etapa | Estado | Commit | Validação do usuário |
@@ -21,7 +23,7 @@
 | F0-T01 | Inspeção e fundação do projeto | VALIDADA | `d42c693` | CONFIRMADA em 2026-10-26 |
 | F1-T01 | Banco e modelo inicial | VALIDADA | `c9650fd` | CONFIRMADA em 2026-10-26 |
 | F2-T01 | Login e permissões | VALIDADA | `746e44d` + correção `3805007` | CONFIRMADA em 2026-10-26 |
-| F3-T01 | Gestor: cadastro de frigoríficos | PENDENTE | — | PENDENTE |
+| F3-T01 | Gestor: cadastro de frigoríficos | IMPLEMENTADA_AGUARDANDO_VALIDACAO | `feat(slaughterhouses)`; hash: consultar Git | PENDENTE |
 | F4-T01 | Frigorífico: cadastro/atualização de cotações | PENDENTE | — | PENDENTE |
 | F5-T01 | Agregação regional e consulta pública | PENDENTE | — | PENDENTE |
 | F6-T01 | Integrações externas e cadastro manual | PENDENTE | — | PENDENTE |
@@ -39,10 +41,11 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - Produto simples: sem marketplace, IA, microserviços ou alertas avançados no MVP.
 - Cada etapa é implementada, testada, commitada e submetida à validação humana **antes** da seguinte.
 - Autenticação por e-mail/senha com Better Auth e sessões PostgreSQL; sem cadastro público ou serviço externo de autenticação.
+- Regiões cadastradas por nome pelo gestor, conforme opção 1 aprovada em 2026-10-26; sem lista comercial ou geográfica predefinida.
 
 ## Questões ainda abertas
 - Nome/identidade visual definitiva.
-- Regiões e categorias comerciais iniciais.
+- Categorias comerciais iniciais; regiões serão cadastradas por nome pelo gestor, conforme decisão do usuário em 2026-10-26.
 - Critérios seguros de publicação agregada e eventual revisão concorrencial.
 - Provedor hospedado do banco, domínio HTTPS e segredos de produção; desenvolvimento usa PostgreSQL local e Better Auth com sessões no banco.
 - Licenças e endpoints das fontes externas.
@@ -339,3 +342,109 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - **Como validar manualmente:** conferir F2-T01 como VALIDADA no estado atual/quadro e F3-T01 como PENDENTE; nenhum novo teste funcional necessário para este registro.
 - **Pendências/bloqueios:** nenhuma pendência da correção aprovada. Questões de domínio e demais etapas continuam pendentes nos respectivos escopos.
 - **Próximo passo autorizado:** somente registrar esta validação; aguardar autorização para iniciar F3-T01.
+
+### 2026-10-26 — F3-T01 — Autorização, inspeção e plano
+- **Estado:** EM_ANDAMENTO.
+- **Autorização:** usuário confirmou “Autorizado” após a validação da correção da F2-T01; somente F3-T01 autorizada.
+- **Inspeção:** Git limpo em `main`, commit `20bebed`; contrato, status e todos os documentos de `docs/` revisados. Node.js 24.18.0/npm 11.16.0; PostgreSQL local saudável e servidor de desenvolvimento existente na porta 3000.
+- **Objetivo e critérios de aceite:** gestor lista, cadastra, edita e desativa frigoríficos e seus acessos; validações e autorização no servidor por operação; login dos acessos criados, revogação de sessões e formulários sem dependência de JavaScript verificados. Preservar histórico e consulta pública sem identidades/cotações individuais.
+- **Plano/arquivos esperados:** módulo `src/features/slaughterhouses`, páginas sob `/gestor`, schema/migration caso necessário para histórico administrativo, testes de integração/navegador, README e este status.
+- **Decisões:** exclusão lógica por desativação, conforme produto; acessos de frigorífico sempre vinculados no servidor, sem criação de gestores na interface. Não implementar cotações nem etapas seguintes.
+- **Questão solicitada ao usuário:** lista de regiões ainda aberta; solicitado escolher entre cadastro de nomes pelo gestor nesta etapa ou fornecer lista inicial. Parte dependente aguarda resposta; restante pode avançar.
+- **Testes executados:** inspeções de Git, versões e `docker compose ps`; testes funcionais pendentes de implementação.
+- **Commit Conventional Commits:** não realizado nesta etapa.
+- **Aprovação do usuário:** execução da F3-T01 autorizada; entrega final ainda pendente de validação.
+- **Próximo passo autorizado:** concluir somente F3-T01, verificar, registrar e aguardar validação.
+
+### 2026-10-26 — F3-T01 — Implementação parcial verificada; decisão sobre regiões pendente
+- **Estado:** BLOQUEADA (parcial). Não declarar a F3 concluída: o banco real não tem regiões e falta a decisão de produto solicitada ao usuário.
+- **Escopo realizado:** listagem privada paginada (20), cadastro/edição/desativação/reativação de frigoríficos; criação/edição/desativação/reativação e redefinição de senha dos acessos vinculados; validação de dados e autorização em cada operação; histórico administrativo transacional. Tudo verificado com regiões sintéticas exclusivamente no banco de testes.
+- **Arquivos alterados/criados:**
+  - `src/features/slaughterhouses/schema.ts`, `service.ts`: Zod estrito, serviços somente no servidor, leitura mínima, gestor ativo reconsultado, perfil/vínculo fixos, e-mail normalizado/único, hashes Better Auth, revogação de sessões e operações transacionais.
+  - `src/features/slaughterhouses/actions.ts`: Server Actions com sessão/perfil/origem verificados e códigos fixos nos redirects; sem credenciais em URLs/retornos. Própria proteção Origin/Host do Next.js mantida.
+  - `src/features/slaughterhouses/{manager-shell.tsx,forms.tsx,feedback.tsx,submit-button.tsx}`: interface pt-BR, campos rotulados e feedback; formulários POST com funcionamento sem JavaScript e estado de envio quando disponível.
+  - `src/app/(private)/gestor/page.tsx`, `frigorificos/novo/page.tsx`, `frigorificos/[id]/page.tsx`: listagem, criação e administração. Cadastro bloqueado quando não há região; não há tela/ação de criar regiões enquanto a decisão estiver pendente.
+  - `prisma/schema.prisma`, `prisma/migrations/20261026201632_management_history/migration.sql`: tabela `ManagementEvent`, enum de ações, autor/alvos/datas, índices/FKs. Migration aditiva, sem modificar preços, tabelas existentes ou dados do operador.
+  - `tests/management.test.ts`, `tests/management-browser.ts`, `tests/login-browser.test.ts`, `tests/helpers/auth-fixtures.ts`, `package.json`: 15 casos de gestão, quatro novas jornadas de navegador (oito totais com regressões da F2), cleanup de registros administrativos e script `test:management`.
+  - `README.md`, `PROJECTS_STATUS.md`: funcionamento, limites, comandos, roteiro manual e registro da pendência; histórico preservado.
+- **Decisões técnicas:**
+  - Desativação como remoção lógica conforme PRODUCT_SPEC; sem exclusão física de empresas/acessos/histórico. Não implementar preços/cotações, agregação, integrações ou simulador.
+  - Vários responsáveis podem ter acessos individuais ao mesmo frigorífico, conforme modelo existente. Criação aceita apenas nome/e-mail/senha; papel e vínculo vêm do servidor. Administração recusa alvo de outra empresa, gestor ou alvo inexistente; sem transferência de vínculo.
+  - Alterações de acesso/senha encerram suas sessões; salvar frigorífico encerra sessões de todos os seus acessos. Frigorífico inativo bloqueia novos logins/criações de acesso. Reativação não ativa automaticamente acessos individualmente desativados nem restaura sessões. Locks de linha coordenam alterações administrativas do mesmo frigorífico.
+  - Auditoria na mesma transação da alteração, somente campos administrativos selecionados antes/depois; redefinição registra apenas o evento/revogação. Nenhuma senha/hash/token vai ao histórico administrativo. Tabela privada, sem endpoint público ou tela de histórico nesta entrega.
+  - Server Actions atendem o padrão do projeto e o envio nativo POST. A sessão/papel são verificados em cada action e novamente no serviço; dados não confiáveis são validados. Referência técnica consultada: https://nextjs.org/docs/app/guides/data-security e https://better-auth.com/docs/concepts/users-accounts.
+  - Não instalar dependências novas nem contratar serviços. Nenhum seed/região/categoria/usuário de negócio criado; conta/senha do operador preservadas.
+- **Testes executados (comando → resultado):**
+  - `npm exec -- prisma format --config prisma7.config.ts`, `npm run db:generate` → exit 0; schema formatado e cliente gerado.
+  - `npm run db:migrate -- --name management_history --create-only` → migration gerada sem aplicação; SQL revisado antes do deploy.
+  - `npm run db:deploy` no banco de desenvolvimento e o mesmo comando com `DATABASE_URL` local apontando `cotaroba_test` → exit 0 em ambos; terceira migration aplicada, dados existentes preservados.
+  - `npm run test:management` → **15/15 aprovados**, zero falhas/skips; cadastro, autorização, validação, credenciais reais via provedor, duplicidade concorrente, vínculo, revogação, desativação/reativação, preservação de cotação histórica, paginação e auditoria sem credenciais.
+  - `npm run test:auth` → **27/27 aprovados**; `npm run test:db` → **8/8 aprovados**; sem regressões.
+  - `PLAYWRIGHT_CHANNEL=chrome npm run test:browser` → **8/8 aprovados** em desenvolvimento, inclusive fluxo novo sem JavaScript, envio POST, login real do acesso criado, sessão encerrada ao desativar, erros/troca de senha com JavaScript, replay real de Server Actions recusado para visitante/frigorífico/origem externa e portal sem cadastros privados.
+  - `TEST_APP_MODE=production PLAYWRIGHT_CHANNEL=chrome npm run test:browser` → **8/8 aprovados** no build de produção local; mesmas jornadas. São 58 testes distintos (15 + 27 + 8 + 8), sem contar repetições como casos novos.
+  - `TEST_SCREENSHOT_DIR=/tmp/cotaroba-f3-qa PLAYWRIGHT_CHANNEL=chrome npm run test:browser` → **8/8 aprovados**; layout sem rolagem horizontal em 320/390/1280px, capturas temporárias; celular/desktop inspecionados visualmente. Artefato de captura após resize resolvido recarregando a página antes da captura.
+  - Primeira execução de typecheck identificou incompatibilidade do Buffer com o tipo BodyInit no harness de replay; corrigido para ArrayBuffer. Primeira execução do navegador detectou seletor ambíguo entre alerta de feedback e anunciador de rota Next.js; restringido ao conteúdo principal e repetido com sucesso.
+  - Tentativa de aguardar requestAnimationFrame para captura com JavaScript desativado travou o harness; navegador exclusivo de QA encerrado, suíte retornou quatro falhas de contexto fechado, cleanup executado. Espera retirada, reload usado só para captura, timeout global de 120s adicionado; execução seguinte **8/8 aprovada**. Não foi falha de autenticação nem de domínio.
+  - `npm run format`, `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm run build` → exit 0; compilação/TypeScript/prerender aprovados, páginas de gestor dinâmicas e portal estático.
+  - SQL de contagens: desenvolvimento com um usuário/uma credencial, zero regiões/frigoríficos/cotações/eventos administrativos; banco de testes limpo após as suítes. Nenhuma credencial real foi usada para QA.
+- **Testes não executados e motivo:** jornada com regiões de negócio no banco real depende da resposta do usuário e da conclusão dessa parte. Validação humana da F3 não solicitada como entrega concluída. TLS/proxy/deploy, outros navegadores e política de agregação pertencem às etapas previstas. Auditoria npm/instalação limpa não repetidas: nenhuma dependência nova instalada.
+- **Ambiente ao encerrar:** `npm run dev -- --hostname 127.0.0.1 --port 3000` reiniciado com `.env` e banco real de desenvolvimento; `/login` HTTP 200 com formulário presente. PostgreSQL saudável. Suítes encerraram servidores/fixtures de QA; banco de testes com zero usuários/contas/regiões/frigoríficos/cotações/eventos/contadores de limite.
+- **Commit Conventional Commits:** não realizado; implementação parcial permanece no workspace junto do status, sem commit de funcionalidade concluída. Último commit confirmado antes da execução: `20bebed`.
+- **Como conferir o parcial:** entrar com o gestor em `/gestor` para conferir a listagem vazia; `/gestor/frigorificos/novo` informa ausência de regiões e não permite salvar. Os fluxos completos já podem ser reproduzidos no banco isolado com `npm run test:management` e `PLAYWRIGHT_CHANNEL=chrome npm run test:browser` (parar o dev antes do navegador). Roteiro final no README será aplicável após definir regiões/concluir F3.
+- **Bloqueio e decisão necessária:** escolher (1) permitir que o gestor cadastre regiões por nome nesta etapa; ou (2) fornecer a lista inicial de nomes. Pergunta enviada pela ferramenta assíncrona, ainda sem resposta. A questão já estava aberta no status desde a fundação; não inferir divisão comercial/geográfica nem ampliar o cadastro sem confirmação. AGENTS.md, regra 7: “se encontrar ambiguidade que afete produto, segurança ou preço, explique e solicite decisão antes de implementar”.
+- **Aprovação do usuário:** F3-T01 autorizada para execução; etapa final ainda não concluída/verificada integralmente nem validada pelo usuário.
+- **Próximo passo autorizado:** aguardar somente a definição de regiões; após resposta, concluir F3-T01, executar checks adequados, criar commit incluindo implementação/status e submeter à validação. F4-T01 permanece PENDENTE.
+
+### 2026-10-26 — F3-T01 — Decisão sobre regiões e retomada
+- **Estado:** EM_ANDAMENTO; bloqueio de produto resolvido.
+- **Decisão/autorização do usuário:** resposta “1” confirma cadastro simples de regiões por nome pelo gestor nesta etapa. Não há lista de regiões predefinida nem seed de negócio.
+- **Plano e critérios:** página privada `/gestor/regioes`, cadastro/listagem, validação de nome até 120 caracteres, normalização de espaços/Unicode e prevenção de duplicatas sem diferenciar caixa; região disponível nos formulários de frigoríficos. Revalidar jornadas da F3 e regressões, registrar resultados e criar um único commit da implementação com status.
+- **Arquivos:** módulo/páginas/testes de gestão já em andamento, migration aditiva de unicidade de regiões, README e este status.
+- **Inspeção:** alterações parciais anteriores preservadas; último commit `20bebed`; PostgreSQL saudável; banco de desenvolvimento ainda com zero regiões. Não houve implementação de outra etapa.
+- **Testes:** inspeção inicial concluída; testes da extensão e verificações finais pendentes.
+- **Commit:** não realizado; será criado somente após concluir e verificar a F3-T01.
+- **Aprovação:** extensão do cadastro de regiões autorizada; validação final da F3 ainda pendente.
+
+### 2026-10-26 — F3-T01 — Conclusão técnica de regiões, frigoríficos e acessos
+- **Estado:** IMPLEMENTADA_AGUARDANDO_VALIDACAO. Bloqueio anterior resolvido pela resposta “1”; toda a implementação parcial desta etapa e a extensão autorizada compõem uma única entrega/commit. Nenhuma outra etapa foi iniciada.
+- **Objetivo e critérios atendidos:** gestor cadastra/lista regiões, cadastra/lista/edita/desativa/reativa frigoríficos e administra seus acessos; validação e autorização no servidor em cada operação; fluxos reais de login, sessão, erros e desativação verificados. Público permanece sem identidades/preços individuais.
+- **Arquivos da entrega:**
+  - `src/features/slaughterhouses/{schema.ts,service.ts,actions.ts,rate-limit.ts}`: entrada Zod, serviços somente no servidor, transações, autorização, histórico, limite de envios e Server Actions.
+  - `src/features/slaughterhouses/{manager-shell.tsx,forms.tsx,feedback.tsx,submit-button.tsx}`: navegação/feedback/campos/botões da gestão em português, formulários com POST e funcionamento sem JavaScript.
+  - `src/app/(private)/gestor/page.tsx`, `src/app/(private)/gestor/frigorificos/novo/page.tsx`, `src/app/(private)/gestor/frigorificos/[id]/page.tsx`, `src/app/(private)/gestor/regioes/page.tsx`: listagem paginada, cadastro/administração e regiões.
+  - `prisma/schema.prisma`, `prisma/migrations/20261026201632_management_history/migration.sql`, `prisma/migrations/20261026203246_region_names_case_insensitive/migration.sql`: auditoria administrativa e unicidade de nomes de região sem diferenciar caixa. Migrations anteriores preservadas.
+  - `tests/management.test.ts`, `tests/management-browser.ts`, `tests/login-browser.test.ts`, `tests/helpers/auth-fixtures.ts`, `package.json`: testes e script `test:management`; fixtures/contadores/histórico sintéticos removidos ao final. Sem novas dependências.
+  - `README.md`, `PROJECTS_STATUS.md`: funcionamento final, decisões, comandos e roteiro manual; histórico preservado.
+- **Decisões e implementação:**
+  - Cadastro simples de regiões por nome pelo gestor em `/gestor/regioes`, sem seed de negócio. Nome obrigatório até 120 caracteres, espaços externos/extras normalizados e Unicode NFC. Índice SQL único `lower(name)` impede duplicatas em maiúsculas/minúsculas inclusive em concorrência; schema/README documentam a preservação do índice nas migrations futuras. Não se presume que nomes sem acentos sejam equivalentes.
+  - A região cadastrada aparece imediatamente nos formulários dos frigoríficos. Instalação sem regiões apresenta link para criá-las antes de salvar um frigorífico. Não foi acrescentada edição/exclusão de regiões.
+  - Frigoríficos removidos logicamente por desativação, conforme produto; preservação do cadastro e histórico. Vários responsáveis podem ter acessos individuais ao mesmo frigorífico. Gestor edita nome/e-mail/situação e redefine senha; não cria gestores pela interface nem transfere vínculos.
+  - Senhas de 12–128 caracteres, hash Better Auth, nunca reexibidas; comunicação das credenciais feita pelo gestor por canal seguro, sem serviço de e-mail. Troca de identidade/senha e desativação revogam sessões. Salvar frigorífico encerra todas as sessões vinculadas; reativação não restaura sessões nem ativa acessos individualmente desativados.
+  - Sessão/papel/origem validados em cada Server Action e papel/situação atuais reconsultados no serviço. Alvos de acesso limitados ao frigorífico indicado e ao perfil de frigorífico; criação fixa papel/vínculo no servidor. Valores inesperados/IDs/nomes/e-mails/senhas/situações são validados. Redirects contêm somente códigos fixos.
+  - Envios administrativos limitados a **30/minuto por gestor** em janela fixa atômica PostgreSQL, compartilhada entre processos; tentativas inválidas contam e recebem mensagem de espera, sem persistir a operação bloqueada. Reutiliza `RateLimit`, sem nova infraestrutura. Leitura de páginas não consome esse limite.
+  - `ManagementEvent` registra autor, instante, alvos e alterações administrativas selecionadas, na mesma transação. Sem senha/hash/token/cotação nesse histórico e sem endpoint público de consulta. Locks de linha coordenam alterações administrativas do mesmo frigorífico.
+  - Sem funcionalidades de F4–F8. Cotações históricas existentes são preservadas ao mudar região; não há formulários/serviços de escrita de preços nesta entrega.
+- **Testes executados (comando → resultado real):**
+  - `npm run db:deploy` no desenvolvimento e `DATABASE_URL=postgresql://cotaroba:cotaroba_local@127.0.0.1:5433/cotaroba_test npm run db:deploy` → exit 0; migration do índice aplicada em ambos. Migration de auditoria já aplicada/verificada na parte anterior da mesma etapa; quatro migrations versionadas no total.
+  - `npm run test:management` → exit 0, **19/19 aprovados**, zero falhas/skips; inclui cadastro de regiões, normalização, duplicidade concorrente, limite atômico/janela, autorização, CRUD lógico, vínculos, senhas/sessões, preservação de histórico e DTO/auditoria sem credenciais.
+  - `npm run test:auth` → exit 0, **27/27 aprovados**, zero falhas/skips; regressões da F2 preservadas.
+  - `npm run test:db` → exit 0, **8/8 aprovados**, zero falhas/skips; sem regressões das restrições/modelos existentes.
+  - `TEST_SCREENSHOT_DIR=/tmp/cotaroba-f3-final-qa PLAYWRIGHT_CHANNEL=chrome npm run test:browser` → exit 0, **8/8 aprovados em desenvolvimento**. Jornada inclui região/duplicata/frigorífico/acesso por POST sem JavaScript; login do novo acesso e desativação; edição/reset com JavaScript; replay de Server Actions negado para visitante/frigorífico/origem externa; limite administrativo com feedback e sem gravação; portal sem cadastros privados.
+  - `TEST_APP_MODE=production PLAYWRIGHT_CHANNEL=chrome npm run test:browser` → exit 0, **8/8 aprovados em produção local**, mesma cobertura. Total de **62 testes distintos** (19+27+8+8), sem duplicar contagem por repetição.
+  - Layout sem rolagem horizontal em **320/390/1280px**; capturas de celular/desktop inspecionadas visualmente em `/tmp/cotaroba-f3-final-qa`, fora do Git.
+  - `npm run format`, `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm run db:validate`, `npm run build` → exit 0; Prisma válido, TypeScript/compilação/prerender aprovados. Portal estático, páginas de gestão dinâmicas.
+  - Primeira execução da extensão cancelou 18 testes por uma asserção do harness fora do seu escopo (`events`); typecheck identificou o mesmo erro. Asserção corrigida; 18 casos passaram e, após acrescentar o limite, **19/19 passaram**. Sem defeito de persistência ou autenticação nessa falha do harness.
+  - Primeira repetição final em produção retornou **7/8** por corrida no harness entre dois salvamentos com o mesmo código/URL; DOM era substituído durante a abertura do formulário seguinte. Sincronização do teste ajustada para aguardar a requisição antes do próximo formulário; repetição final **8/8 aprovada**. Nenhuma mudança de regra/domínio para acomodar teste.
+  - SQL final → testes com **zero usuários/contas/regiões/frigoríficos/cotações/eventos/contadores**; desenvolvimento preservado com **um usuário/uma credencial**, zero regiões/frigoríficos/cotações/eventos. Nenhuma senha real usada/alterada e nenhum dado de negócio inventado.
+  - `git check-ignore .env src/generated/prisma/client.ts` → ignorados. `git diff --check` e revisão do diff → arquivos pertinentes à F3, sem erros de whitespace.
+- **Testes não executados e motivo:** instalação limpa/auditoria npm não repetidas, sem dependências novas; resultados da base permanecem no histórico. TLS/proxy/deploy e outros navegadores aguardam homologação. Acessibilidade automática completa não repetida; labels, teclado e dimensões foram conferidos no fluxo. Validação com dados/conta do usuário será feita por ele, sem solicitar suas credenciais.
+- **Commit Conventional Commits:** `feat(slaughterhouses): manage regions, slaughterhouses and accesses`; hash: consultar Git após criação. Implementação, migrations, testes, README e este status no mesmo commit; hash real informado na entrega.
+- **Como validar manualmente:**
+  1. Abrir `http://localhost:3000/login` e entrar com seu gestor existente. Aplicação local reiniciada em 3000 com `.env` e banco real; PostgreSQL saudável. Em outra instalação, executar `npm ci`, `docker compose up -d --wait db`, `npm run db:deploy` e `npm run dev`.
+  2. Em **Regiões**, cadastrar um nome; repetir em maiúsculas/espaços extras deve mostrar duplicidade. Em **Cadastrar frigorífico**, usar essa região, salvar e editar o nome; conferir na listagem.
+  3. Criar um acesso do responsável com e-mail e senha de 12–128 caracteres. Conferir erro de e-mail duplicado e ausência da senha após salvar/errar. Em janela privativa, entrar com o novo acesso: deve abrir `/frigorifico`, identificar a própria empresa e negar `/gestor`.
+  4. No gestor, editar/desativar o acesso e conferir que a sessão da janela privativa deixa de valer. Reativar e redefinir a senha: anterior falha, nova funciona. Desativar o frigorífico bloqueia todos os acessos e mantém o cadastro na listagem; reativar não ativa acessos individualmente desativados.
+  5. Repetir por teclado/celular e sem JavaScript; URL não deve conter credenciais. Portal sem login continua com “Dados insuficientes”. Se exceder 30 envios administrativos em um minuto, aguardar antes de continuar.
+- **Pendências/bloqueios:** nenhum bloqueio técnico da F3-T01; apenas validação humana explícita pendente. Não há regiões/usuários de frigorífico pré-cadastrados no banco real: gestor os define pelos formulários entregues. Categorias e políticas futuras continuam abertas nos respectivos escopos.
+- **Aprovação do usuário:** PENDENTE para a entrega final da F3-T01. A escolha “1” autorizou o cadastro de regiões; não equivale à aprovação desta entrega completa.
+- **Próximo passo autorizado:** parar e aguardar teste e validação explícita da F3-T01; não iniciar F4-T01 automaticamente.
