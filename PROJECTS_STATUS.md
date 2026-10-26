@@ -4,19 +4,20 @@
 
 ## Estado atual
 - Data de referência: 2026-10-26.
-- Fase atual: **F0 — preparação**.
-- Etapa atual: **F0-T01 — IMPLEMENTADA_AGUARDANDO_VALIDACAO**.
-- Aprovação do usuário: **PENDENTE**.
-- Implementações concluídas: **F0-T01**, com verificações técnicas aprovadas; validação humana pendente.
-- Commit da F0-T01: `chore(setup): initialize Next.js project foundation`; hash: consultar `git log -1 --format=%h` (referência autoritativa após o commit).
-- Testes executados: instalação por lockfile, lint, typecheck, formatação, build, auditoria npm e smoke no Chrome em desenvolvimento/produção; resultados abaixo.
-- Próxima ação: usuário executar roteiro manual e validar explicitamente a F0-T01. F1-T01 não iniciada; exige autorização.
+- Fase atual: **F1 — banco e modelo inicial**.
+- Etapa atual: **F1-T01 — IMPLEMENTADA_AGUARDANDO_VALIDACAO**.
+- Aprovação do usuário: **F0-T01 VALIDADA**; validação da F1-T01 **PENDENTE**.
+- Implementações concluídas: **F0-T01 VALIDADA** pelo usuário em 2026-10-26; **F1-T01 implementada e verificada**, aguardando validação humana.
+- Commit da F0-T01: `d42c693` — `chore(setup): initialize Next.js project foundation`.
+- Testes da F1-T01: geração/validação Prisma, migrations em bancos novos e reaplicação, oito testes de integração, três verificações negativas do alvo de testes, instalação limpa sem URL do banco, lint/typecheck/formatação/build/auditoria npm e HTTP em produção com PostgreSQL parado; resultados reais no histórico.
+- Commit da F1-T01: `feat(database): add PostgreSQL schema and initial migration`; hash: consultar Git após o commit.
+- Próxima ação: usuário testar e validar explicitamente a F1-T01; F2-T01 não iniciada.
 
 ## Quadro de etapas
 | ID | Etapa | Estado | Commit | Validação do usuário |
 |---|---|---|---|---|
-| F0-T01 | Inspeção e fundação do projeto | IMPLEMENTADA_AGUARDANDO_VALIDACAO | `chore(setup)`; hash: consultar Git | PENDENTE |
-| F1-T01 | Banco e modelo inicial | PENDENTE | — | PENDENTE |
+| F0-T01 | Inspeção e fundação do projeto | VALIDADA | `d42c693` | CONFIRMADA em 2026-10-26 |
+| F1-T01 | Banco e modelo inicial | IMPLEMENTADA_AGUARDANDO_VALIDACAO | `feat(database)`; hash: consultar Git | PENDENTE |
 | F2-T01 | Login e permissões | PENDENTE | — | PENDENTE |
 | F3-T01 | Gestor: cadastro de frigoríficos | PENDENTE | — | PENDENTE |
 | F4-T01 | Frigorífico: cadastro/atualização de cotações | PENDENTE | — | PENDENTE |
@@ -40,7 +41,7 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - Nome/identidade visual definitiva.
 - Regiões e categorias comerciais iniciais.
 - Critérios seguros de publicação agregada e eventual revisão concorrencial.
-- Provedores de banco/autenticação e credenciais.
+- Provedores hospedados de banco/autenticação e credenciais de produção; desenvolvimento já usa PostgreSQL local.
 - Licenças e endpoints das fontes externas.
 - Parâmetros e fórmulas comerciais do simulador.
 
@@ -118,3 +119,75 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - **Pendências/bloqueios:** nenhum bloqueio técnico da F0-T01; validação manual explícita pendente. Avisos transitivos da instalação documentados acima. Questões de domínio já abertas continuam reservadas às etapas correspondentes.
 - **Aprovação do usuário:** PENDENTE. Sucesso técnico não equivale a validação humana.
 - **Próximo passo autorizado:** aguardar teste e aprovação explícita da F0-T01; não iniciar F1-T01 automaticamente.
+
+### 2026-10-26 — F0-T01 — Validação humana e autorização da próxima etapa
+- **Estado:** VALIDADA.
+- **Aprovação do usuário:** confirmação explícita “Aprovado! Pode prosseguir.” recebida em 2026-10-26.
+- **Commit validado:** `d42c693` — `chore(setup): initialize Next.js project foundation`.
+- **Arquivos alterados:** `PROJECTS_STATUS.md`; preservado o histórico anterior.
+- **Testes:** aprovação fornecida pelo usuário; nenhum teste adicional de F0 executado nesta tarefa.
+- **Próximo passo autorizado:** somente F1-T01 — PostgreSQL, Prisma, entidades mínimas e migrations.
+
+### 2026-10-26 — F1-T01 — Inspeção e início
+- **Estado:** EM_ANDAMENTO.
+- **Objetivo e critérios de aceite:** PostgreSQL local, Prisma e entidades mínimas; migration reproduzível em banco novo e modelos conferidos, com testes de integração e verificações da aplicação.
+- **Inspeção:** Git limpo em `main`, commit `d42c693`; Node.js 24/npm 11. Sem URLs de banco configuradas ou arquivos `.env`. Docker Desktop e Compose instalados; daemon inicialmente parado, inicialização solicitada via `open -a Docker`.
+- **Plano/arquivos esperados:** `compose.yaml`, `.env.example`, configuração e schema/migrations Prisma, módulo de banco em `src/`, testes de integração, scripts npm, README e este status.
+- **Decisões iniciais:** PostgreSQL somente local nesta etapa; sem contratar serviço. Tabelas de regiões/categorias sem seed de negócio para não resolver arbitrariamente questões abertas. Sem login, telas ou API pública de cotações.
+- **Testes executados:** inspeção de Git/Node/npm/Docker; verificações funcionais pendentes.
+- **Commit Conventional Commits:** não realizado.
+- **Pendências:** confirmar Docker disponível, implementar e testar somente F1-T01.
+- **Aprovação do usuário:** execução autorizada; conclusão ainda pendente de validação.
+- **Próximo passo autorizado:** concluir F1-T01 e aguardar validação.
+
+### 2026-10-26 — F1-T01 — Banco, entidades mínimas e migration inicial
+- **Estado:** IMPLEMENTADA_AGUARDANDO_VALIDACAO.
+- **Objetivo e critérios de aceite:** PostgreSQL + Prisma com entidades mínimas e migration reproduzível em banco de desenvolvimento; modelos conferidos e testes úteis de persistência/restrições aprovados. Somente F1-T01 implementada.
+- **Arquivos alterados/criados:**
+  - `compose.yaml`, `.env.example`: PostgreSQL local, volume persistente, healthcheck, porta 5433 limitada a loopback e exemplo de configuração.
+  - `prisma7.config.ts`, `prisma/schema.prisma`, `prisma/migrations/migration_lock.toml`, `prisma/migrations/20261026183034_init/migration.sql`: configuração Prisma 7, quatro entidades e migration inicial versionada.
+  - `src/lib/db.ts`: acesso somente no servidor, validação da URL sem expor seu conteúdo, inicialização sob demanda e reutilização de cliente/pool (máximo de cinco conexões, timeout de conexão de cinco segundos).
+  - `tests/database.test.ts`: oito testes de integração em PostgreSQL real; fixtures sintéticas isoladas e revertidas em transações.
+  - `package.json`, `package-lock.json`: Prisma CLI/Client/adapter-pg `7.10.1`, `pg` `8.23.1`, `dotenv`, `server-only`, `tsx`, tipos de pg e scripts de geração, migrations, Studio e testes. Projeto ESM (`type: module`).
+  - `.gitignore`, `.prettierignore`, `eslint.config.mjs`: excluir cliente Prisma gerado; segredos e artefatos continuam fora do Git.
+  - `README.md`: instalação, configuração, modelos, migrations, banco separado de testes e roteiro manual.
+  - `PROJECTS_STATUS.md`: validação explícita da F0-T01, início e conclusão técnica da F1-T01, com histórico anterior preservado.
+- **Implementação e decisões:**
+  - Docker Desktop existente iniciado com `open -a Docker`; PostgreSQL `17.11` confirmado em `postgres:17-alpine`, sem contratar serviço ou selecionar provedor de produção. Criado `.env` local a partir do exemplo; arquivo ignorado pelo Git.
+  - Prisma 7 fixado na versão estável `7.10.1`, com CLI/Client/adapter na mesma versão; a tag latest do CLI apontava para Prisma 8 release candidate. Usado `prisma7.config.ts` explicitamente nos scripts e adapter PostgreSQL conforme a documentação da versão 7: https://www.prisma.io/docs/v7/prisma-orm/quickstart/postgresql.
+  - `Region` e `CattleCategory` têm UUID e nome único, sem seed de regiões/categorias comerciais ainda não aprovadas. `Slaughterhouse` tem nome, região atual, situação ativa e timestamps. `Quote` registra frigorífico, categoria, região de referência, preço em BRL por arroba, data civil de referência e instante de criação.
+  - Preço em `NUMERIC(12,2)`, com CHECK SQL `Quote_pricePerArroba_positive`; zero e valores negativos recusados no banco. Referências usam UUID/FKs com `ON DELETE RESTRICT`. Índices contemplam vínculos e consulta futura de histórico/recortes regionais, sem implementar agregação.
+  - `referenceDate` usa `DATE`; instantes usam `TIMESTAMPTZ(3)`. Região da cotação é preservada independentemente de alterações posteriores no cadastro do frigorífico.
+  - O modelo comporta histórico por acréscimo de registros. O fluxo de escrita, autoria e autorização ainda será implementado nas etapas correspondentes; esta entrega não implementa imutabilidade por trigger, usuários, sessões, formulários, CRUD ou APIs. Entidades de autenticação serão definidas com o provedor em F2-T01; dados externos/indicadores aguardam suas etapas.
+  - Nenhum dado de mercado ou cadastro real inserido. A página pública permanece estática e sem acesso ao banco. Importação de `server-only` impede uso acidental do módulo de banco em componentes cliente.
+  - `postinstall` gera o cliente sem exigir URL ou conexão; cliente gerado fica fora do Git. Configuração e schema, em conjunto com o lockfile, permitem reproduzir o cliente.
+  - Banco `cotaroba_test` separado do desenvolvimento. Testes recusam host não local, nome sem sufixo `_test` ou nome igual ao banco de desenvolvimento; URLs inválidas são tratadas com mensagem sem credenciais.
+- **Testes executados (comando → resultado):**
+  - `docker info --format '{{.ServerVersion}}'` → inicialmente falhou por daemon parado; após `open -a Docker`, retornou `29.8.0`. `docker compose version` → `v5.5.1`.
+  - `docker compose up -d --wait db` → exit 0; container saudável. Volume local criado e PostgreSQL confirmado via `SELECT version()` como `17.11`.
+  - `npm exec -- prisma format --config prisma7.config.ts`, `npm run db:generate`, `npm run db:validate` → exit 0; schema formatado/válido e cliente gerado.
+  - `npm run db:migrate -- --name init --create-only` → migration `20261026183034_init` gerada; SQL revisado e CHECK de preço positivo incluído antes da primeira aplicação.
+  - `npm run db:migrate` → exit 0; migration aplicada no banco novo `cotaroba`; schema sincronizado.
+  - `docker compose exec -T db createdb -U cotaroba cotaroba_test` → exit 0; banco separado criado. `DATABASE_URL=postgresql://cotaroba:cotaroba_local@127.0.0.1:5433/cotaroba_test npm run db:deploy` → exit 0; mesma migration aplicada em outro banco vazio.
+  - `npm run db:deploy` (banco de desenvolvimento, após instalação limpa) → exit 0, “No pending migrations to apply”. `npm run db:status` → exit 0, schema atualizado. Uma tentativa anterior de reaplicação foi iniciada enquanto `npm ci` substituía `node_modules` e falhou com `prisma: command not found`; repetida sequencialmente com sucesso após a reinstalação.
+  - `docker compose exec -T db psql -U cotaroba -d cotaroba -c '\dt' -c '\d "Quote"'` → conferidas quatro entidades, tabela de migrations, `NUMERIC(12,2)`, `DATE`, timestamps, índices, FKs e CHECK de preço positivo.
+  - `npm run test:db` → exit 0; **8 testes aprovados**, zero falhas/skips: configuração sem vazamento de senha; persistência decimal exata/data/histórico e cliente reutilizado; rejeição de preço zero/negativo; FK de frigorífico inexistente; exclusão bloqueada de frigorífico com cotação; região histórica preservada após mudança/desativação; nome de região único.
+  - Verificação SQL de contagens em `cotaroba_test` após os testes → zero regiões, categorias, frigoríficos e cotações; rollback das fixtures confirmado.
+  - Harness Python executando `npm run test:db` com três `TEST_DATABASE_URL` inválidas/inseguras (banco de desenvolvimento, host externo, URL malformada) → três recusas esperadas, sem exposição da senha de teste na saída; nenhum acesso ao host externo necessário.
+  - `env -u DATABASE_URL DOTENV_CONFIG_PATH=/dev/null npm ci` → exit 0; 497 pacotes instalados, cliente Prisma gerado pelo postinstall sem URL de banco, zero vulnerabilidades reportadas. Avisos de peer dependencies transitivas do ESLint e de scripts de instalação não cobertos pela política local do npm persistem, sem alterar a política ou usar flags de resolução.
+  - `npm run format`, `npm run format:check`, `npm run lint`, `npm run typecheck` → exit 0, inclusive após o ajuste final do guard de configuração dos testes.
+  - `npm audit --audit-level=moderate` → exit 0; zero vulnerabilidades reportadas.
+  - `docker compose stop db` seguido de `npm run build` → exit 0 com PostgreSQL parado; compilação, TypeScript e geração estática de `/`, `/_not-found` e `/icon.svg` concluídas.
+  - `npm start -- --hostname 127.0.0.1 --port 3001` e requisição Python `urllib.request.urlopen('http://127.0.0.1:3001')` → HTTP 200 com PostgreSQL parado; idioma pt-BR e “Dados insuficientes” presentes, sem URL de banco no HTML. Servidor de aplicação encerrado após o smoke; banco retomado com `docker compose up -d --wait db` para validação do usuário.
+  - `git check-ignore .env src/generated/prisma/client.ts` → ambos ignorados, preservando credenciais e artefatos fora do commit.
+- **Testes não executados e motivo:** serviços gerenciados/deploy, login/isolamento por papel, CRUD, agregação e integrações pertencem às etapas seguintes. Nenhuma alteração visual exigiu repetir a auditoria completa de navegador da F0. Prisma Studio consta no roteiro manual, sem alegar revisão humana pela ferramenta.
+- **Commit Conventional Commits:** `feat(database): add PostgreSQL schema and initial migration`; hash: consultar Git após a criação. Implementação e atualização deste status no mesmo commit; hash real informado na entrega, conforme `docs/GIT_WORKFLOW.md`.
+- **Como validar manualmente:**
+  1. Com Docker Desktop iniciado e `.env` configurado conforme `.env.example`, executar `npm ci` e `docker compose up -d --wait db`.
+  2. Executar `npm run db:validate`, `npm run db:deploy`, `npm run db:status`; repetir deploy não deve reaplicar a migration.
+  3. Executar `npm run db:studio` e conferir as quatro entidades e seus campos; neste ambiente de desenvolvimento as tabelas estão sem dados de negócio.
+  4. Executar `npm run test:db` (banco `cotaroba_test` já preparado neste ambiente). Em instalação nova, seguir no README a criação do banco e aplicação da migration.
+  5. Executar `npm run dev`, abrir `http://localhost:3000`, conferir a página pública sem login e “Dados insuficientes”. Banco parado não deve impedir essa página.
+- **Pendências/bloqueios:** nenhum bloqueio técnico da F1-T01; aprovação humana pendente. Regiões/categorias de negócio, provedor de autenticação/banco hospedado e política de publicação continuam abertos para as etapas apropriadas. Banco local foi deixado saudável; dados persistem no volume e nenhum servidor Next.js ficou em execução.
+- **Aprovação do usuário:** PENDENTE para F1-T01; F0-T01 já validada explicitamente.
+- **Próximo passo autorizado:** parar e aguardar validação explícita da F1-T01. Não iniciar F2-T01 automaticamente.

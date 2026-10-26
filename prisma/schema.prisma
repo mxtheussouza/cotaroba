@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Region {
+  id              String           @id @default(uuid()) @db.Uuid
+  name            String           @unique @db.VarChar(120)
+  slaughterhouses Slaughterhouse[]
+  quotes          Quote[]
+}
+
+model CattleCategory {
+  id     String  @id @default(uuid()) @db.Uuid
+  name   String  @unique @db.VarChar(120)
+  quotes Quote[]
+}
+
+model Slaughterhouse {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @db.VarChar(160)
+  regionId  String   @db.Uuid
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  region Region  @relation(fields: [regionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  quotes Quote[]
+
+  @@index([regionId])
+}
+
+/// Private historical records. Publication requires an approved aggregation policy.
+/// Quote changes must append a record rather than overwrite a previous price.
+model Quote {
+  id               String   @id @default(uuid()) @db.Uuid
+  slaughterhouseId String   @db.Uuid
+  // Preserve the region of the quote even if the slaughterhouse moves later.
+  regionId         String   @db.Uuid
+  categoryId       String   @db.Uuid
+  /// BRL per arroba (R$/@); positivity is enforced by the SQL migration.
+  pricePerArroba   Decimal  @db.Decimal(12, 2)
+  referenceDate    DateTime @db.Date
+  createdAt        DateTime @default(now()) @db.Timestamptz(3)
+
+  slaughterhouse Slaughterhouse @relation(fields: [slaughterhouseId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  region         Region         @relation(fields: [regionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  category       CattleCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([slaughterhouseId, referenceDate, createdAt])
+  @@index([regionId, categoryId, referenceDate])
+  @@index([categoryId])
+}

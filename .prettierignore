@@ -6,6 +6,7 @@ playwright-report/
 test-results/
 package-lock.json
 next-env.d.ts
+src/generated/prisma/
 # Preserve the original project contract and its append-only history.
 AGENTS.md
 CODEX_START_PROMPT.md
