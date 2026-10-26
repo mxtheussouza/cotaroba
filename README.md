@@ -1,6 +1,6 @@
 # Cotaroba
 
-Observatório pecuário da Bahia: portal público de indicadores regionais
+Observatório pecuário da Bahia: portal de indicadores regionais
 consolidados. As cotações individuais dos frigoríficos são privadas.
 
 ## Estado da implementação
