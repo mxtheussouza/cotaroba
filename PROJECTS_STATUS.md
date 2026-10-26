@@ -4,21 +4,22 @@
 
 ## Estado atual
 - Data de referência: 2026-10-26.
-- Fase atual: **F1 — banco e modelo inicial**.
-- Etapa atual: **F1-T01 — IMPLEMENTADA_AGUARDANDO_VALIDACAO**.
-- Aprovação do usuário: **F0-T01 VALIDADA**; validação da F1-T01 **PENDENTE**.
-- Implementações concluídas: **F0-T01 VALIDADA** pelo usuário em 2026-10-26; **F1-T01 implementada e verificada**, aguardando validação humana.
+- Fase atual: **F2 — login e permissões**.
+- Etapa atual: **F2-T01 — IMPLEMENTADA_AGUARDANDO_VALIDACAO**.
+- Aprovação do usuário: **F0-T01 e F1-T01 VALIDADAS**; validação final da F2-T01 **PENDENTE**.
+- Implementações concluídas: **F0-T01 e F1-T01 VALIDADAS** em 2026-10-26; **F2-T01 implementada e verificada**, aguardando validação humana.
 - Commit da F0-T01: `d42c693` — `chore(setup): initialize Next.js project foundation`.
-- Testes da F1-T01: geração/validação Prisma, migrations em bancos novos e reaplicação, oito testes de integração, três verificações negativas do alvo de testes, instalação limpa sem URL do banco, lint/typecheck/formatação/build/auditoria npm e HTTP em produção com PostgreSQL parado; resultados reais no histórico.
-- Commit da F1-T01: `feat(database): add PostgreSQL schema and initial migration`; hash: consultar Git após o commit.
-- Próxima ação: usuário testar e validar explicitamente a F1-T01; F2-T01 não iniciada.
+- Testes da F2-T01: **17 testes de autenticação + 8 de banco aprovados**; bootstrap em terminal com senha mascarada, lint/typecheck/formatação/build/auditoria npm, instalação limpa sem segredos, Chrome/axe em desenvolvimento e produção e portal público com banco parado. Resultados reais abaixo.
+- Commit da F1-T01: `c9650fd` — `feat(database): add PostgreSQL schema and initial migration`.
+- Commit da F2-T01: `feat(auth): add login and role-based access`; hash: consultar Git após o commit.
+- Próxima ação: usuário criar seu primeiro acesso local, testar e validar explicitamente a F2-T01; F3-T01 não iniciada.
 
 ## Quadro de etapas
 | ID | Etapa | Estado | Commit | Validação do usuário |
 |---|---|---|---|---|
 | F0-T01 | Inspeção e fundação do projeto | VALIDADA | `d42c693` | CONFIRMADA em 2026-10-26 |
-| F1-T01 | Banco e modelo inicial | IMPLEMENTADA_AGUARDANDO_VALIDACAO | `feat(database)`; hash: consultar Git | PENDENTE |
-| F2-T01 | Login e permissões | PENDENTE | — | PENDENTE |
+| F1-T01 | Banco e modelo inicial | VALIDADA | `c9650fd` | CONFIRMADA em 2026-10-26 |
+| F2-T01 | Login e permissões | IMPLEMENTADA_AGUARDANDO_VALIDACAO | `feat(auth)`; hash: consultar Git | PENDENTE |
 | F3-T01 | Gestor: cadastro de frigoríficos | PENDENTE | — | PENDENTE |
 | F4-T01 | Frigorífico: cadastro/atualização de cotações | PENDENTE | — | PENDENTE |
 | F5-T01 | Agregação regional e consulta pública | PENDENTE | — | PENDENTE |
@@ -36,12 +37,13 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - Next.js + TypeScript, PostgreSQL, Prisma, deploy planejado na Vercel.
 - Produto simples: sem marketplace, IA, microserviços ou alertas avançados no MVP.
 - Cada etapa é implementada, testada, commitada e submetida à validação humana **antes** da seguinte.
+- Autenticação por e-mail/senha com Better Auth e sessões PostgreSQL; sem cadastro público ou serviço externo de autenticação.
 
 ## Questões ainda abertas
 - Nome/identidade visual definitiva.
 - Regiões e categorias comerciais iniciais.
 - Critérios seguros de publicação agregada e eventual revisão concorrencial.
-- Provedores hospedados de banco/autenticação e credenciais de produção; desenvolvimento já usa PostgreSQL local.
+- Provedor hospedado do banco, domínio HTTPS e segredos de produção; desenvolvimento usa PostgreSQL local e Better Auth com sessões no banco.
 - Licenças e endpoints das fontes externas.
 - Parâmetros e fórmulas comerciais do simulador.
 
@@ -191,3 +193,77 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - **Pendências/bloqueios:** nenhum bloqueio técnico da F1-T01; aprovação humana pendente. Regiões/categorias de negócio, provedor de autenticação/banco hospedado e política de publicação continuam abertos para as etapas apropriadas. Banco local foi deixado saudável; dados persistem no volume e nenhum servidor Next.js ficou em execução.
 - **Aprovação do usuário:** PENDENTE para F1-T01; F0-T01 já validada explicitamente.
 - **Próximo passo autorizado:** parar e aguardar validação explícita da F1-T01. Não iniciar F2-T01 automaticamente.
+
+### 2026-10-26 — F1-T01 — Validação humana
+- **Estado:** VALIDADA.
+- **Aprovação do usuário:** “Aprovado! Pode prosseguir.” em 2026-10-26.
+- **Commit validado:** `c9650fd` — `feat(database): add PostgreSQL schema and initial migration`.
+- **Arquivos alterados:** este status, preservando o histórico.
+- **Próximo passo autorizado:** somente F2-T01.
+
+### 2026-10-26 — F2-T01 — Inspeção e início
+- **Estado:** EM_ANDAMENTO.
+- **Critérios de aceite:** login/logout, sessões persistidas e áreas mínimas de gestor/frigorífico protegidas por verificação no servidor; visitante sem acesso privado; permissões e bloqueios testados.
+- **Inspeção:** Git limpo em `main`, commit `c9650fd`; PostgreSQL local saudável. Contrato e especificações relidos.
+- **Plano e arquivos esperados:** schema/migration de autenticação, `src/features/auth/`, rotas de login/autenticação/áreas privadas, bootstrap local do primeiro gestor, testes, README, ambiente de exemplo e este status.
+- **Decisão técnica:** Better Auth estável `1.7.13`, com suporte declarado a Next.js 16/Prisma 7, email/senha e sessões PostgreSQL; Auth.js v5 permanece beta. Sem serviço pago/OAuth/cadastro público; nenhuma implementação de CRUD da F3-T01.
+- **Testes:** verificação inicial do Git e saúde do banco; testes da implementação pendentes.
+- **Commit:** não realizado.
+- **Aprovação do usuário:** execução autorizada; conclusão aguarda validação.
+
+### 2026-10-26 — F2-T01 — Login, sessões e permissões
+- **Estado:** IMPLEMENTADA_AGUARDANDO_VALIDACAO.
+- **Objetivo e critérios de aceite:** login/logout e sessões persistentes, páginas privadas mínimas para gestor e frigorífico, bloqueio de visitantes e de perfis sem permissão, verificações no servidor e testes pertinentes. Somente F2-T01 implementada.
+- **Arquivos alterados/criados:**
+  - `prisma/schema.prisma`, `prisma/migrations/20261026185225_auth/migration.sql`: `UserRole`, `User`, `Session`, `Account`, `Verification`, `RateLimit`, relações, índices, unicidade e CHECKs de vínculo/e-mail. Modelos de domínio da F1 preservados, com relação reversa de usuários no frigorífico.
+  - `src/features/auth/{auth.ts,authorization.ts,session.ts,schema.ts}`: provedor local, ambiente/validação Zod, sessões, consulta de identidade e guards no servidor.
+  - `src/features/auth/{client.ts,login-form.tsx,logout-button.tsx,private-area.tsx}`: formulário com labels/autocomplete, feedback em português, logout e área privada mínima.
+  - `src/features/auth/bootstrap.ts`, `scripts/create-manager.ts`: criação local e transacional do primeiro gestor, com senha mascarada e hash do provedor.
+  - `src/app/login/page.tsx`, `src/app/acesso/page.tsx`, `src/app/acesso-negado/page.tsx`, `src/app/(private)/{layout.tsx,gestor/page.tsx,frigorifico/page.tsx}`, `src/app/api/auth/[...all]/route.ts`: páginas e endpoints desta etapa. Robots noindex para login/áreas privadas; cada página privada chama seu guard.
+  - `src/app/page.tsx`: link funcional “Entrar” no cabeçalho público, preservando a consulta pública e o estado vazio.
+  - `tests/auth.test.ts`, `tests/helpers/{database.ts,auth-fixtures.ts}`, `tests/database.test.ts`: 17 testes de autenticação, fixtures isoladas e guard de banco de teste compartilhado com os oito testes anteriores.
+  - `package.json`, `package-lock.json`: Better Auth `1.7.13`, Zod `4.6.7`, `@inquirer/password` `5.2.4` e comandos `auth:create-manager`/`test:auth`.
+  - `.env.example`, `README.md`, `PROJECTS_STATUS.md`: configuração sem segredo real, arquitetura, limitações desta etapa, roteiro manual, aprovação da F1 e resultados reais da F2.
+- **Implementação e decisões:**
+  - Better Auth estável com adapter Prisma, usando o PostgreSQL já existente, sem serviço pago/OAuth/envio de e-mails. A especificação permite escolher biblioteca madura compatível no momento da implementação; Auth.js v5 estava em beta (`5.0.0-beta.32`), enquanto Better Auth `1.7.13` declara compatibilidade com Next.js 16 e Prisma 7. Referências: https://better-auth.com/docs/adapters/prisma e https://authjs.dev/getting-started.
+  - Cadastro público desabilitado no provedor. O Route Handler expõe apenas POST `/api/auth/sign-in/email` e POST `/api/auth/sign-out`; outros caminhos/métodos recebem 404. Consulta de sessão ocorre internamente no servidor. Nenhum endpoint de cadastro, alteração de perfil, listagem de sessões ou administração de usuários foi publicado.
+  - Login usa cliente HTTP do provedor para que o ratelimit se aplique. Chamadas diretas `auth.api` não recebem o ratelimit nativo e não são usadas para login em Server Action. Origem confiável única e explícita; CSRF/origem tratados pelo provedor. Referência: https://better-auth.com/docs/concepts/rate-limit.
+  - Senhas com 12–128 caracteres no provisionamento, hash/verificação fornecidos pelo Better Auth; sem implementação própria de criptografia. Primeiro gestor criado apenas por comando local com senha mascarada, fora dos argumentos, arquivos e logs. Lock transacional PostgreSQL e verificação de gestor existente impedem bootstrap duplicado.
+  - Nenhum usuário/senha padrão ou gestor real criado automaticamente. Gerado segredo aleatório de 32 bytes em `.env` local, ignorado no Git; origem local `http://localhost:3000`. Provedor exige segredo de pelo menos 32 caracteres e HTTPS fora de loopback; telemetria desabilitada. Segredos de produção continuam reservados ao deploy.
+  - Sessão no banco, validade máxima de oito horas, sem renovação ou cache de permissões no cookie. Hook limita também sessões `rememberMe=false`, para as quais o provedor usa um dia por padrão. Cookies HttpOnly/SameSite=Lax e Secure quando a origem é HTTPS. Logout remove a sessão e invalida replay do cookie.
+  - Papel, situação e vínculo não são entradas aceitas do usuário e não são retornados desnecessariamente pelo provedor. Após validar sessão, o servidor consulta o usuário e o frigorífico atuais no banco. Desativação ou alteração de papel vale na próxima requisição protegida; não confiar em cookies/JWT/clientes para autorização.
+  - Gestor sem vínculo com frigorífico; usuário de frigorífico obrigatoriamente vinculado por FK, com CHECK SQL para impedir combinações inconsistentes. E-mail normalizado por validação e CHECK SQL. Nome/identidade exibidos apenas ao próprio usuário autenticado.
+  - Cada página privada verifica seu papel, além de qualquer layout: visitante/inativo → `/login`; papel incorreto → `/acesso-negado`. Helper de autorização também distingue 401/403 para operações futuras. Nenhum CRUD da F3, formulário de cotação ou leitura pública de preços individuais implementado.
+  - Ratelimit ativo inclusive em desenvolvimento: cinco tentativas de login por minuto por IP e limite geral de 30 requisições/minuto, com contador PostgreSQL atômico e sem Redis/fila. Conferir cabeçalhos confiáveis/proxy na F8-T01 antes da publicação; não assumir que cabeçalhos arbitrários do cliente sejam confiáveis em produção.
+  - UI mínima com HTML semântico/Tailwind e tokens existentes; sem camada genérica de componentes antecipada. Páginas privadas não têm funcionalidades futuras simuladas. O portal continua estático e independente do banco.
+- **Testes executados (comando → resultado):**
+  - Inspeção `git status --short --branch`, `git log -3 --oneline` e `docker compose ps` → repositório inicialmente limpo em `c9650fd`, PostgreSQL saudável.
+  - `npm exec -- prisma format --config prisma7.config.ts`, `npm run db:generate`, `npm run db:validate` → exit 0; schema válido e cliente gerado. Migration SQL revisada antes de aplicar; relação indevida introduzida na primeira edição do schema removida nessa revisão, sem aplicação no banco.
+  - `npm run db:migrate -- --name auth --create-only`, revisão SQL, `npm run db:migrate` → migration `20261026185225_auth` criada/aplicada com sucesso em desenvolvimento. `DATABASE_URL=postgresql://cotaroba:cotaroba_local@127.0.0.1:5433/cotaroba_test npm run db:deploy` → exit 0, mesma migration aplicada no banco de testes.
+  - `npm run db:status` → exit 0; duas migrations, schema atualizado. `npm run db:deploy` repetido ao final → exit 0, nenhuma migration pendente.
+  - `npm run test:auth` → exit 0, **17/17 aprovados**, zero falhas/skips: hash/primeiro gestor e recusa de segundo bootstrap; visitante; login de gestor/cookie; duas identidades de frigorífico com campos adulterados; senha/e-mail incorretos com mesma resposta; cookie adulterado; expiração; logout/replay; usuário/frigorífico inativos; alteração de papel; endpoints não autorizados; origem externa; seis tentativas simultâneas (cinco 401 e uma 429); CHECK SQL de vínculo; configuração segura; cookie Secure em origem HTTPS.
+  - `npm run test:db` → exit 0, **8/8 aprovados**, sem regressão nas restrições de preço/histórico/referências da F1. Guard de banco compartilhado exige loopback, nome `_test` diferente do desenvolvimento e recusa parâmetros/fragmentos de conexão.
+  - `python3 /tmp/cotaroba-f0-qa.T9svgM/bootstrap-pty.py` → exit 0; comando real `auth:create-manager` executado em PTY contra banco de testes, senha mascarada e ausente da saída/argumentos. Usuário sintético removido ao final, com cascade de credenciais/sessões.
+  - `env -u DATABASE_URL -u BETTER_AUTH_SECRET -u BETTER_AUTH_URL DOTENV_CONFIG_PATH=/dev/null npm ci` → exit 0; 525 pacotes instalados, cliente gerado sem URLs/segredos de autenticação ou conexão ao banco. Avisos transitivos já conhecidos do ESLint e de scripts não cobertos pela política local npm, sem flags de contorno ou alteração dessa política.
+  - `npm run format`, `npm run format:check`, `npm run lint`, `npm run typecheck` → exit 0 nas versões finais. Primeira verificação TypeScript detectou tipo de ambiente excessivamente restrito e array de fixtures sem anotação; ambos corrigidos e verificações repetidas com sucesso.
+  - `npm audit --audit-level=moderate` → exit 0, zero vulnerabilidades reportadas.
+  - `DATABASE_URL=postgresql://cotaroba:cotaroba_local@127.0.0.1:5433/cotaroba_test npm run dev -- --hostname 127.0.0.1 --port 3000` + `node --conditions=react-server --env-file-if-exists=.env --import tsx /tmp/cotaroba-f0-qa.T9svgM/auth-browser.mts` → exit 0 no QA: login real de gestor e dois frigoríficos, identidade própria, sessão após reload, bloqueio de visitante e perfil trocado, logout, cache privado `no-store`, sem erros JS/HTTP inesperados. Servidor dev encerrado após verificação.
+  - `node /tmp/cotaroba-f0-qa.T9svgM/smoke.cjs http://localhost:3000` → exit 0; portal público HTTP 200, estado vazio, estilo, responsividade, teclado e zero violações axe detectadas após inclusão do link de login.
+  - `npm run build` → exit 0; compilação, TypeScript e prerender concluídos. Portal e acesso negado estáticos; login, encaminhamento, API e duas áreas privadas dinâmicos.
+  - `BETTER_AUTH_URL=http://localhost:3001 DATABASE_URL=postgresql://cotaroba:cotaroba_local@127.0.0.1:5433/cotaroba_test npm start -- --hostname 127.0.0.1 --port 3001` + `QA_ORIGIN=http://localhost:3001 node --conditions=react-server --env-file-if-exists=.env --import tsx /tmp/cotaroba-f0-qa.T9svgM/auth-browser.mts` → exit 0; mesmas jornadas verificadas em produção local, sem erros inesperados.
+  - QA Chrome/Playwright com axe em desenvolvimento e produção → login, gestor e frigorífico conferidos em **320/390/1280px**, sem rolagem horizontal e zero violações WCAG 2/2.1 A/AA detectadas. Capturas inspecionadas visualmente. Ferramentas/capturas temporárias fora do Git; fixtures somente no banco de testes, sem cotações.
+  - `docker compose stop db` + requisição Python `urllib.request.urlopen('http://localhost:3001')` → portal HTTP 200 e “Dados insuficientes” com PostgreSQL parado, sem URL do banco no HTML. Aplicação encerrada; `docker compose up -d --wait db` → saudável novamente.
+  - SQL de contagens finais via `docker compose exec -T db psql` → desenvolvimento: zero usuários/credenciais/sessões/cotações; testes: zero usuários/credenciais/sessões/regiões/frigoríficos/cotações após limpeza. Nenhuma credencial ou cotação de negócio inventada. Removidos também os dois contadores de loopback do QA no banco de testes; contagem final de `RateLimit`: zero.
+  - `git check-ignore .env src/generated/prisma/client.ts` → arquivos ignorados. Logs WARN/ERROR de senha incorreta/origem externa durante casos negativos são resultados esperados do provedor, sem exposição de senhas.
+- **Testes não executados e motivo:** deploy, terminação TLS real e proxy de produção aguardam F8-T01. Fluxos de cadastro do gestor, cotações e isolamento dessas operações aguardam F3/F4; nesta etapa o vínculo autenticado e o acesso às páginas foram testados. Auditoria automatizada não substitui validação manual; outros navegadores não foram testados.
+- **Commit Conventional Commits:** `feat(auth): add login and role-based access`; hash: consultar Git após a criação. Código, migration, testes e este status no mesmo commit; hash real informado na entrega.
+- **Como validar manualmente:**
+  1. Com `.env` configurado conforme README e Docker iniciado: `npm ci`, `docker compose up -d --wait db`, `npm run db:deploy`. O segredo local já está configurado neste workspace e não é versionado.
+  2. Executar `npm run auth:create-manager -- seu-email@exemplo.com "Seu nome"` em terminal interativo; escolher senha de 12–128 caracteres. Se já criou o primeiro gestor, usar o acesso existente; não há senha padrão.
+  3. Executar `npm run dev`, abrir `http://localhost:3000` sem login e conferir consulta pública. Acessar `/gestor` e `/frigorifico` diretamente deve encaminhar ao login.
+  4. Tentar senha incorreta e conferir mensagem genérica; entrar com a senha escolhida deve abrir `/gestor`. Recarregar a página mantém sessão. Acessar `/frigorifico` com gestor nega entrada.
+  5. Clicar “Sair”; novo acesso a `/gestor` deve exigir login. Conferir por teclado/celular. Exceder cinco tentativas/minuto apresenta feedback de espera.
+  6. Executar `npm run test:auth` e `npm run test:db` no banco separado já preparado. A jornada de frigorífico usa fixtures neste estágio; provisionamento pelo gestor na interface pertence à F3-T01.
+- **Pendências/bloqueios:** nenhum bloqueio técnico da F2-T01. Validação humana pendente. Primeiro usuário de negócio será provisionado pelo operador com suas credenciais, pelo comando entregue. PostgreSQL deixado saudável, sem servidor Next.js em execução. Cadastro/gestão de usuários/frigoríficos, cotações e deploy permanecem nas etapas apropriadas.
+- **Aprovação do usuário:** execução autorizada; **entrega final da F2-T01 PENDENTE** de validação explícita.
+- **Próximo passo autorizado:** parar e aguardar teste/validação da F2-T01. Não iniciar F3-T01 automaticamente.

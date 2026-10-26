@@ -5,13 +5,12 @@ consolidados. As cotações individuais dos frigoríficos são privadas.
 
 ## Estado da implementação
 
-A F0-T01 foi validada pelo usuário. A F1-T01 acrescenta PostgreSQL local,
-Prisma e a migration inicial. O histórico e a aprovação de cada etapa estão em
+F0-T01 e F1-T01 foram validadas pelo usuário. A F2-T01 acrescenta login,
+sessões PostgreSQL e permissões de gestor/frigorífico com Better Auth. O histórico e a aprovação de cada etapa estão em
 [PROJECTS_STATUS.md](./PROJECTS_STATUS.md).
 
 A página pública continua simples, em português e sem dados de mercado,
-exibindo “Dados insuficientes”. Banco e modelos não estão expostos por API ou
-formulários nesta etapa.
+exibindo “Dados insuficientes”. Cotações não são expostas por API ou formulários nesta etapa.
 
 ## Requisitos e execução local
 
@@ -42,7 +41,7 @@ ambiente têm precedência. Não versione `.env` nem credenciais reais.
 `npm ci` gera o cliente Prisma via `postinstall`; não exige conexão com banco.
 A página pública e seu build também continuam independentes de PostgreSQL.
 
-## Modelo inicial
+## Modelo do domínio
 
 | Modelo           | Finalidade                                                                        |
 | ---------------- | --------------------------------------------------------------------------------- |
@@ -60,11 +59,11 @@ As relações impedem excluir cadastros ainda referenciados. A região de cada
 cotação fica preservada mesmo se a região atual do frigorífico mudar.
 O modelo comporta vários registros históricos; a futura operação de atualização
 de cotações deverá acrescentar registros, preservando os anteriores. A política
-de escrita e a autoria serão tratadas nas etapas de autenticação e cotações.
+de escrita e a autoria das cotações serão tratadas na F4-T01.
 
 Nenhuma região, categoria ou cotação de negócio é criada automaticamente.
-Usuários/sessões, dados externos e indicadores serão modelados nas respectivas
-etapas, conforme o provedor de autenticação e as regras aprovadas.
+Dados externos e indicadores serão modelados nas respectivas etapas, conforme
+as regras aprovadas. Os modelos de autenticação estão descritos abaixo.
 
 ## Migrations e Prisma
 
@@ -94,6 +93,87 @@ Não importe esse módulo em componentes cliente. A página pública não o util
 Para conferir os modelos no banco de desenvolvimento, execute `npm run db:studio`
 e abra o endereço local indicado pelo comando. Nesta etapa, as tabelas estarão
 vazias. Não use credenciais de produção nesse fluxo local.
+
+## Login, sessões e permissões
+
+A autenticação usa Better Auth `1.7.13` e o adapter Prisma. Sem cadastro público,
+OAuth ou envio de e-mails nesta etapa. `/login` aceita e-mail e senha; o papel e
+o frigorífico são definidos no servidor, sem seletor de perfil no formulário.
+
+No `.env`, configure a origem exata da aplicação e um segredo privado de pelo
+menos 32 caracteres:
+
+```dotenv
+BETTER_AUTH_URL="http://localhost:3000"
+BETTER_AUTH_SECRET=""
+```
+
+Gere um segredo com o comando abaixo e substitua o campo vazio do `.env` pelo
+valor gerado. Não use o texto do exemplo como segredo nem versione o arquivo:
+
+```sh
+node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
+```
+
+Nenhum usuário de negócio é criado automaticamente. Use a mesma origem de `BETTER_AUTH_URL` no
+navegador: `localhost` e `127.0.0.1` representam origens diferentes. Fora de
+loopback, a configuração exige HTTPS, e o cookie recebe o atributo Secure.
+
+Com o banco migrado, crie **somente o primeiro gestor** no terminal:
+
+```sh
+npm run auth:create-manager -- seu-email@exemplo.com "Seu nome"
+```
+
+O comando solicita uma senha de 12 a 128 caracteres com entrada mascarada.
+A senha não vai em argumentos, arquivo ou logs; é persistido somente o hash do
+Better Auth. O bootstrap recusa criar outro gestor quando já existe um, com
+transação e lock PostgreSQL para impedir duas criações simultâneas. Nenhum
+endpoint público invoca esse comando. A criação dos acessos de frigorífico pela
+interface pertence à F3-T01.
+
+Entre em <http://localhost:3000/login>. `/acesso` encaminha ao destino do perfil:
+`/gestor` ou `/frigorifico`. Cada página privada verifica a sessão e a permissão
+no servidor. Perfil incorreto é encaminhado a `/acesso-negado`; visitante e
+acesso desativado são encaminhados ao login. Não há CRUD ou cotações privadas
+nessas páginas ainda.
+
+As sessões duram no máximo oito horas, sem renovação automática nem cache de
+permissões no cookie. O cookie é HttpOnly e SameSite=Lax. Logout exclui a sessão
+persistida; replay do cookie antigo é recusado. O usuário e o frigorífico são
+consultados novamente em cada requisição protegida: desativação ou alteração
+do papel tem efeito imediato na próxima requisição ao servidor.
+
+O login tem limite de cinco tentativas por minuto por IP, inclusive em
+desenvolvimento, com contadores atômicos no PostgreSQL. Na publicação, o proxy
+precisa fornecer um IP confiável e sanitizar cabeçalhos encaminhados; essa
+configuração deverá ser conferida na F8-T01. A origem é validada pelo Better Auth
+para impedir ações de autenticação vindas de outros sites.
+
+Modelos privados adicionais: `User` (papel/situação/vínculo), `Account` (hash de
+senha), `Session`, `Verification` (estrutura exigida pelo provedor) e `RateLimit`.
+O SQL exige que o gestor não tenha frigorífico, que o usuário de frigorífico
+tenha um vínculo válido e que o e-mail esteja normalizado. Campos de papel,
+situação e vínculo não são aceitos como entrada pelo provedor.
+
+Os únicos endpoints HTTP expostos do provedor são POST `/api/auth/sign-in/email`
+e POST `/api/auth/sign-out`. A consulta de sessão é interna ao servidor.
+Operações privadas futuras deverão chamar `requireRole` ou a verificação
+correspondente em cada operação, além de derivar o frigorífico da identidade
+autenticada; proteger apenas layout ou esconder botões não é autorização.
+
+Para executar os testes de autenticação com o banco separado já migrado:
+
+```sh
+npm run test:auth
+```
+
+As fixtures são sintéticas, limitadas ao banco local `_test` e removidas ao final.
+Cobrem os dois perfis, dois frigoríficos, sessões, bloqueios, origem, ratelimit e
+restrições SQL. Nenhuma cotação é criada por essas fixtures. O primeiro bootstrap
+de testes requer que não exista gestor nesse banco; uma interrupção de testes
+pode exigir revisar e limpar as fixtures restantes exclusivamente no banco de
+testes antes de repetir.
 
 ## Testes de banco
 
@@ -144,7 +224,9 @@ npm start
 ```text
 prisma/         # Schema e migrations SQL versionadas
 prisma7.config.ts
-src/app/        # Layout, página inicial, estilos e ícone
+src/app/        # Páginas públicas/privadas e endpoints de login/logout
+src/features/   # Autenticação, autorização e seus componentes
+scripts/        # Bootstrap local do primeiro gestor
 src/lib/db.ts   # Acesso ao banco somente no servidor
 src/generated/  # Cliente Prisma gerado, fora do Git
 tests/          # Testes de integração com PostgreSQL real
@@ -156,12 +238,31 @@ para `src/*`. Novos módulos serão criados conforme cada etapa aprovada,
 mantendo UI, domínio, persistência e integrações separados. A fonte usa a pilha
 sans-serif do sistema, sem downloads externos no build.
 
-## Teste manual da F1-T01
+## Teste manual da F2-T01
+
+1. Execute `npm ci`, `docker compose up -d --wait db` e `npm run db:deploy`.
+   Configure as variáveis de autenticação descritas acima.
+2. Crie o primeiro gestor com `npm run auth:create-manager -- seu-email@exemplo.com "Seu nome"`.
+   Se já tiver criado, use esse acesso; o comando recusa um segundo bootstrap.
+3. Inicie `npm run dev` e abra <http://localhost:3000> sem login; a consulta deve
+   continuar pública. Acesse `/gestor` e `/frigorifico` diretamente: ambos devem
+   encaminhar ao login.
+4. Em `/login`, use uma senha incorreta: deve aparecer uma mensagem genérica.
+   Entre com o acesso correto: deve abrir `/gestor`. Atualize a página e confira
+   a sessão. Acesse `/frigorifico` com esse perfil: deve negar a entrada.
+5. Clique em “Sair” e tente abrir `/gestor` novamente: deve exigir novo login.
+6. Confira login e área privada no celular e por teclado. Se exceder cinco
+   tentativas em um minuto, aguarde antes de tentar novamente.
+7. Prepare/migre `cotaroba_test` conforme abaixo e execute `npm run test:auth` e
+   `npm run test:db`. O perfil frigorífico é verificado com fixtures neste estágio;
+   o cadastro dos acessos pela interface será entregue na F3-T01.
+
+## Conferência do banco (F1-T01)
 
 1. Inicie o banco com `docker compose up -d --wait db`.
 2. Execute `npm ci`, `npm run db:validate`, `npm run db:deploy` e `npm run db:status`.
 3. Confira o status das migrations; repetir `npm run db:deploy` não deve reaplicar a migration.
-4. Use `npm run db:studio` para conferir as quatro entidades e os campos descritos acima.
+4. Use `npm run db:studio` para conferir as quatro entidades de domínio e as cinco tabelas de autenticação descritas acima.
 5. Prepare o banco separado de testes conforme esta documentação e execute `npm run test:db`.
 6. Inicie a aplicação com `npm run dev` e abra <http://localhost:3000> sem login.
    A página deve continuar mostrando “Dados insuficientes”, sem preços individuais.

@@ -30,6 +30,7 @@ model Slaughterhouse {
 
   region Region  @relation(fields: [regionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   quotes Quote[]
+  users  User[]
 
   @@index([regionId])
 }
@@ -54,4 +55,81 @@ model Quote {
   @@index([slaughterhouseId, referenceDate, createdAt])
   @@index([regionId, categoryId, referenceDate])
   @@index([categoryId])
+}
+
+enum UserRole {
+  MANAGER
+  SLAUGHTERHOUSE
+}
+
+model User {
+  id               String   @id @default(uuid()) @db.Uuid
+  name             String   @db.VarChar(160)
+  email            String   @unique @db.VarChar(254)
+  emailVerified    Boolean  @default(false)
+  image            String?
+  role             UserRole
+  isActive         Boolean  @default(true)
+  slaughterhouseId String?  @db.Uuid
+  createdAt        DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime @updatedAt @db.Timestamptz(3)
+
+  slaughterhouse Slaughterhouse? @relation(fields: [slaughterhouseId], references: [id], onDelete: Restrict)
+  sessions       Session[]
+  accounts       Account[]
+
+  @@index([slaughterhouseId])
+}
+
+model Session {
+  id        String   @id @default(uuid()) @db.Uuid
+  token     String   @unique
+  userId    String   @db.Uuid
+  expiresAt DateTime @db.Timestamptz(3)
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Account {
+  id                    String    @id @default(uuid()) @db.Uuid
+  accountId             String
+  providerId            String
+  userId                String    @db.Uuid
+  password              String?
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime? @db.Timestamptz(3)
+  refreshTokenExpiresAt DateTime? @db.Timestamptz(3)
+  scope                 String?
+  createdAt             DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt             DateTime  @updatedAt @db.Timestamptz(3)
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id @default(uuid()) @db.Uuid
+  identifier String
+  value      String
+  expiresAt  DateTime @db.Timestamptz(3)
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([identifier])
+}
+
+model RateLimit {
+  id          String @id @default(uuid()) @db.Uuid
+  key         String @unique
+  count       Int
+  lastRequest BigInt
 }

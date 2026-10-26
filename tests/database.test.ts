@@ -5,6 +5,8 @@ import { after, before, describe, it } from "node:test";
 import { Prisma } from "@/generated/prisma/client";
 import { getDatabase } from "@/lib/db";
 
+import { getTestDatabaseUrl } from "./helpers/database";
+
 const originalDatabaseUrl = process.env.DATABASE_URL;
 let database: ReturnType<typeof getDatabase> | undefined;
 
@@ -59,39 +61,7 @@ function hasCode(code: string) {
 
 describe("PostgreSQL / Prisma", { concurrency: false }, () => {
   before(() => {
-    const testUrl = process.env.TEST_DATABASE_URL;
-    if (!testUrl) {
-      throw new Error(
-        "Configure TEST_DATABASE_URL para um banco local separado.",
-      );
-    }
-
-    let url: URL;
-    let databaseName: string;
-    let developmentDatabaseName: string | undefined;
-
-    try {
-      url = new URL(testUrl);
-      databaseName = decodeURIComponent(url.pathname.slice(1));
-      developmentDatabaseName = originalDatabaseUrl
-        ? decodeURIComponent(new URL(originalDatabaseUrl).pathname.slice(1))
-        : undefined;
-    } catch {
-      throw new Error("Configure URLs PostgreSQL válidas para os testes.");
-    }
-
-    if (
-      !["postgres:", "postgresql:"].includes(url.protocol) ||
-      !["localhost", "127.0.0.1", "[::1]"].includes(url.hostname) ||
-      !databaseName.endsWith("_test") ||
-      databaseName === developmentDatabaseName
-    ) {
-      throw new Error(
-        "Os testes exigem banco local com sufixo _test, diferente do banco de desenvolvimento.",
-      );
-    }
-
-    process.env.DATABASE_URL = testUrl;
+    process.env.DATABASE_URL = getTestDatabaseUrl();
   });
 
   after(async () => {

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function HomePage() {
   return (
     <>
@@ -9,17 +11,27 @@ export default function HomePage() {
       </a>
 
       <header className="border-b border-border bg-surface">
-        <div className="mx-auto flex max-w-[1200px] items-center gap-3 px-6 py-6">
-          <span
-            aria-hidden="true"
-            className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-xl font-bold text-primary-foreground"
-          >
-            C
-          </span>
-          <div>
-            <p className="text-xl font-bold tracking-tight">Cotaroba</p>
-            <p className="text-sm text-muted">Observatório pecuário da Bahia</p>
+        <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4 px-6 py-6">
+          <div className="flex items-center gap-3">
+            <span
+              aria-hidden="true"
+              className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-xl font-bold text-primary-foreground"
+            >
+              C
+            </span>
+            <div>
+              <p className="text-xl font-bold tracking-tight">Cotaroba</p>
+              <p className="text-sm text-muted">
+                Observatório pecuário da Bahia
+              </p>
+            </div>
           </div>
+          <Link
+            href="/login"
+            className="rounded-xl px-3 py-2 text-sm font-semibold text-primary hover:bg-secondary"
+          >
+            Entrar
+          </Link>
         </div>
       </header>
 
