@@ -14,6 +14,7 @@ import { idSchema } from "./schema";
 import { consumeManagementRateLimit } from "./rate-limit";
 import {
   createAccess,
+  createCategory,
   createRegion,
   createSlaughterhouse,
   ManagementError,
@@ -38,7 +39,7 @@ async function submit(
   operation: (actorId: string) => Promise<string>,
   fallback: string,
   message: string,
-  validationCode: "dados" | "nome-regiao" = "dados",
+  validationCode: "dados" | "nome-regiao" | "nome-categoria" = "dados",
 ) {
   const actorId = await managerId();
   let destination: string;
@@ -78,6 +79,18 @@ export async function createRegionAction(form: FormData) {
     "/gestor/regioes",
     "regiao-criada",
     "nome-regiao",
+  );
+}
+
+export async function createCategoryAction(form: FormData) {
+  await submit(
+    async (actorId) => {
+      await createCategory(getDatabase(), actorId, { name: form.get("name") });
+      return "/gestor/categorias";
+    },
+    "/gestor/categorias",
+    "categoria-criada",
+    "nome-categoria",
   );
 }
 

@@ -17,6 +17,7 @@ model Region {
 
 model CattleCategory {
   id     String  @id @default(uuid()) @db.Uuid
+  // Case-insensitive uniqueness is also enforced in the SQL migration.
   name   String  @unique @db.VarChar(120)
   quotes Quote[]
 }
@@ -41,6 +42,10 @@ model Slaughterhouse {
 /// Quote changes must append a record rather than overwrite a previous price.
 model Quote {
   id               String   @id @default(uuid()) @db.Uuid
+  seriesId         String   @default(uuid()) @db.Uuid
+  version          Int      @default(1)
+  previousQuoteId  String?  @unique @db.Uuid
+  createdById      String?  @db.Uuid
   slaughterhouseId String   @db.Uuid
   // Preserve the region of the quote even if the slaughterhouse moves later.
   regionId         String   @db.Uuid
@@ -53,7 +58,13 @@ model Quote {
   slaughterhouse Slaughterhouse @relation(fields: [slaughterhouseId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   region         Region         @relation(fields: [regionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   category       CattleCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  previousQuote  Quote?         @relation("QuoteRevisions", fields: [previousQuoteId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  nextQuote      Quote?         @relation("QuoteRevisions")
+  createdBy      User?          @relation("QuoteAuthor", fields: [createdById], references: [id], onDelete: Restrict)
 
+  @@unique([seriesId, version])
+  @@index([slaughterhouseId, seriesId, version])
+  @@index([createdById])
   @@index([slaughterhouseId, referenceDate, createdAt])
   @@index([regionId, categoryId, referenceDate])
   @@index([categoryId])
@@ -81,6 +92,7 @@ model User {
   accounts                  Account[]
   performedManagementEvents ManagementEvent[] @relation("ManagementActor")
   accessManagementEvents    ManagementEvent[] @relation("ManagementTarget")
+  authoredQuotes            Quote[]           @relation("QuoteAuthor")
 
   @@index([slaughterhouseId])
 }
@@ -139,6 +151,7 @@ model RateLimit {
 }
 
 enum ManagementAction {
+  CATEGORY_CREATED
   REGION_CREATED
   SLAUGHTERHOUSE_CREATED
   SLAUGHTERHOUSE_UPDATED

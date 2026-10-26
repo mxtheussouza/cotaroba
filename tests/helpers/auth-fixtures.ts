@@ -64,6 +64,19 @@ export async function createAuthFixtures(database: PrismaClient) {
       const createdRegions = events
         .filter((event) => event.action === "REGION_CREATED")
         .map((event) => (event.changes as { after: { id: string } }).after.id);
+      const createdCategories = events
+        .filter((event) => event.action === "CATEGORY_CREATED")
+        .map((event) => (event.changes as { after: { id: string } }).after.id);
+      const companyIds = [
+        ...slaughterhouses.map((company) => company.id),
+        ...createdCompanies,
+      ];
+      await database.quote.deleteMany({
+        where: { slaughterhouseId: { in: companyIds } },
+      });
+      await database.rateLimit.deleteMany({
+        where: { key: { in: companyIds.map((id) => `quotes:${id}`) } },
+      });
       await database.rateLimit.deleteMany({
         where: { key: `management:${manager.id}` },
       });
@@ -85,6 +98,9 @@ export async function createAuthFixtures(database: PrismaClient) {
       await database.region.delete({ where: { id: region.id } });
       await database.region.deleteMany({
         where: { id: { in: createdRegions } },
+      });
+      await database.cattleCategory.deleteMany({
+        where: { id: { in: createdCategories } },
       });
     },
   };

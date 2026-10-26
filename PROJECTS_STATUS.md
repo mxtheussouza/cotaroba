@@ -4,18 +4,18 @@
 
 ## Estado atual
 - Data de referência: 2026-10-26.
-- Fase atual: **F3 — gestão de frigoríficos e acessos**.
-- Etapa atual: **F3-T01 — IMPLEMENTADA_AGUARDANDO_VALIDACAO**.
-- Aprovação do usuário: **F0-T01, F1-T01 e F2-T01 VALIDADAS**; correção da F2-T01 aprovada explicitamente em 2026-10-26.
-- Implementações concluídas: **F0-T01, F1-T01 e F2-T01 VALIDADAS**; **F3-T01 IMPLEMENTADA_AGUARDANDO_VALIDACAO**, com cadastro de regiões autorizado e concluído.
+- Fase atual: **F4 — cotações privadas e histórico próprio**.
+- Etapa atual: **F4-T01 — EM_ANDAMENTO**.
+- Aprovação do usuário: **F0-T01, F1-T01, F2-T01 e F3-T01 VALIDADAS**; F3 confirmada explicitamente em 2026-10-26.
+- Implementações concluídas: **F0-T01 a F3-T01 VALIDADAS**; F4-T01 autorizada e em implementação.
 - Commit da F0-T01: `d42c693` — `chore(setup): initialize Next.js project foundation`.
 - Testes atuais da F2-T01: **27 de autenticação + 8 de banco + 4 de navegador aprovados**; navegador repetido em desenvolvimento e produção, com JavaScript desativado/ativado, POST/Enter, origem canônica e proteção de URLs/logs. Lint, typecheck, formatação, build, instalação limpa e auditoria npm aprovados; detalhes no histórico.
 - Commit da F1-T01: `c9650fd` — `feat(database): add PostgreSQL schema and initial migration`.
 - Commit original da F2-T01: `746e44d` — `feat(auth): add login and role-based access`.
 - Commit da correção validada: `3805007` — `fix(auth): make login work before hydration`.
 - Testes da F3-T01: **19 de gestão + 27 de autenticação + 8 de banco + 8 de navegador aprovados (62 distintos)**; navegador aprovado em desenvolvimento e produção. Lint, typecheck, formatação, validação Prisma e build aprovados.
-- Commit da F3-T01: `feat(slaughterhouses): manage regions, slaughterhouses and accesses`; hash: consultar Git após a criação.
-- Próxima ação: usuário testar e validar explicitamente a F3-T01; F4-T01 não iniciada. A troca local de senha recomendada na F2 não foi confirmada pelo usuário.
+- Commit validado da F3-T01: `7e0b966` — `feat(slaughterhouses): manage regions, slaughterhouses and accesses`.
+- Próxima ação: concluir somente F4-T01 e submeter à validação; usuário pediu pausa no ponto de trabalho ao atingir o limite de uso de 5 horas do Codex. Não iniciar F5. A troca local de senha recomendada na F2 não foi confirmada pelo usuário.
 
 ## Quadro de etapas
 | ID | Etapa | Estado | Commit | Validação do usuário |
@@ -23,8 +23,8 @@
 | F0-T01 | Inspeção e fundação do projeto | VALIDADA | `d42c693` | CONFIRMADA em 2026-10-26 |
 | F1-T01 | Banco e modelo inicial | VALIDADA | `c9650fd` | CONFIRMADA em 2026-10-26 |
 | F2-T01 | Login e permissões | VALIDADA | `746e44d` + correção `3805007` | CONFIRMADA em 2026-10-26 |
-| F3-T01 | Gestor: cadastro de frigoríficos | IMPLEMENTADA_AGUARDANDO_VALIDACAO | `feat(slaughterhouses)`; hash: consultar Git | PENDENTE |
-| F4-T01 | Frigorífico: cadastro/atualização de cotações | PENDENTE | — | PENDENTE |
+| F3-T01 | Gestor: cadastro de frigoríficos | VALIDADA | `7e0b966` | CONFIRMADA em 2026-10-26 |
+| F4-T01 | Frigorífico: cadastro/atualização de cotações | EM_ANDAMENTO | — | PENDENTE |
 | F5-T01 | Agregação regional e consulta pública | PENDENTE | — | PENDENTE |
 | F6-T01 | Integrações externas e cadastro manual | PENDENTE | — | PENDENTE |
 | F7-T01 | Gráficos, indicadores e simulador | PENDENTE | — | PENDENTE |
@@ -45,7 +45,7 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 
 ## Questões ainda abertas
 - Nome/identidade visual definitiva.
-- Categorias comerciais iniciais; regiões serão cadastradas por nome pelo gestor, conforme decisão do usuário em 2026-10-26.
+- Nomes de regiões e categorias comerciais serão definidos pelo gestor nos cadastros autorizados pelo usuário; não há lista predefinida.
 - Critérios seguros de publicação agregada e eventual revisão concorrencial.
 - Provedor hospedado do banco, domínio HTTPS e segredos de produção; desenvolvimento usa PostgreSQL local e Better Auth com sessões no banco.
 - Licenças e endpoints das fontes externas.
@@ -448,3 +448,23 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - **Pendências/bloqueios:** nenhum bloqueio técnico da F3-T01; apenas validação humana explícita pendente. Não há regiões/usuários de frigorífico pré-cadastrados no banco real: gestor os define pelos formulários entregues. Categorias e políticas futuras continuam abertas nos respectivos escopos.
 - **Aprovação do usuário:** PENDENTE para a entrega final da F3-T01. A escolha “1” autorizou o cadastro de regiões; não equivale à aprovação desta entrega completa.
 - **Próximo passo autorizado:** parar e aguardar teste e validação explícita da F3-T01; não iniciar F4-T01 automaticamente.
+
+### 2026-10-26 — F3-T01 — Validação humana e autorização da F4
+- **Estado:** VALIDADA.
+- **Aprovação:** usuário confirmou “Validado, pode iniciar a F4”, com pedido de trabalhar até o limite de uso de 5 horas do Codex e pausar no ponto em que estiver. Esclarecimento recebido: limite de uso do Codex, não 05h nem cinco horas cronometradas desta execução.
+- **Commit validado:** `7e0b966` — `feat(slaughterhouses): manage regions, slaughterhouses and accesses`.
+- **Arquivos:** somente registro no status nesta atividade; histórico preservado.
+- **Testes:** nenhum teste adicional da F3 nesta validação humana; resultados anteriores preservados.
+- **Próximo passo autorizado:** somente F4-T01. F5 não autorizada.
+
+### 2026-10-26 — F4-T01 — Inspeção, plano e decisão de categorias
+- **Estado:** EM_ANDAMENTO.
+- **Inspeção:** Git limpo em `main`, commit `7e0b966`; AGENTS, status e documentos de `docs/` revisados; PostgreSQL saudável e aplicação existente em 3000. Registro de início às 18:10 (Fortaleza) após leitura/definições.
+- **Escopo/critério:** frigorífico cadastra preço em R$/@, data e categoria, atualiza suas próprias cotações sem sobrescrever versões anteriores e consulta histórico próprio. Identidade/vínculo derivados da sessão e rechecados no servidor; região/autoria preservadas; isolamento contra outros frigoríficos/gestor/visitante testado. Sem publicação de preços ou F5.
+- **Decisão de produto:** usuário autorizou “Permitir que o gestor cadastre categorias por nome nesta F4”; mesmo modelo simples das regiões, sem seed de categorias comerciais.
+- **Plano/arquivos:** módulo `src/features/quotes`, páginas privadas de frigorífico e cadastro de categorias pelo gestor, schema/migration de versões/autoria, testes de domínio/autorização/navegador, README e status.
+- **Decisões de implementação:** valores decimais exatos respeitando NUMERIC(12,2); revisão acrescenta registro, mantém região da série e registra autor/instante. Categoria/data/preço corrigíveis com preservação dos valores anteriores. Nenhuma restrição comercial de preço ou lista de categorias será inventada.
+- **Limite solicitado:** manter ponto de retomada no status e pausar ao atingir o limite de uso do Codex; se F4 concluir antes, testar/commitar/submeter e parar, sem avançar. Contador de limite não exposto pelas ferramentas disponíveis; não declarar um horário fictício de esgotamento.
+- **Testes:** inspeções Git, banco, modelos e suítes existentes; testes da F4 pendentes.
+- **Commit:** não realizado; criar somente após conclusão/verificação, ou registrar parcial se ocorrer interrupção.
+- **Aprovação:** execução/categorias autorizadas; entrega final da F4 ainda pendente de validação humana.

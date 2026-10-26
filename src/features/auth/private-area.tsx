@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import type { SessionUser } from "./authorization";
 import { LogoutButton } from "./logout-button";
@@ -6,9 +7,11 @@ import { LogoutButton } from "./logout-button";
 export function PrivateArea({
   user,
   title,
+  children,
 }: {
   user: SessionUser;
   title: string;
+  children?: ReactNode;
 }) {
   return (
     <main className="mx-auto w-full max-w-[1200px] px-6 py-12">
@@ -31,6 +34,7 @@ export function PrivateArea({
           {user.role === "MANAGER" ? "Gestor" : "Frigorífico"}
         </p>
       </section>
+      {children}
       <Link
         href="/"
         className="mt-8 inline-block text-sm font-semibold text-primary underline underline-offset-4"

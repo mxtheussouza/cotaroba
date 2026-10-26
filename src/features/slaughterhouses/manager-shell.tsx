@@ -31,6 +31,12 @@ export function ManagerShell({
         <Link href="/gestor/regioes" className="underline underline-offset-4">
           Regiões
         </Link>
+        <Link
+          href="/gestor/categorias"
+          className="underline underline-offset-4"
+        >
+          Categorias
+        </Link>
         <Link href="/" className="underline underline-offset-4">
           Portal público
         </Link>

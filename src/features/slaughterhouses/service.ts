@@ -5,6 +5,7 @@ import { hashPassword } from "better-auth/crypto";
 
 import { AccessDeniedError } from "@/features/auth/authorization";
 import { Prisma, type PrismaClient } from "@/generated/prisma/client";
+import { categorySchema } from "@/features/quotes/schema";
 
 import {
   accessPasswordSchema,
@@ -24,6 +25,7 @@ export class ManagementError extends Error {
       | "nao-encontrado"
       | "regiao"
       | "regiao-duplicada"
+      | "categoria-duplicada"
       | "email"
       | "inativo"
       | "limite",
@@ -141,6 +143,49 @@ export function listRegions(database: PrismaClient, actorId: string | null) {
       select: { id: true, name: true },
     }),
   );
+}
+
+export function listCategoriesForManager(
+  database: PrismaClient,
+  actorId: string | null,
+) {
+  return asManager(database, actorId, (transaction) =>
+    transaction.cattleCategory.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, name: true },
+    }),
+  );
+}
+
+export async function createCategory(
+  database: PrismaClient,
+  actorId: string,
+  input: unknown,
+) {
+  try {
+    return await asManager(database, actorId, async (transaction) => {
+      const data = categorySchema.parse(input);
+      const category = await transaction.cattleCategory.create({
+        data,
+        select: { id: true, name: true },
+      });
+      await transaction.managementEvent.create({
+        data: {
+          actorId,
+          action: "CATEGORY_CREATED",
+          changes: { after: category },
+        },
+      });
+      return { id: category.id };
+    });
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    )
+      throw new ManagementError("categoria-duplicada");
+    throw error;
+  }
 }
 
 export async function createRegion(

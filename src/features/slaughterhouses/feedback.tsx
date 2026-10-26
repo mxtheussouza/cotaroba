@@ -1,4 +1,7 @@
 const errors: Record<string, string> = {
+  "nome-categoria": "Informe um nome de categoria com 1 a 120 caracteres.",
+  "categoria-duplicada":
+    "Já existe uma categoria com esse nome. Use a categoria cadastrada.",
   "nome-regiao": "Informe um nome de região com 1 a 120 caracteres.",
   dados:
     "Confira os campos: nome obrigatório, região válida, e-mail válido e senha de 12 a 128 caracteres, quando solicitada. Preencha novamente o formulário.",
@@ -14,6 +17,8 @@ const errors: Record<string, string> = {
 };
 
 const notices: Record<string, string> = {
+  "categoria-criada":
+    "Categoria cadastrada. Ela já está disponível para as cotações dos frigoríficos.",
   "regiao-criada":
     "Região cadastrada. Ela já está disponível para os frigoríficos.",
   "frigorifico-criado":
