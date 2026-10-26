@@ -5,22 +5,22 @@
 ## Estado atual
 - Data de referência: 2026-10-26.
 - Fase atual: **F2 — login e permissões**.
-- Etapa atual: **F2-T01 — IMPLEMENTADA_AGUARDANDO_VALIDACAO (correção do login concluída)**.
-- Aprovação do usuário: **F0-T01 e F1-T01 VALIDADAS**; validação final da F2-T01 **PENDENTE**.
-- Implementações concluídas: **F0-T01 e F1-T01 VALIDADAS**; **F2-T01 corrigida após falha reportada**, aguardando nova validação humana.
+- Etapa atual: **F2-T01 — VALIDADA (correção do login aprovada)**.
+- Aprovação do usuário: **F0-T01, F1-T01 e F2-T01 VALIDADAS**; correção da F2-T01 aprovada explicitamente em 2026-10-26.
+- Implementações concluídas: **F0-T01, F1-T01 e F2-T01 VALIDADAS**; correção do login confirmada pelo usuário.
 - Commit da F0-T01: `d42c693` — `chore(setup): initialize Next.js project foundation`.
 - Testes atuais da F2-T01: **27 de autenticação + 8 de banco + 4 de navegador aprovados**; navegador repetido em desenvolvimento e produção, com JavaScript desativado/ativado, POST/Enter, origem canônica e proteção de URLs/logs. Lint, typecheck, formatação, build, instalação limpa e auditoria npm aprovados; detalhes no histórico.
 - Commit da F1-T01: `c9650fd` — `feat(database): add PostgreSQL schema and initial migration`.
-- Commit original da F2-T01: `746e44d` — `feat(auth): add login and role-based access`; correção em análise.
-- Commit da correção: `fix(auth): make login work before hydration`; hash: consultar Git após o commit.
-- Próxima ação: usuário substituir a senha usada na tentativa anterior pelo comando local, testar o login corrigido e validar a F2-T01; F3-T01 não iniciada.
+- Commit original da F2-T01: `746e44d` — `feat(auth): add login and role-based access`.
+- Commit da correção validada: `3805007` — `fix(auth): make login work before hydration`.
+- Próxima ação: aguardar autorização para iniciar F3-T01; nenhuma etapa seguinte iniciada. A troca local de senha recomendada na entrega não foi confirmada pelo usuário.
 
 ## Quadro de etapas
 | ID | Etapa | Estado | Commit | Validação do usuário |
 |---|---|---|---|---|
 | F0-T01 | Inspeção e fundação do projeto | VALIDADA | `d42c693` | CONFIRMADA em 2026-10-26 |
 | F1-T01 | Banco e modelo inicial | VALIDADA | `c9650fd` | CONFIRMADA em 2026-10-26 |
-| F2-T01 | Login e permissões | IMPLEMENTADA_AGUARDANDO_VALIDACAO | `746e44d` + correção `fix(auth)`; hash: consultar Git | PENDENTE |
+| F2-T01 | Login e permissões | VALIDADA | `746e44d` + correção `3805007` | CONFIRMADA em 2026-10-26 |
 | F3-T01 | Gestor: cadastro de frigoríficos | PENDENTE | — | PENDENTE |
 | F4-T01 | Frigorífico: cadastro/atualização de cotações | PENDENTE | — | PENDENTE |
 | F5-T01 | Agregação regional e consulta pública | PENDENTE | — | PENDENTE |
@@ -325,3 +325,17 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - **Pendências/bloqueios:** nenhuma pendência de implementação da correção. Operador deverá substituir a senha utilizada no formulário antigo e validar seu acesso; nenhuma credencial foi escolhida/alterada em seu nome. Aplicação e PostgreSQL disponíveis localmente para teste.
 - **Aprovação do usuário:** PENDENTE para a correção final da F2-T01.
 - **Próximo passo autorizado:** parar e aguardar validação explícita; não iniciar F3-T01.
+
+### 2026-10-26 — F2-T01 — Validação humana da correção do login
+- **Estado:** VALIDADA.
+- **Objetivo e resultado:** registrar a aprovação explícita da correção da F2-T01, sem iniciar outra etapa ou alterar a aplicação.
+- **Aprovação do usuário:** confirmação “Aprovada a correcao” recebida em 2026-10-26.
+- **Commits validados:** implementação `746e44d` e correção `3805007` — `fix(auth): make login work before hydration`; hashes confirmados no histórico Git.
+- **Arquivos alterados:** somente `PROJECTS_STATUS.md`; estado atual e quadro atualizados, histórico anterior preservado.
+- **Decisões:** aprovação encerra a validação da F2-T01; não implica autorização para iniciar a F3-T01. Não presumir que a senha foi substituída.
+- **Verificações executadas:** `git status --short --branch` → árvore inicialmente limpa em `main`; `git log -5 --oneline` → commits conferidos; `git diff --check` → sem erros de whitespace; revisão do diff → somente registro documental da validação.
+- **Testes não executados e motivo:** testes de aplicação não repetidos, pois não há alteração de código/configuração; resultados reais da entrega corrigida permanecem registrados acima.
+- **Commit Conventional Commits:** `docs(status): record approval of login correction`; hash: consultar Git após a criação.
+- **Como validar manualmente:** conferir F2-T01 como VALIDADA no estado atual/quadro e F3-T01 como PENDENTE; nenhum novo teste funcional necessário para este registro.
+- **Pendências/bloqueios:** nenhuma pendência da correção aprovada. Questões de domínio e demais etapas continuam pendentes nos respectivos escopos.
+- **Próximo passo autorizado:** somente registrar esta validação; aguardar autorização para iniciar F3-T01.
