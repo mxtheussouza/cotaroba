@@ -5,10 +5,11 @@ import { useState, type FormEvent } from "react";
 
 import { authClient } from "./client";
 import { loginSchema } from "./schema";
+import { getLoginErrorMessage, loginErrorCodeForStatus } from "./login-errors";
 
-export function LoginForm() {
+export function LoginForm({ initialError = "" }: { initialError?: string }) {
   const router = useRouter();
-  const [error, setError] = useState("");
+  const [error, setError] = useState(initialError);
   const [pending, setPending] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -32,9 +33,7 @@ export function LoginForm() {
       });
       if (result.error) {
         setError(
-          result.error.status === 429
-            ? "Muitas tentativas. Aguarde um minuto e tente novamente."
-            : "E-mail ou senha inválidos.",
+          getLoginErrorMessage(loginErrorCodeForStatus(result.error.status)),
         );
         return;
       }
@@ -48,7 +47,12 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+    <form
+      method="post"
+      action="/api/auth/login"
+      onSubmit={handleSubmit}
+      className="mt-8 space-y-6"
+    >
       <div>
         <label htmlFor="email" className="block text-sm font-semibold">
           E-mail

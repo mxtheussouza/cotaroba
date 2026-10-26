@@ -14,6 +14,15 @@ import {
   InitialManagerExistsError,
 } from "@/features/auth/bootstrap";
 import { parseAuthConfig } from "@/features/auth/schema";
+import { getLoginRedirect } from "@/features/auth/login-location";
+import {
+  getLoginErrorMessage,
+  loginErrorCodeForStatus,
+} from "@/features/auth/login-errors";
+import {
+  resetCredentialPassword,
+  CredentialAccountNotFoundError,
+} from "@/features/auth/reset-password";
 import { getDatabase } from "@/lib/db";
 
 import { createAuthFixtures } from "./helpers/auth-fixtures";
@@ -69,6 +78,31 @@ function client() {
         rememberMe: false,
         ...extra,
       });
+    },
+    async form(
+      path: string,
+      fields: Record<string, string> = {},
+      extra: Record<string, string> = {},
+    ) {
+      const response = await handleAuthRequest(
+        new Request(`${origin}/api/auth${path}`, {
+          method: "POST",
+          headers: {
+            origin,
+            "content-type": "application/x-www-form-urlencoded",
+            "x-forwarded-for": ip,
+            cookie,
+            ...extra,
+          },
+          body: new URLSearchParams(fields),
+        }),
+        auth,
+      );
+      const tokenCookie = response.headers
+        .getSetCookie()
+        .find((value) => value.startsWith("cotaroba.session_token="));
+      if (tokenCookie) cookie = tokenCookie.split(";")[0];
+      return response;
     },
   };
 }
@@ -415,5 +449,199 @@ describe("Authentication and permissions", { concurrency: false }, () => {
       /__Secure-cotaroba\.session_token=/,
     );
     assert.match(response.headers.get("set-cookie")!, /; Secure/i);
+  });
+
+  it("authenticates a native POST form and forwards its session cookie without credentials in the redirect", async () => {
+    const browser = client();
+    const response = await browser.form("/login", {
+      email: fixtures.manager.email,
+      password: fixtures.password,
+      role: "SLAUGHTERHOUSE",
+    });
+    assert.equal(response.status, 303);
+    assert.equal(response.headers.get("location"), "/acesso");
+    assert.match(response.headers.get("set-cookie")!, /HttpOnly/i);
+    assertRole(
+      await resolveSessionUser(database, auth, browser.headers()),
+      "MANAGER",
+    );
+  });
+
+  it("returns safe native-form errors without echoing the email or password in URLs", async () => {
+    const response = await client().form("/login", {
+      email: fixtures.manager.email,
+      password: "incorrect-password",
+    });
+    assert.equal(response.status, 303);
+    assert.equal(response.headers.get("location"), "/login?erro=credenciais");
+    assert.equal(response.headers.get("set-cookie"), null);
+    const malformed = await client().form("/login", {
+      email: "invalid",
+      password: fixtures.password,
+    });
+    assert.equal(malformed.headers.get("location"), "/login?erro=dados");
+  });
+
+  it("rejects unsupported or oversized native form bodies without authenticating", async () => {
+    const browser = client();
+    const json = await browser.request("/login", {
+      email: fixtures.manager.email,
+      password: fixtures.password,
+    });
+    assert.equal(json.headers.get("location"), "/login?erro=dados");
+    const oversized = await browser.form("/login", {
+      email: fixtures.manager.email,
+      password: fixtures.password,
+      extra: "x".repeat(9000),
+    });
+    assert.equal(oversized.headers.get("location"), "/login?erro=dados");
+    assert.equal(browser.cookie, "");
+  });
+
+  it("preserves origin validation for native login and logout", async () => {
+    const browser = client();
+    const response = await browser.form(
+      "/login",
+      { email: fixtures.manager.email, password: fixtures.password },
+      { origin: "https://example.invalid" },
+    );
+    assert.equal(response.headers.get("location"), "/login?erro=origem");
+    assert.equal(response.headers.get("set-cookie"), null);
+    assert.equal((await browser.signIn(fixtures.manager.email)).status, 200);
+    assert.equal(
+      (await browser.form("/logout", {}, { origin: "https://example.invalid" }))
+        .status,
+      403,
+    );
+    assert.ok(await resolveSessionUser(database, auth, browser.headers()));
+  });
+
+  it("uses the same rate limit for native forms and enhanced JSON login", async () => {
+    const browser = client();
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const response = await browser.form("/login", {
+        email: fixtures.manager.email,
+        password: "incorrect-password",
+      });
+      assert.equal(response.headers.get("location"), "/login?erro=credenciais");
+    }
+    for (let attempt = 0; attempt < 2; attempt++) {
+      assert.equal(
+        (
+          await browser.request("/sign-in/email", {
+            email: fixtures.manager.email,
+            password: "incorrect-password",
+          })
+        ).status,
+        401,
+      );
+    }
+    assert.equal(
+      (
+        await browser.form("/login", {
+          email: fixtures.manager.email,
+          password: fixtures.password,
+        })
+      ).headers.get("location"),
+      "/login?erro=limite",
+    );
+  });
+
+  it("logs out through a native POST form and invalidates the previous session", async () => {
+    const browser = client();
+    assert.equal(
+      (
+        await browser.form("/login", {
+          email: fixtures.manager.email,
+          password: fixtures.password,
+        })
+      ).status,
+      303,
+    );
+    const previousHeaders = browser.headers();
+    const response = await browser.form("/logout");
+    assert.equal(response.status, 303);
+    assert.equal(response.headers.get("location"), "/login");
+    assert.match(response.headers.get("set-cookie")!, /Max-Age=0/i);
+    assert.equal(
+      await resolveSessionUser(database, auth, previousHeaders),
+      null,
+    );
+  });
+
+  it("canonicalizes login origins and removes legacy credential query parameters", () => {
+    assert.equal(
+      getLoginRedirect("127.0.0.1:3000", origin, {}),
+      `${origin}/login`,
+    );
+    assert.equal(getLoginRedirect("localhost:3000", origin, {}), null);
+    const target = getLoginRedirect("127.0.0.1:3000", origin, {
+      email: "sensitive@example.invalid",
+      password: "sensitive-password",
+      erro: "credenciais",
+    });
+    assert.equal(target, `${origin}/login?erro=reenvio`);
+    assert.equal(
+      getLoginRedirect("example.invalid", origin, {
+        erro: "https://example.invalid",
+      }),
+      `${origin}/login`,
+    );
+    assert.equal(getLoginErrorMessage("https://example.invalid"), "");
+  });
+
+  it("distinguishes origin and service failures from invalid credentials", () => {
+    assert.equal(loginErrorCodeForStatus(403), "origem");
+    assert.equal(loginErrorCodeForStatus(500), "indisponivel");
+    assert.equal(loginErrorCodeForStatus(404), "indisponivel");
+    assert.equal(loginErrorCodeForStatus(401), "credenciais");
+    assert.notEqual(
+      getLoginErrorMessage(loginErrorCodeForStatus(403)),
+      getLoginErrorMessage("credenciais"),
+    );
+  });
+
+  it("resets an existing credential locally, revokes sessions and preserves the other user's access", async () => {
+    const browser = client();
+    assert.equal((await browser.signIn(fixtures.manager.email)).status, 200);
+    const oldHeaders = browser.headers();
+    const replacement = randomUUID() + "-new";
+    try {
+      await resetCredentialPassword(database, {
+        email: fixtures.manager.email,
+        password: replacement,
+      });
+      assert.equal(await resolveSessionUser(database, auth, oldHeaders), null);
+      assert.equal((await client().signIn(fixtures.manager.email)).status, 401);
+      assert.equal(
+        (
+          await client().signIn(fixtures.manager.email, {
+            password: replacement,
+          })
+        ).status,
+        200,
+      );
+      assert.equal(
+        (await client().signIn(fixtures.users[0].email)).status,
+        200,
+      );
+    } finally {
+      await resetCredentialPassword(database, {
+        email: fixtures.manager.email,
+        password: fixtures.password,
+      });
+    }
+  });
+
+  it("does not create an account when a password reset targets an unknown user", async () => {
+    const count = await database.user.count();
+    await assert.rejects(
+      resetCredentialPassword(database, {
+        email: `${randomUUID()}@example.invalid`,
+        password: fixtures.password,
+      }),
+      CredentialAccountNotFoundError,
+    );
+    assert.equal(await database.user.count(), count);
   });
 });

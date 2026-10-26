@@ -115,8 +115,10 @@ valor gerado. Não use o texto do exemplo como segredo nem versione o arquivo:
 node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
 ```
 
-Nenhum usuário de negócio é criado automaticamente. Use a mesma origem de `BETTER_AUTH_URL` no
-navegador: `localhost` e `127.0.0.1` representam origens diferentes. Fora de
+Nenhum usuário de negócio é criado automaticamente. A página `/login` redireciona
+para a origem configurada em `BETTER_AUTH_URL` antes de receber credenciais.
+`localhost` e `127.0.0.1` representam origens diferentes; o redirecionamento
+resolve o alias local sem ampliar a lista de origens confiáveis. Fora de
 loopback, a configuração exige HTTPS, e o cookie recebe o atributo Secure.
 
 Com o banco migrado, crie **somente o primeiro gestor** no terminal:
@@ -156,11 +158,39 @@ O SQL exige que o gestor não tenha frigorífico, que o usuário de frigorífico
 tenha um vínculo válido e que o e-mail esteja normalizado. Campos de papel,
 situação e vínculo não são aceitos como entrada pelo provedor.
 
-Os únicos endpoints HTTP expostos do provedor são POST `/api/auth/sign-in/email`
-e POST `/api/auth/sign-out`. A consulta de sessão é interna ao servidor.
+O provedor expõe POST `/api/auth/sign-in/email` e POST `/api/auth/sign-out`.
+Os formulários HTML também usam POST `/api/auth/login` e POST `/api/auth/logout`,
+que delegam ao mesmo handler do provedor, preservando cookies, validação de origem
+e ratelimit. A consulta de sessão é interna ao servidor.
 Operações privadas futuras deverão chamar `requireRole` ou a verificação
 correspondente em cada operação, além de derivar o frigorífico da identidade
 autenticada; proteger apenas layout ou esconder botões não é autorização.
+
+### Envio do formulário e recuperação de acesso
+
+O formulário declara método POST e destino no servidor, funcionando antes da
+hidratação ou com JavaScript desativado. Com JavaScript disponível, permanece a
+interação aprimorada. E-mail e senha não são colocados em parâmetros de URL.
+Erros do envio HTML usam apenas códigos fixos, sem reproduzir as credenciais.
+O servidor limita esse corpo a 8 KiB e aceita o formato URL-encoded do formulário.
+
+A revisão da F2 corrigiu o formulário anterior, que dependia exclusivamente de
+JavaScript e podia enviar os campos por GET. URLs antigas com esses campos são
+redirecionadas para uma URL limpa; o log de desenvolvimento ignora requisições
+com os parâmetros de credenciais. Isso não apaga histórico ou logs anteriores.
+
+Para substituir a senha informada durante a falha, ou recuperar um acesso local,
+use o terminal interativo, com o e-mail já cadastrado:
+
+```sh
+npm run auth:reset-password -- seu-email@exemplo.com
+```
+
+A nova senha é solicitada com máscara (12–128 caracteres). O comando atualiza
+somente o hash e encerra as sessões anteriores desse usuário, em transação. Não
+altera papel, vínculo ou situação do acesso e não cria contas. O comando não é
+exposto como endpoint público. Não execute novamente o bootstrap para tentar
+recuperar um gestor já cadastrado.
 
 Para executar os testes de autenticação com o banco separado já migrado:
 
@@ -174,6 +204,37 @@ restrições SQL. Nenhuma cotação é criada por essas fixtures. O primeiro boo
 de testes requer que não exista gestor nesse banco; uma interrupção de testes
 pode exigir revisar e limpar as fixtures restantes exclusivamente no banco de
 testes antes de repetir.
+
+## Regressão de login no navegador
+
+A suíte versionada cobre login/logout com JavaScript desativado, envio por Enter,
+ausência de credenciais nas URLs, alias de origem, fluxo aprimorado, bloqueio por
+perfil e limpeza de URLs antigas. Ela inicia e encerra seu próprio servidor em
+loopback:3100, usando exclusivamente `TEST_DATABASE_URL` e segredo efêmero.
+Pare outros servidores Next.js deste repositório antes de executar os testes.
+
+Instale o Chromium para testes uma vez e execute:
+
+```sh
+npm exec -- playwright install chromium
+npm run test:browser
+```
+
+Se já houver Chrome instalado, ele pode ser usado sem baixar outro navegador:
+
+```sh
+PLAYWRIGHT_CHANNEL=chrome npm run test:browser
+```
+
+Para repetir a suíte no build de produção local:
+
+```sh
+npm run build
+TEST_APP_MODE=production PLAYWRIGHT_CHANNEL=chrome npm run test:browser
+```
+
+As fixtures são removidas ao final; o acesso de desenvolvimento do operador não
+é alterado. Os testes recusam reutilizar uma aplicação já aberta na porta 3100.
 
 ## Testes de banco
 
@@ -242,8 +303,9 @@ sans-serif do sistema, sem downloads externos no build.
 
 1. Execute `npm ci`, `docker compose up -d --wait db` e `npm run db:deploy`.
    Configure as variáveis de autenticação descritas acima.
-2. Crie o primeiro gestor com `npm run auth:create-manager -- seu-email@exemplo.com "Seu nome"`.
-   Se já tiver criado, use esse acesso; o comando recusa um segundo bootstrap.
+2. Se já criou o gestor, use o acesso existente. Para substituir sua senha,
+   execute `npm run auth:reset-password -- seu-email@exemplo.com`. Em uma instalação
+   nova, crie o primeiro gestor com `npm run auth:create-manager -- seu-email@exemplo.com "Seu nome"`.
 3. Inicie `npm run dev` e abra <http://localhost:3000> sem login; a consulta deve
    continuar pública. Acesse `/gestor` e `/frigorifico` diretamente: ambos devem
    encaminhar ao login.
@@ -251,7 +313,9 @@ sans-serif do sistema, sem downloads externos no build.
    Entre com o acesso correto: deve abrir `/gestor`. Atualize a página e confira
    a sessão. Acesse `/frigorifico` com esse perfil: deve negar a entrada.
 5. Clique em “Sair” e tente abrir `/gestor` novamente: deve exigir novo login.
-6. Confira login e área privada no celular e por teclado. Se exceder cinco
+6. Confira login e área privada no celular, por Enter e com JavaScript desativado.
+   A URL não deve conter e-mail/senha; acessar `/login` por `127.0.0.1` deve
+   redirecionar para a origem configurada. Se exceder cinco
    tentativas em um minuto, aguarde antes de tentar novamente.
 7. Prepare/migre `cotaroba_test` conforme abaixo e execute `npm run test:auth` e
    `npm run test:db`. O perfil frigorífico é verificado com fixtures neste estágio;

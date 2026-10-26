@@ -5,21 +5,22 @@
 ## Estado atual
 - Data de referência: 2026-10-26.
 - Fase atual: **F2 — login e permissões**.
-- Etapa atual: **F2-T01 — IMPLEMENTADA_AGUARDANDO_VALIDACAO**.
+- Etapa atual: **F2-T01 — IMPLEMENTADA_AGUARDANDO_VALIDACAO (correção do login concluída)**.
 - Aprovação do usuário: **F0-T01 e F1-T01 VALIDADAS**; validação final da F2-T01 **PENDENTE**.
-- Implementações concluídas: **F0-T01 e F1-T01 VALIDADAS** em 2026-10-26; **F2-T01 implementada e verificada**, aguardando validação humana.
+- Implementações concluídas: **F0-T01 e F1-T01 VALIDADAS**; **F2-T01 corrigida após falha reportada**, aguardando nova validação humana.
 - Commit da F0-T01: `d42c693` — `chore(setup): initialize Next.js project foundation`.
-- Testes da F2-T01: **17 testes de autenticação + 8 de banco aprovados**; bootstrap em terminal com senha mascarada, lint/typecheck/formatação/build/auditoria npm, instalação limpa sem segredos, Chrome/axe em desenvolvimento e produção e portal público com banco parado. Resultados reais abaixo.
+- Testes atuais da F2-T01: **27 de autenticação + 8 de banco + 4 de navegador aprovados**; navegador repetido em desenvolvimento e produção, com JavaScript desativado/ativado, POST/Enter, origem canônica e proteção de URLs/logs. Lint, typecheck, formatação, build, instalação limpa e auditoria npm aprovados; detalhes no histórico.
 - Commit da F1-T01: `c9650fd` — `feat(database): add PostgreSQL schema and initial migration`.
-- Commit da F2-T01: `feat(auth): add login and role-based access`; hash: consultar Git após o commit.
-- Próxima ação: usuário criar seu primeiro acesso local, testar e validar explicitamente a F2-T01; F3-T01 não iniciada.
+- Commit original da F2-T01: `746e44d` — `feat(auth): add login and role-based access`; correção em análise.
+- Commit da correção: `fix(auth): make login work before hydration`; hash: consultar Git após o commit.
+- Próxima ação: usuário substituir a senha usada na tentativa anterior pelo comando local, testar o login corrigido e validar a F2-T01; F3-T01 não iniciada.
 
 ## Quadro de etapas
 | ID | Etapa | Estado | Commit | Validação do usuário |
 |---|---|---|---|---|
 | F0-T01 | Inspeção e fundação do projeto | VALIDADA | `d42c693` | CONFIRMADA em 2026-10-26 |
 | F1-T01 | Banco e modelo inicial | VALIDADA | `c9650fd` | CONFIRMADA em 2026-10-26 |
-| F2-T01 | Login e permissões | IMPLEMENTADA_AGUARDANDO_VALIDACAO | `feat(auth)`; hash: consultar Git | PENDENTE |
+| F2-T01 | Login e permissões | IMPLEMENTADA_AGUARDANDO_VALIDACAO | `746e44d` + correção `fix(auth)`; hash: consultar Git | PENDENTE |
 | F3-T01 | Gestor: cadastro de frigoríficos | PENDENTE | — | PENDENTE |
 | F4-T01 | Frigorífico: cadastro/atualização de cotações | PENDENTE | — | PENDENTE |
 | F5-T01 | Agregação regional e consulta pública | PENDENTE | — | PENDENTE |
@@ -267,3 +268,60 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - **Pendências/bloqueios:** nenhum bloqueio técnico da F2-T01. Validação humana pendente. Primeiro usuário de negócio será provisionado pelo operador com suas credenciais, pelo comando entregue. PostgreSQL deixado saudável, sem servidor Next.js em execução. Cadastro/gestão de usuários/frigoríficos, cotações e deploy permanecem nas etapas apropriadas.
 - **Aprovação do usuário:** execução autorizada; **entrega final da F2-T01 PENDENTE** de validação explícita.
 - **Próximo passo autorizado:** parar e aguardar teste/validação da F2-T01. Não iniciar F3-T01 automaticamente.
+
+### 2026-10-26 — F2-T01 — Revisão de falha de login (início)
+- **Estado:** EM_ANDAMENTO; usuário informou que o login não funciona e pediu revisão da etapa, ainda não validada.
+- **Escopo autorizado:** somente diagnóstico/correção da F2-T01; não iniciar outra etapa.
+- **Inspeção:** Git limpo no commit `746e44d`; Docker/PostgreSQL saudáveis; origem configurada `http://localhost:3000`, segredo definido, banco de desenvolvimento com um gestor ativo e uma conta de credencial. Nenhum servidor em 3000/3001/3002 no momento da inspeção. Senha/conta do usuário serão preservadas.
+- **Plano:** reproduzir com fixtures isoladas, verificar endpoint, resposta, origem/porta e cookie; corrigir causa comprovada e adicionar regressão útil; repetir testes e criar commit com este status. Solicitado ao usuário endereço, sintoma e resultado do bootstrap, sem pedir senha.
+- **Arquivos previstos:** módulo/rotas/testes de autenticação conforme o diagnóstico, README e este status.
+- **Testes:** inspeção inicial de configuração sem exibir segredo; contagens de usuários/credenciais e saúde do banco. Testes de reprodução pendentes.
+- **Commit:** não realizado para esta correção.
+- **Aprovação do usuário:** pendente para a entrega final; correção expressamente solicitada.
+
+### 2026-10-26 — F2-T01 — Correção do envio de login e cobertura da falha
+- **Estado:** IMPLEMENTADA_AGUARDANDO_VALIDACAO; revisão solicitada pelo usuário, sem avanço à F3-T01.
+- **Problema e causa confirmada:** o formulário anterior tinha apenas `onSubmit` em JavaScript, sem `method`/`action` HTML. Sem hidratação, o navegador aplicava GET na própria página, sem chamar a autenticação e podendo incluir credenciais na URL. Esse envio foi observado durante o diagnóstico; nenhum valor pessoal ou senha é reproduzido neste histórico. Os testes anteriores cobriam JavaScript já disponível e origem canônica, deixando essa lacuna.
+- **Segundo problema reproduzido:** com credenciais de fixture corretas, `localhost:3000` retornava 200 e entrava; `127.0.0.1:3000` recebia 403 `INVALID_ORIGIN` e a interface dizia incorretamente “E-mail ou senha inválidos”. Nenhuma proteção de origem foi desabilitada.
+- **Objetivo e critérios de aceite:** login/logout por POST com e sem JavaScript, inclusive antes da hidratação/por Enter; nenhum campo de credencial em URLs geradas pelo formulário; origem canônica e erros corretos; preservar ratelimit, CSRF/cookies, papéis e acesso existente; adicionar regressões reproduzíveis.
+- **Arquivos alterados/criados:**
+  - `src/features/auth/login-form.tsx`, `logout-button.tsx`: método/destino POST explícitos no HTML, mantendo aprimoramento com JavaScript; logout também funciona sem JavaScript.
+  - `src/features/auth/form-handler.ts`, `auth.ts`: caminhos HTML POST `/api/auth/login` e `/api/auth/logout`, delegando ao handler HTTP do provedor, sem bypass de ratelimit. Validação Zod, corpo URL-encoded limitado a 8 KiB, cookies encaminhados, 303 para destinos fixos e respostas sem credenciais.
+  - `src/features/auth/login-errors.ts`, `login-location.ts`, `src/app/login/page.tsx`: mensagens por categoria de erro, redirecionamento para origem configurada antes de preencher credenciais, limpeza de parâmetros legados e feedback SSR nos envios nativos.
+  - `next.config.ts`: logs de desenvolvimento ignoram URLs com parâmetros `email`/`password`, para não repetir dados de URLs antigas.
+  - `src/features/auth/reset-password.ts`, `scripts/reset-password.ts`, `package.json`: comando local `auth:reset-password`, com senha mascarada, hash do provedor e revogação das sessões anteriores em transação. Não publica endpoint de recuperação, não cria conta nem altera papel/vínculo/situação.
+  - `tests/auth.test.ts`: dez regressões novas (27 casos totais) para POST/cookies/erros, corpo inválido/grande, origem, limite compartilhado com JSON, logout, URL canônica, erros de serviço e recuperação local.
+  - `tests/login-browser.test.ts`, `package.json`, `package-lock.json`: quatro regressões versionadas com Node test runner + Playwright `1.64.1`, servidor próprio em loopback:3100, banco `_test` e segredo efêmero. Sem reutilizar servidor alheio nem alterar credenciais de desenvolvimento.
+  - `README.md`, `PROJECTS_STATUS.md`: causa, correção, recuperação local, comandos de teste e roteiro manual; histórico anterior preservado.
+- **Implementação e decisões:**
+  - O envio padrão agora é POST para um destino implementado no servidor. O funcionamento não depende da hidratação, e o fluxo aprimorado continua disponível. Formulários HTML e JSON convergem para o handler HTTP Better Auth, mantendo o mesmo contador atômico PostgreSQL e verificações de origem/CSRF.
+  - Apenas códigos fixos de erro aparecem na query. E-mail/senha não são copiados para redirects, mensagens ou HTML de erro. Cookies HttpOnly/SameSite/Secure, validade de sessão e autorização no servidor permanecem com o provedor/guards existentes.
+  - `/login` usa a origem validada da configuração como destino; não confia em callback de usuário nem amplia `trustedOrigins`. Host alternativo local é encaminhado antes da digitação. URLs antigas com campos de credenciais vão para uma URL limpa com pedido de reenvio por POST.
+  - Ignorar logs novos e limpar URLs não apaga histórico/logs anteriores. Entregue comando local para o operador substituir a senha digitada durante a falha. **Nenhuma senha real foi resetada por esta execução**; conta e credencial existentes foram preservadas.
+  - Não criar outro gestor para recuperar acesso existente. O novo comando solicita senha no terminal (12–128 caracteres), troca o hash e elimina sessões do usuário em transação; só opera contas de credenciais existentes e não é Server Action/endpoint.
+  - Nenhuma migration ou alteração dos modelos de domínio foi necessária. Não implementar cadastro/gestão de acessos da F3, preços ou agregação.
+- **Testes executados (comando → resultado):**
+  - Inspeção Git → limpo inicialmente em `746e44d`; Docker saudável; configuração examinada sem exibir segredo; um gestor ativo e uma conta de credencial no banco de desenvolvimento.
+  - Harness de reprodução com fixtures isoladas → login canônico 200, alias IP 403 `INVALID_ORIGIN` com mensagem indevida. Envio GET sem autenticação observado no servidor, sem registrar valores pessoais neste documento.
+  - `npm run test:auth` → exit 0, **27/27 aprovados**, zero falhas/skips. Inclui todos os 17 cenários anteriores e dez cenários novos; limite compartilhado entre HTML/JSON, cookies, origem, POST e revogação de sessões na troca local verificados.
+  - `npm run test:db` → exit 0, **8/8 aprovados**; sem regressão de preços/histórico/referências.
+  - `PLAYWRIGHT_CHANNEL=chrome npm run test:browser` → exit 0, **4/4 aprovados** em desenvolvimento: gestor sem JavaScript por POST/Enter (inclusive senha incorreta), logout e sessão, fluxo com JavaScript/guard de papel, frigorífico sem JavaScript com identidade própria, origem IP redirecionada e URL legada limpa sem marcador sensível no log. Nenhum envio de credenciais por GET observado.
+  - `TEST_APP_MODE=production PLAYWRIGHT_CHANNEL=chrome npm run test:browser` → exit 0, **4/4 aprovados** no build de produção local, mesmas regressões. Servidores/fixtures de QA encerrados/removidos pela suíte.
+  - `python3 /tmp/cotaroba-f0-qa.T9svgM/reset-pty.py` → exit 0; criação e troca de senha executadas realmente em PTY no banco de testes, entradas mascaradas e ausentes de argumentos/saída; fixture removida. Hash/aceitação da nova senha, recusa da antiga e revogação de sessão também cobertos na suíte de integração.
+  - `npm run format`, `npm run format:check`, `npm run lint`, `npm run typecheck` → exit 0 nas versões finais.
+  - `env -u DATABASE_URL -u BETTER_AUTH_SECRET -u BETTER_AUTH_URL DOTENV_CONFIG_PATH=/dev/null npm ci` → exit 0; 527 pacotes instalados, cliente gerado sem conexão/segredos de autenticação, zero vulnerabilidades reportadas. Persistem somente os avisos transitivos conhecidos de peers ESLint/scripts npm, sem contornar políticas.
+  - `npm run build` → exit 0; compilação, TypeScript e prerender concluídos, páginas privadas/login/API dinâmicos.
+  - `npm audit --audit-level=moderate` → exit 0, zero vulnerabilidades reportadas.
+  - Contagens SQL finais: desenvolvimento com **um gestor ativo e uma conta de credencial**, como no início; testes com zero usuários/contas/sessões/cotações. Fixtures não foram inseridas em desenvolvimento; senha do operador não foi alterada.
+  - `npm run dev -- --hostname 127.0.0.1 --port 3000` → aplicação real reiniciada com `.env` e banco de desenvolvimento, após encerrar servidores de QA. Requisição HTTP a `http://127.0.0.1:3000/login` → redirecionamento para `http://localhost:3000/login`, HTTP 200 e HTML com método POST/destino correto confirmados, sem enviar credenciais.
+- **Testes não executados e motivo:** não houve tentativa com a senha real do usuário (não solicitada), nem alteração dela. Validação humana segue pendente. TLS/proxy de produção e outros navegadores aguardam as etapas previstas; Chromium/Chrome local foi usado nesta correção.
+- **Commit Conventional Commits:** `fix(auth): make login work before hydration`; hash: consultar Git após a criação; código/testes/documentação/status no mesmo commit. Hash real informado na entrega.
+- **Como validar manualmente:**
+  1. Para substituir a senha usada antes, executar no terminal `npm run auth:reset-password -- seu-email@exemplo.com`, usando o e-mail já cadastrado e escolhendo a nova senha na entrada mascarada. Não informar senha em argumentos nem recriar o gestor.
+  2. Abrir `http://localhost:3000/login` (aplicação deixada em execução no banco de desenvolvimento). Se necessário reiniciar, usar `npm run dev -- --port 3000`.
+  3. Entrar por clique ou Enter com o acesso existente; deve abrir `/gestor`, manter sessão ao recarregar e bloquear `/frigorifico` para o gestor. Sair deve invalidar a sessão.
+  4. Repetir com JavaScript desativado; a URL não deve conter e-mail/senha. Abrir por `127.0.0.1:3000/login` deve encaminhar para a origem configurada.
+  5. Senha incorreta mostra erro genérico; excesso de tentativas pede aguardar. Para repetir a regressão automatizada, parar o servidor de desenvolvimento e executar os comandos de navegador descritos no README.
+- **Pendências/bloqueios:** nenhuma pendência de implementação da correção. Operador deverá substituir a senha utilizada no formulário antigo e validar seu acesso; nenhuma credencial foi escolhida/alterada em seu nome. Aplicação e PostgreSQL disponíveis localmente para teste.
+- **Aprovação do usuário:** PENDENTE para a correção final da F2-T01.
+- **Próximo passo autorizado:** parar e aguardar validação explícita; não iniciar F3-T01.

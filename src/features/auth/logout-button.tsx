@@ -26,9 +26,16 @@ export function LogoutButton() {
   }
 
   return (
-    <div>
+    <form
+      method="post"
+      action="/api/auth/logout"
+      onSubmit={(event) => {
+        event.preventDefault();
+        void signOut();
+      }}
+    >
       <button
-        onClick={signOut}
+        type="submit"
         disabled={pending}
         className="rounded-xl border border-border px-4 py-3 text-sm font-semibold hover:bg-secondary disabled:opacity-60"
       >
@@ -39,6 +46,6 @@ export function LogoutButton() {
           {error}
         </p>
       )}
-    </div>
+    </form>
   );
 }

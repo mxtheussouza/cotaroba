@@ -8,6 +8,7 @@ import type { PrismaClient } from "@/generated/prisma/client";
 import { getDatabase } from "@/lib/db";
 
 import { parseAuthConfig } from "./schema";
+import { handleAuthForm } from "./form-handler";
 
 const SESSION_MAX_AGE_SECONDS = 8 * 60 * 60;
 
@@ -120,10 +121,19 @@ export async function handleAuthRequest(
   const pathname = new URL(request.url).pathname;
   if (
     request.method !== "POST" ||
-    !["/api/auth/sign-in/email", "/api/auth/sign-out"].includes(pathname)
+    ![
+      "/api/auth/sign-in/email",
+      "/api/auth/sign-out",
+      "/api/auth/login",
+      "/api/auth/logout",
+    ].includes(pathname)
   ) {
     return Response.json({ message: "Não encontrado." }, { status: 404 });
   }
 
-  return (instance ?? getAuth()).handler(request);
+  const provider = instance ?? getAuth();
+  if (pathname === "/api/auth/login" || pathname === "/api/auth/logout") {
+    return handleAuthForm(request, provider);
+  }
+  return provider.handler(request);
 }
