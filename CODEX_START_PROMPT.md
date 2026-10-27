@@ -13,4 +13,4 @@ Ao terminar:
 4. Informe o hash do commit, resumo da entrega e passos de teste manual.
 5. **Pare e aguarde minha validação explícita.** Somente depois da minha aprovação você poderá iniciar a próxima etapa.
 
-Se encontrar bloqueios, não invente soluções concluídas; registre-os e peça orientação. Lembre-se: o site é simples, público, com indicadores regionais agregados; gestor cadastra frigoríficos e frigoríficos atualizam seus preços; dados externos são integrados quando viáveis e podem ser preenchidos manualmente.
+Se encontrar bloqueios, não invente soluções concluídas; registre-os e peça orientação. Lembre-se: o site é simples e público; na F5, o usuário autorizou mostrar o nome e o preço vigente de cada frigorífico por região e categoria, sem média. Gestor cadastra frigoríficos, frigoríficos atualizam seus preços, e dados externos são integrados quando viáveis ou preenchidos manualmente.

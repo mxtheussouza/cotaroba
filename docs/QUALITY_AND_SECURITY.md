@@ -11,17 +11,17 @@
 - Autenticação robusta, senhas/sessões protegidas, rate limit em endpoints sensíveis.
 - Autorização no servidor por papel e frigorífico; não confiar em `slaughterhouseId` enviado pelo cliente.
 - Segredos somente em variáveis de ambiente; nunca em Git.
-- Cotações individuais são privadas; endpoints públicos retornam somente agregados aprovados.
-- Não permitir inferência por filtros excessivamente granulares, séries diferenciais ou metadados.
+- Na F5, somente a cotação vigente e o nome do frigorífico são públicos conforme autorização explícita; histórico, autores pessoais, contas, sessões e metadados internos continuam privados.
+- Filtros públicos não devem revelar versões anteriores ou campos além do contrato de publicação aprovado.
 - Histórico de alterações, validação Zod e proteção contra abuso.
-- LGPD para dados pessoais; avaliar aspectos concorrenciais de divulgação de preços agregados.
+- LGPD para dados pessoais; avaliar aspectos concorrenciais da divulgação individual de preços autorizada na F5 antes do deploy público.
 
 ## Testes mínimos sugeridos
 - Gestor consegue cadastrar frigorífico; frigorífico não consegue.
-- Frigorífico A não lê/edita preços de B.
+- Frigorífico A não lê/edita o histórico privado de B; ambos veem as cotações vigentes publicadas.
 - Visitante não acessa área privada.
-- Indicador insuficiente não é publicado.
-- API pública não retorna identidade ou preço individual.
+- Página sem cotação vigente mostra “Dados insuficientes”.
+- Página pública retorna somente os campos de publicação aprovados, sem IDs de cotação, versões anteriores ou autoria pessoal.
 - Falha de API externa preserva dado anterior e indica defasagem.
 - Simulador valida entradas e calcula corretamente.
 - Layout funcional em desktop e celular.

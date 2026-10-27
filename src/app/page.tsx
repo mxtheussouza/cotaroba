@@ -47,9 +47,16 @@ export default function HomePage() {
           Informação regional para acompanhar o mercado pecuário.
         </h1>
         <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted">
-          Um espaço público de consulta a indicadores consolidados da pecuária
-          baiana, com fonte e data de referência para apoiar suas decisões.
+          Consulte os preços da arroba informados pelos frigoríficos, com
+          região, categoria e data de referência para apoiar suas decisões.
         </p>
+
+        <Link
+          href="/cotacoes"
+          className="mt-8 inline-block rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground hover:bg-primary-hover"
+        >
+          Consultar cotações
+        </Link>
 
         <section
           aria-labelledby="regional-indicators-title"
@@ -59,19 +66,19 @@ export default function HomePage() {
             id="regional-indicators-title"
             className="text-xl font-semibold sm:text-2xl"
           >
-            Indicadores regionais
+            Indicadores adicionais
           </h2>
           <div className="mt-6 rounded-xl bg-secondary p-6">
             <p className="font-semibold">Dados insuficientes</p>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
-              Ainda não há indicadores disponíveis para consulta. Os dados serão
-              publicados após consolidação e validação da base regional.
+              Outros indicadores estarão disponíveis em etapas futuras. As
+              cotações por frigorífico já podem ser consultadas acima.
             </p>
           </div>
           <p className="mt-6 text-sm leading-relaxed text-muted">
-            A consulta pública apresentará apenas indicadores regionais
-            consolidados, preservando a identidade e as cotações individuais dos
-            frigoríficos.
+            A página de cotações mostra os preços vigentes informados pelos
+            frigoríficos. O histórico de versões e os dados dos responsáveis
+            permanecem na área privada.
           </p>
         </section>
       </main>

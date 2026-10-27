@@ -17,7 +17,7 @@
 - Autenticação e autorização verificadas no servidor em **cada** operação protegida.
 - Valores monetários em `Decimal`/`NUMERIC`, com unidade explícita.
 - Datas com fuso e referência claros; apresentação `pt-BR`.
-- Separar DTO público de entidade privada; **nunca serializar cotações individuais no endpoint público**.
+- Separar DTO público de entidade privada; na F5, o DTO público contém apenas nome do frigorífico, região, categoria, preço vigente, unidade, data de referência e atualização. Não serializar IDs de cotações, autores, acessos, sessões ou versões anteriores.
 - API externa → normalização/validação → persistência → cálculo → dashboard; nunca depender diretamente da API no carregamento público.
 - Jobs curtos e idempotentes; Vercel Cron se adequado. Não criar infraestrutura complexa prematuramente.
 - Usar migrations versionadas; não alterar schema de produção sem plano de migração.

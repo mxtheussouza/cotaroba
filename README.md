@@ -1,18 +1,18 @@
 # Cotaroba
 
-Observatório pecuário da Bahia: portal de indicadores regionais
-consolidados. As cotações individuais dos frigoríficos são privadas.
+Observatório pecuário da Bahia: consulta pública dos preços da arroba
+informados por cada frigorífico, por região e categoria.
 
 ## Estado da implementação
 
-F0-T01 a F3-T01 foram validadas pelo usuário. A F4-T01 acrescenta categorias
-e cotações privadas com histórico de versões; sua validação humana está pendente.
+F0-T01 a F4-T01 foram validadas pelo usuário. A F5-T01 acrescenta a consulta
+pública por frigorífico; sua validação humana está pendente.
 O login usa sessões PostgreSQL e Better Auth. O histórico e a aprovação de cada etapa estão em
 [PROJECTS_STATUS.md](./PROJECTS_STATUS.md).
 
-A página pública continua simples, em português e sem dados de mercado,
-exibindo “Dados insuficientes”. Cotações individuais são exibidas somente na área
-privada do próprio frigorífico; não há API pública de preços.
+A página inicial leva à consulta `/cotacoes`. Ela mostra nome, preço vigente,
+categoria, região e datas, conforme a mudança de produto autorizada em F5.
+Histórico de versões, autores pessoais e contas continuam privados.
 
 ## Requisitos e execução local
 
@@ -41,16 +41,17 @@ porta ou nome do banco, atualize também as URLs. Variáveis já definidas no
 ambiente têm precedência. Não versione `.env` nem credenciais reais.
 
 `npm ci` gera o cliente Prisma via `postinstall`; não exige conexão com banco.
-A página pública e seu build também continuam independentes de PostgreSQL.
+O build continua independente do PostgreSQL. A consulta pública `/cotacoes`
+requer o banco local em execução.
 
 ## Modelo do domínio
 
-| Modelo           | Finalidade                                                                        |
-| ---------------- | --------------------------------------------------------------------------------- |
-| `Region`         | Regiões com nomes únicos, sem lista de negócio predefinida.                       |
-| `CattleCategory` | Categorias comerciais com nomes únicos, sem seed.                                 |
-| `Slaughterhouse` | Nome, região atual, situação ativa e datas de criação/alteração.                  |
-| `Quote`          | Registro privado com frigorífico, região de referência, categoria, preço e datas. |
+| Modelo           | Finalidade                                                                                                                                   |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Region`         | Regiões com nomes únicos, sem lista de negócio predefinida.                                                                                  |
+| `CattleCategory` | Categorias comerciais com nomes únicos, sem seed.                                                                                            |
+| `Slaughterhouse` | Nome, região atual, situação ativa e datas de criação/alteração.                                                                             |
+| `Quote`          | Registro histórico com frigorífico, região de referência, categoria, preço e datas; somente a cotação vigente selecionada é publicada na F5. |
 
 Os preços usam `NUMERIC(12,2)`, em reais por arroba (`pricePerArroba`, R$/@),
 com restrição SQL para valores positivos. Use strings/`Prisma.Decimal` ao
@@ -91,7 +92,8 @@ Prisma; preserve-os em migrations futuras.
 
 O acesso da aplicação é `getDatabase()` em `src/lib/db.ts`: somente no servidor,
 com inicialização sob demanda e reutilização do cliente/pool entre chamadas.
-Não importe esse módulo em componentes cliente. A página pública não o utiliza.
+Não importe esse módulo em componentes cliente. A página pública de cotações o
+utiliza somente no servidor.
 
 Para conferir os modelos no banco de desenvolvimento, execute `npm run db:studio`
 e abra o endereço local indicado pelo comando. Os cadastros inseridos pelo operador e pelo gestor ficam nesse banco. Não use
@@ -215,7 +217,7 @@ ausência de credenciais nas URLs, alias de origem, fluxo aprimorado, bloqueio p
 perfil e limpeza de URLs antigas. Também cobre a F3: cadastro/edição/desativação,
 criação e administração de acessos, mensagens, troca de senha e proteção das
 Server Actions. A F4 acrescenta a jornada privada de categoria, cotação e
-revisão, incluindo isolamento entre frigoríficos. Ela inicia e encerra seu próprio servidor em
+revisão; a F5 confere a consulta pública. Ela inicia e encerra seu próprio servidor em
 loopback:3100, usando exclusivamente `TEST_DATABASE_URL` e segredo efêmero.
 Pare outros servidores Next.js deste repositório antes de executar os testes.
 
@@ -405,8 +407,9 @@ alteram contas de desenvolvimento.
    que os acessos individualmente desativados continuam bloqueados.
 7. Repita por teclado e com JavaScript desativado. Confira no celular, sem
    rolagem horizontal. A URL não deve conter e-mail ou senha.
-8. Abra o portal sem login: deve continuar em “Dados insuficientes”, sem nomes,
-   e-mails ou preços individuais. Finalize encerrando as sessões de teste.
+8. Abra o portal sem login: a área inicial de indicadores adicionais continua
+   em “Dados insuficientes”; a consulta `/cotacoes` da F5 publica preços vigentes,
+   sem e-mails ou histórico privado. Finalize encerrando as sessões de teste.
 
 ## Cotações privadas (F4-T01)
 
@@ -420,8 +423,8 @@ atual do frigorífico, sem campo editável no formulário.
 Em `/frigorifico`, os acessos da empresa veem somente as versões atuais das
 suas cotações. **Atualizar e ver histórico** abre todas as versões da série,
 incluindo autor e horário. Uma correção acrescenta versão e preserva a região
-da primeira; outro frigorífico recebe 404 ao tentar abrir essa série. Não há
-publicação de preços nesta etapa. Escritas são limitadas a 30 por minuto por
+da primeira; outro frigorífico recebe 404 ao tentar abrir essa série. A F5
+publica somente o preço vigente selecionado. Escritas são limitadas a 30 por minuto por
 frigorífico, compartilhadas entre seus acessos.
 
 A migration `20261026211810_quote_versions_and_categories` adiciona série,
@@ -442,10 +445,41 @@ Para validar manualmente:
    categoria, preço e data e salve. Confira a cotação na lista privada.
 4. Abra **Atualizar e ver histórico**, altere o preço e salve. Confira duas
    versões, valores anteriores preservados e autor/horário de cada uma.
-5. Entre com um acesso de outro frigorífico: a cotação não deve aparecer, e
-   a URL do histórico da primeira empresa deve retornar 404. O portal público
-   continua em “Dados insuficientes”, sem nomes ou preços individuais.
+5. Entre com um acesso de outro frigorífico: o histórico privado da primeira
+   empresa não deve aparecer, e sua URL deve retornar 404. A página pública
+   `/cotacoes` mostra o nome e o preço vigente selecionado na F5.
 6. Repita o envio com JavaScript desativado e confira a interface no celular.
+
+## Consulta pública por frigorífico (F5-T01)
+
+Em `/cotacoes`, qualquer visitante escolhe região e, opcionalmente, categoria.
+A página mostra o **nome e o preço vigente de cada frigorífico ativo** naquela
+região, em R$/@, com data de referência e da última atualização. Não calcula
+média. Quando uma empresa tem várias séries na mesma categoria, aparece a
+cotação vigente com a data de referência mais recente; em empate, a atualização
+mais recente. As versões anteriores continuam disponíveis somente no histórico
+privado da empresa. Se a empresa mudar de região ou for desativada, suas
+cotações anteriores deixam de aparecer na região antiga. Sem cotação vigente,
+a página mostra “Dados insuficientes”.
+
+Essa publicação individual substitui a regra anterior de agregação anônima,
+por decisão explícita do usuário em 2026-10-27. Ela pode revelar informações
+comerciais sensíveis; os aspectos concorrenciais devem ser revisados antes do
+deploy público previsto para F8. Não há API pública específica nesta etapa.
+
+Para verificar as regras de seleção e a página:
+
+```sh
+npm run test:public-quotes
+PLAYWRIGHT_CHANNEL=chrome npm run test:browser
+```
+
+Para testar manualmente, abra `/cotacoes` sem login, selecione uma região e
+categoria e confira nome, preço e datas. Atualize a cotação como frigorífico e
+reabra a página pública: ela deve mostrar apenas o novo valor. Uma segunda
+empresa na mesma região aparece em linha própria, sem média. Uma região sem
+preços mostra “Dados insuficientes”. O histórico de versões e o nome do
+responsável não devem aparecer publicamente.
 
 ## Conferência do banco (F1-T01)
 
@@ -455,7 +489,8 @@ Para validar manualmente:
 4. Use `npm run db:studio` para conferir as entidades de domínio, autenticação e histórico administrativo descritas acima.
 5. Prepare o banco separado de testes conforme esta documentação e execute `npm run test:db`.
 6. Inicie a aplicação com `npm run dev` e abra <http://localhost:3000> sem login.
-   A página deve continuar mostrando “Dados insuficientes”, sem preços individuais.
+   A área de indicadores adicionais da página inicial mostra “Dados
+   insuficientes”; a consulta pública de preços está em `/cotacoes`.
 7. Pare o banco com `docker compose stop db` e confirme que a página inicial
    continua acessível; retome-o depois com `docker compose up -d --wait db`.
 

@@ -34,7 +34,7 @@ Criar componentes **quando a etapa precisar deles**, não todos antecipadamente.
 - Exibir carregamento, erro, vazio, desatualizado e “Dados insuficientes”.
 - Não usar apenas cor para representar variação; exibir sinais/texto.
 - Gráficos devem ter período, legenda e eixos claros; evitar distorção.
-- Nunca mostrar preço individual do frigorífico em área pública.
+- Na página pública de cotações, mostrar nome do frigorífico e preço vigente conforme decisão da F5, sempre com região, categoria, unidade e data. Histórico e autoria pessoal continuam na área privada.
 
 ## Páginas
 Públicas: início/dashboard, cotações, indicadores/clima, simulador.

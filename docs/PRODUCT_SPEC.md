@@ -11,7 +11,7 @@ Criar um site público, simples e responsivo, de consulta e inteligência do mer
 ## Funcionalidades do MVP
 1. Cadastro de frigoríficos pelo gestor e acesso autenticado.
 2. Cadastro e atualização manual de preços da arroba por frigorífico, com data, região, categoria e histórico.
-3. Indicadores **regionais agregados** públicos, sem divulgar identidade ou cotação individual.
+3. Consulta pública por região com nome e cotação vigente de cada frigorífico, por categoria, sem média. Histórico de versões e autoria pessoal permanecem privados.
 4. Dashboard de cotações e gráficos de tendência por região/período.
 5. Dados externos de dólar, clima/chuvas, milho/soja, abates e referências de mercado quando disponíveis/licenciados.
 6. Cadastro manual pelo gestor para dados externos indisponíveis automaticamente.
@@ -27,8 +27,8 @@ Criar um site público, simples e responsivo, de consulta e inteligência do mer
 
 ## Regras de aceite do produto
 - Público acessa indicadores sem autenticação.
-- Frigorífico não lê nem altera dados de outro.
-- Cotações individuais nunca são retornadas por APIs públicas.
+- Frigorífico não lê nem altera o histórico privado de outro; cotações vigentes publicadas são acessíveis a todos.
+- A página pública mostra somente os campos de publicação aprovados: nome do frigorífico, região, categoria, preço em R$/@, data de referência e atualização.
 - Indicador sem base suficiente exibe “Dados insuficientes”.
 - Mostrar fonte, região, unidade e data de referência/atualização.
 - Falhas de fonte externa não impedem consulta ao histórico armazenado.

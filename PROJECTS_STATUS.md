@@ -5,9 +5,9 @@
 ## Estado atual
 - Data de referência: 2026-10-27.
 - Fase atual: **F5 — agregação regional e consulta pública**.
-- Etapa atual: **F5-T01 — BLOQUEADA** até decisão sobre a política de publicação de preços.
+- Etapa atual: **F5-T01 — IMPLEMENTADA_AGUARDANDO_VALIDACAO**.
 - Aprovação do usuário: **F0-T01 a F4-T01 VALIDADAS**; F4 confirmada explicitamente em 2026-10-27.
-- Implementações concluídas: **F0-T01 a F4-T01 VALIDADAS**; F5 autorizada para início, sem implementação de publicação.
+- Implementações concluídas: **F0-T01 a F4-T01 VALIDADAS**; F5 implementada e aguardando validação humana.
 - Commit da F0-T01: `d42c693` — `chore(setup): initialize Next.js project foundation`.
 - Testes atuais da F2-T01: **27 de autenticação + 8 de banco + 4 de navegador aprovados**; navegador repetido em desenvolvimento e produção, com JavaScript desativado/ativado, POST/Enter, origem canônica e proteção de URLs/logs. Lint, typecheck, formatação, build, instalação limpa e auditoria npm aprovados; detalhes no histórico.
 - Commit da F1-T01: `c9650fd` — `feat(database): add PostgreSQL schema and initial migration`.
@@ -17,7 +17,8 @@
 - Commit validado da F3-T01: `7e0b966` — `feat(slaughterhouses): manage regions, slaughterhouses and accesses`.
 - Testes da F4-T01: **19 cotações + 19 gestão + 27 autenticação + 8 banco + 9 navegador aprovados (82 distintos)**; navegador aprovado em desenvolvimento e produção. Lint, typecheck, formatação, validação Prisma e build aprovados.
 - Commit final da F4-T01: `0d69b35` — `feat(quotes): complete private quote workflow and browser coverage`.
-- Próxima ação: receber decisão explícita sobre a política de publicação da F5 antes de implementar agregação/consulta pública. A troca local de senha recomendada na F2 não foi confirmada pelo usuário.
+- Testes da F5-T01: **5 de publicação + 19 cotações + 19 gestão + 27 autenticação + 8 banco + 9 navegador aprovados (87 distintos)**; navegador aprovado em desenvolvimento e produção. Lint, typecheck, formatação, validação Prisma e build aprovados.
+- Próxima ação: usuário testar e validar explicitamente a F5-T01. A troca local de senha recomendada na F2 não foi confirmada pelo usuário.
 
 ## Quadro de etapas
 | ID | Etapa | Estado | Commit | Validação do usuário |
@@ -27,7 +28,7 @@
 | F2-T01 | Login e permissões | VALIDADA | `746e44d` + correção `3805007` | CONFIRMADA em 2026-10-26 |
 | F3-T01 | Gestor: cadastro de frigoríficos | VALIDADA | `7e0b966` | CONFIRMADA em 2026-10-26 |
 | F4-T01 | Frigorífico: cadastro/atualização de cotações | VALIDADA | `93cd0ec` + `a614bee` + `0d69b35` | CONFIRMADA em 2026-10-27 |
-| F5-T01 | Agregação regional e consulta pública | BLOQUEADA | — | PENDENTE |
+| F5-T01 | Consulta pública por frigorífico e região | IMPLEMENTADA_AGUARDANDO_VALIDACAO | commit final (consultar Git) | PENDENTE |
 | F6-T01 | Integrações externas e cadastro manual | PENDENTE | — | PENDENTE |
 | F7-T01 | Gráficos, indicadores e simulador | PENDENTE | — | PENDENTE |
 | F8-T01 | Homologação e deploy | PENDENTE | — | PENDENTE |
@@ -37,7 +38,7 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 ## Decisões confirmadas
 - Portal público, sem login para consulta.
 - Gestor cadastra frigoríficos e acessos; frigoríficos informam/atualizam cotações próprias.
-- Público vê **somente indicadores regionais**, sem identificação ou preços individuais de frigoríficos.
+- Na F5, por decisão explícita do usuário em 2026-10-27, público vê **nome e preço vigente de cada frigorífico por região/categoria**, sem média; versões anteriores e autores pessoais continuam privados.
 - Dados externos por APIs/fontes públicas, com entrada manual pelo gestor quando necessário.
 - Next.js + TypeScript, PostgreSQL, Prisma, deploy planejado na Vercel.
 - Produto simples: sem marketplace, IA, microserviços ou alertas avançados no MVP.
@@ -48,7 +49,7 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 ## Questões ainda abertas
 - Nome/identidade visual definitiva.
 - Nomes de regiões e categorias comerciais serão definidos pelo gestor nos cadastros autorizados pelo usuário; não há lista predefinida.
-- Critérios seguros de publicação agregada e eventual revisão concorrencial.
+- Revisão dos aspectos concorrenciais da publicação individual antes do deploy público da F8.
 - Provedor hospedado do banco, domínio HTTPS e segredos de produção; desenvolvimento usa PostgreSQL local e Better Auth com sessões no banco.
 - Licenças e endpoints das fontes externas.
 - Parâmetros e fórmulas comerciais do simulador.
@@ -523,3 +524,24 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - **Commit Conventional Commits:** `docs(status): record F5 disclosure proposal and privacy conflict`; hash: consultar Git após criação.
 - **Aprovação:** proposta recebida, mas substituição do requisito anterior ainda não confirmada.
 - **Próximo passo:** aguardar confirmação explícita antes de implementar qualquer saída pública de preço. Não iniciar F6.
+
+### 2026-10-27 — F5-T01 — Publicação de preços por frigorífico e região
+- **Estado:** IMPLEMENTADA_AGUARDANDO_VALIDACAO. Somente F5-T01 implementada; F6 não iniciada.
+- **Decisão/autorização do usuário:** “Vamos substituir a regra, ao inves de exibir a media, é para exibir o preco de cada frigorifico daquela regiao.” A regra anterior de agregação anônima foi expressamente substituída. O usuário já havia sido informado de que um único preço revela a cotação individual e de que uma média de dois permite inferência; esta entrega segue a nova decisão de publicar cada preço, sem média.
+- **Objetivo e critérios atendidos:** página pública `/cotacoes` acessível sem login, com seleção de região e categoria, exibindo nome, preço R$/@, data de referência e atualização da última cotação vigente de cada frigorífico ativo. Uma linha por frigorífico/categoria na região atual; não há média nem mínimo de participantes. Sem registros, “Dados insuficientes”. Histórico de versões, autor pessoal, IDs de cotação, sessões e credenciais continuam fora do DTO público.
+- **Arquivos alterados:** `src/features/public-quotes/service.ts`, `src/app/cotacoes/page.tsx`, `src/app/page.tsx`, `tests/public-quotes.test.ts`, `tests/quotes-browser.ts`, `tests/login-browser.test.ts`, `tests/management-browser.ts`, `package.json`, `prisma/schema.prisma` (comentário; sem migration), `README.md`, `AGENTS.md`, `CODEX_START_PROMPT.md`, `docs/{PRODUCT_SPEC,ROADMAP,TECHNICAL_SPEC,DESIGN_SYSTEM,DATA_AND_INTEGRATIONS,QUALITY_AND_SECURITY}.md` e este status. Documentos correntes alinhados à decisão do usuário; entradas históricas deste status preservadas.
+- **Implementação e decisões:** seleção SQL parametrizada, no servidor, toma somente a versão vigente de cada série e escolhe a maior data de referência por frigorífico/categoria; empate por instante de criação e ID. Exige frigorífico ativo e mesma região no cadastro atual e na cotação; cotações de região anterior deixam de ser mostradas após mudança de região. Filtros aceitam apenas IDs existentes nas listas do banco; páginação de 20 registros. `/cotacoes` é dinâmica para consultar o banco por requisição. Não há endpoint/API pública separada, média, valores fictícios, novo serviço ou dependência. A página inicial apenas encaminha à consulta e preserva o estado vazio dos indicadores adicionais.
+- **Testes executados (comando → resultado real):**
+  - `npm run test:public-quotes` → **5/5 aprovados**, zero falhas/skips: região sem preço, publicação de uma empresa, duas empresas sem média, versão vigente/última data, região atual, frigorífico inativo, filtros inválidos e DTO sem metadados privados. Primeira execução teve 2 falhas de expectativa do harness (`createCategory` retorna só ID; região padrão é a primeira por nome); expectativas corrigidas, segunda execução 5/5.
+  - `npm run test:quotes` → **19/19 aprovados**; `npm run test:management` → **19/19**; `npm run test:auth` → **27/27**; `npm run test:db` → **8/8**. Aviso de depreciação do `pg` já conhecido na suíte de cotações, sem falha funcional. Total com navegador: **87 testes distintos** (5+19+19+27+8+9).
+  - `PLAYWRIGHT_CHANNEL=chrome npm run test:browser` → **9/9 aprovados em desenvolvimento**, inclusive criação/revisão sem JavaScript, navegação pública, filtro GET e preço vigente individual, sem versão anterior/e-mail. `TEST_APP_MODE=production PLAYWRIGHT_CHANNEL=chrome npm run test:browser` → **9/9 aprovados em produção local**. Repetidos após os ajustes finais do harness.
+  - Primeira execução do navegador em desenvolvimento passou 8/9: asserção procurava preço sem separador de milhar; corrigida para o formato real `pt-BR`, repetição 9/9. Primeira execução de produção passou 8/9 por troca do DOM durante teste antigo de redefinição de senha; reload no harness antes dessa operação estabilizou o teste, repetição 9/9 em produção e desenvolvimento. Sem alteração da lógica de autenticação para acomodar esses testes.
+  - `TEST_SCREENSHOT_DIR=/private/tmp/cotaroba-f5-qa PLAYWRIGHT_CHANNEL=chrome npm run test:browser` → **9/9 aprovados**; `/cotacoes` sem rolagem horizontal em 320/390/1280px. Capturas de 320 e 1280px inspecionadas visualmente; artefatos temporários fora do Git.
+  - `npm run format`, `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm run db:validate`, `npm run build` → exit 0. Build gera `/cotacoes` como rota dinâmica; página inicial permanece estática.
+  - SQL de contagens após as suítes → banco de testes com **0 usuários, 0 frigoríficos, 0 cotações, 0 categorias e 0 eventos**; desenvolvimento preservado com **1 região, 1 categoria, 1 frigorífico e 1 cotação**. `git diff --check` → sem whitespace inválido.
+- **Testes não executados e motivo:** navegadores além de Chrome, deploy e revisão concorrencial externa pertencem à homologação F8. Instalação limpa/auditoria npm não repetidas, sem alteração de dependências. Nenhuma migration necessária, pois o esquema persistido não mudou.
+- **Risco/pendência:** preço e identidade comercial individuais tornam-se públicos na aplicação local por decisão do usuário. Revisão concorrencial apropriada permanece pendente antes de qualquer deploy público em F8; o guia do Cade consultado na análise anterior aponta sensibilidade de preços recentes/desagregados. A interface indica fonte, unidade e datas e não afirma tempo real.
+- **Commit Conventional Commits:** `feat(public-quotes): publish slaughterhouse prices by region`; hash: consultar `git log -1 --format=%h` após criação. Código, testes, documentos e este status compõem o mesmo commit.
+- **Como validar manualmente:** com PostgreSQL local ativo, executar `npm run dev` e abrir `/cotacoes` sem login; a região/categoria existentes devem exibir o nome, preço e datas da cotação já cadastrada. Entrar como frigorífico, atualizar a cotação e recarregar a página pública: somente o novo preço vigente deve aparecer. Se houver outro frigorífico com cotação na mesma região/categoria, cada um deve aparecer separadamente, sem média. Testar filtros e uma região/categoria sem cotações (“Dados insuficientes”); conferir que histórico de versões e nome do responsável não aparecem publicamente. Repetir em celular e com JavaScript desativado.
+- **Aprovação do usuário:** PENDENTE para a F5-T01; decisão sobre regra de publicação recebida, mas não equivale à validação da entrega implementada.
+- **Próximo passo autorizado:** parar e aguardar teste e aprovação explícita da F5-T01. Não iniciar F6 automaticamente.

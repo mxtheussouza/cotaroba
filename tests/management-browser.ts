@@ -279,6 +279,7 @@ export function registerManagementBrowserTests(resources: () => Resources) {
     // before opening the next form, which the refreshed response replaces.
     await page.waitForLoadState("networkidle");
     await saved(page, "acesso-atualizado");
+    await page.reload();
     const replacement = randomUUID() + "-aB1!";
     await updatedArticle
       .getByText("Redefinir senha de Responsável atualizado", { exact: true })
@@ -405,7 +406,7 @@ export function registerManagementBrowserTests(resources: () => Resources) {
     await context.close();
   });
 
-  it("keeps manager records out of the public portal and rejects invalid/private URLs", async () => {
+  it("keeps account records out of the public homepage and rejects invalid/private URLs", async () => {
     const r = resources();
     const context = await r.browser.newContext({ javaScriptEnabled: false });
     const page = await context.newPage();
@@ -414,9 +415,7 @@ export function registerManagementBrowserTests(resources: () => Resources) {
     assert.ok(
       (await page.locator("main").innerText()).includes("Dados insuficientes"),
     );
-    assert.ok(
-      !(await page.content()).includes(r.fixtures.slaughterhouses[0].name),
-    );
+    assert.ok(!(await page.content()).includes(r.fixtures.manager.email));
     assert.ok(!(await page.content()).includes(r.fixtures.users[0].email));
     await page.goto(`${r.origin}/gestor/frigorificos/novo`);
     assert.equal(new URL(page.url()).pathname, "/login");

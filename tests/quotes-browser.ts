@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
+import { mkdir } from "node:fs/promises";
+import { join } from "node:path";
 import { it } from "node:test";
 import type { Browser } from "playwright";
 
@@ -112,9 +114,38 @@ export function registerQuoteBrowserTests(resources: () => Resources) {
     });
     const publicPage = await publicContext.newPage();
     await publicPage.goto(`${r.origin}/`);
+    await publicPage.getByRole("link", { name: "Consultar cotações" }).click();
+    await publicPage
+      .getByLabel("Região", { exact: true })
+      .selectOption(r.fixtures.slaughterhouses[0].regionId);
+    await publicPage
+      .getByLabel("Categoria", { exact: true })
+      .selectOption(category.id);
+    await publicPage.getByRole("button", { name: "Consultar" }).click();
+    await publicPage.waitForURL(
+      (url) => url.searchParams.get("categoria") === category.id,
+    );
     const publicContent = await publicPage.content();
-    assert.ok(!publicContent.includes("7185,24"));
-    assert.ok(!publicContent.includes(r.fixtures.slaughterhouses[0].name));
+    assert.ok(publicContent.includes("7.185,24"));
+    assert.ok(publicContent.includes(r.fixtures.slaughterhouses[0].name));
+    assert.ok(!publicContent.includes("7.184,23"));
+    assert.ok(!publicContent.includes(r.fixtures.users[0].email));
+    for (const width of [320, 390, 1280]) {
+      await publicPage.setViewportSize({ width, height: 844 });
+      assert.ok(
+        await publicPage.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      );
+      if (process.env.TEST_SCREENSHOT_DIR) {
+        await publicPage.reload();
+        await mkdir(process.env.TEST_SCREENSHOT_DIR, { recursive: true });
+        await publicPage.screenshot({
+          path: join(process.env.TEST_SCREENSHOT_DIR, `f5-public-${width}.png`),
+          fullPage: true,
+        });
+      }
+    }
     assert.ok(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,

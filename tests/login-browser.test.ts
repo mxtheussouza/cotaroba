@@ -23,7 +23,7 @@ let database: ReturnType<typeof getDatabase> | undefined;
 let fixtures: Awaited<ReturnType<typeof createAuthFixtures>> | undefined;
 
 describe(
-  "Login and management browser regression",
+  "Login, management and public quote browser regression",
   { concurrency: false, timeout: 120_000 },
   () => {
     before(async () => {

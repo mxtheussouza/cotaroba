@@ -9,7 +9,7 @@
 | 3 | F2-T01 | Login e perfis gestor/frigorífico | Acesso protegido; sessões; visitante não acessa áreas privadas |
 | 4 | F3-T01 | Gestor cadastra e administra frigoríficos e seus acessos | CRUD básico; validação; gestor testa cadastro |
 | 5 | F4-T01 | Frigorífico cadastra/atualiza preços e vê histórico próprio | Salvar, editar e consultar histórico; isolamento testado |
-| 6 | F5-T01 | Agregação regional e página pública de cotações | Somente dados agregados; ausência de dados suficientes tratada |
+| 6 | F5-T01 | Página pública de cotações por frigorífico e região | Nome e última cotação vigente por frigorífico/categoria; sem média; ausência de cotações tratada |
 | 7 | F6-T01 | Integrações externas e entrada manual de dados pelo gestor | Fontes disponíveis sincronizam; falhas não derrubam site; fallback manual |
 | 8 | F7-T01 | Dashboard completo, gráficos, indicadores e simulador | Filtros, fontes, fórmulas e cenários testados |
 | 9 | F8-T01 | Testes finais, revisão de segurança e deploy Vercel | Checklist de homologação e publicação aprovado |

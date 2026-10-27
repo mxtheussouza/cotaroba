@@ -38,7 +38,8 @@ model Slaughterhouse {
   @@index([regionId])
 }
 
-/// Private historical records. Publication requires an approved aggregation policy.
+/// Historical records. The F5 public view selects only the current published
+/// price per active slaughterhouse and category; versions and authors stay private.
 /// Quote changes must append a record rather than overwrite a previous price.
 model Quote {
   id               String   @id @default(uuid()) @db.Uuid

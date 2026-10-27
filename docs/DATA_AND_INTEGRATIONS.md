@@ -16,12 +16,11 @@ Cotações locais vêm dos frigoríficos. Dados externos são complementares; qu
 ## Contrato dos dados
 Valor, unidade, categoria/produto, região, fonte, origem (`API`/`MANUAL`/`IMPORT`), data de referência, data de coleta e validade quando aplicável. Guardar histórico, evitar duplicação e sinalizar desatualização.
 
-## Consolidação regional
-- Agrupar cotações comparáveis por região, categoria e período.
-- Uma empresa não pode multiplicar artificialmente o peso da própria contribuição.
-- **Não publicar** média ou recorte que permita inferir preço individual; não presumir que qualquer limiar fixo garanta anonimato.
-- Definir política de publicação e critérios de suficiência antes de implementar F5-T01, com validação apropriada; se não aprovada, mostrar “Dados insuficientes”.
-- Guardar metodologia e versão dos indicadores.
+## Publicação de cotações na F5
+- Decisão explícita do usuário em 2026-10-27: publicar o nome e o preço vigente de **cada frigorífico** da região, por categoria, sem calcular média, inclusive quando houver apenas um participante. Essa decisão substitui a política de agregação anônima planejada anteriormente.
+- Exibir uma cotação vigente por frigorífico e categoria na região atual do cadastro, escolhendo a maior data de referência e, em empate, a atualização mais recente. Não publicar versões anteriores, autoria pessoal nem IDs de cotações.
+- Exibir R$/@, categoria, região, data de referência e atualização; não apresentar preço como tempo real. Quando não houver cotação vigente, mostrar “Dados insuficientes”.
+- A publicação individual pode revelar informação comercialmente sensível; registrar a decisão e submeter os aspectos concorrenciais à revisão apropriada antes do deploy público em F8.
 
 ## Indicadores e simulador
 - Variação temporal da arroba e comparação regional.
