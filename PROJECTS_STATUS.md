@@ -4,8 +4,8 @@
 
 ## Estado atual
 - Data de referência: 2026-10-27.
-- Fase atual: **F6 — integrações externas e entrada manual concluída**.
-- Etapa atual: **F6-T01 — VALIDADA para o MVP**; F7-T01 pendente de autorização.
+- Fase atual: **F7 — dashboard, gráficos, indicadores e simulador**.
+- Etapa atual: **F7-T01 — EM_ANDAMENTO**, autorizada pelo usuário.
 - Aprovação do usuário: **F0-T01 a F6-T01 VALIDADAS**; F6 aprovada explicitamente para o MVP em 2026-10-27.
 - Implementações concluídas: **F0-T01 a F6-T01 VALIDADAS**.
 - Commit da F0-T01: `d42c693` — `chore(setup): initialize Next.js project foundation`.
@@ -21,7 +21,7 @@
 - Commit da F5-T01: `3e5e034` — `feat(public-quotes): publish slaughterhouse prices by region`.
 - Testes da F6-T01: **20 de dados externos + 5 de publicação + 19 cotações + 19 gestão + 27 autenticação + 8 banco + 11 navegador aprovados (109 distintos)**; navegador aprovado em desenvolvimento e produção. Fontes reais PTAX/IBGE validadas sem gravar dados; lint/typecheck/formatação/Prisma/build aprovados.
 - Commit validado da F6-T01: `a1efb85` — `feat(external-data): integrate PTAX and IBGE with manual data entry`.
-- Próxima ação: aguardar autorização explícita para F7-T01. Ajustes adicionais serão discutidos após a conclusão das etapas, conforme orientação do usuário. A troca local de senha recomendada na F2 não foi confirmada pelo usuário.
+- Próxima ação: implementar somente F7-T01, resolver as decisões pendentes e submeter à validação humana. Ajustes adicionais serão discutidos após a conclusão das etapas, conforme orientação do usuário. A troca local de senha recomendada na F2 não foi confirmada pelo usuário.
 
 ## Quadro de etapas
 | ID | Etapa | Estado | Commit | Validação do usuário |
@@ -33,7 +33,7 @@
 | F4-T01 | Frigorífico: cadastro/atualização de cotações | VALIDADA | `93cd0ec` + `a614bee` + `0d69b35` | CONFIRMADA em 2026-10-27 |
 | F5-T01 | Consulta pública por frigorífico e região | VALIDADA | `3e5e034` | CONFIRMADA em 2026-10-27 |
 | F6-T01 | Integrações externas e cadastro manual | VALIDADA | `a1efb85` | CONFIRMADA para o MVP em 2026-10-27 |
-| F7-T01 | Gráficos, indicadores e simulador | PENDENTE | — | PENDENTE |
+| F7-T01 | Gráficos, indicadores e simulador | EM_ANDAMENTO | — | PENDENTE |
 | F8-T01 | Homologação e deploy | PENDENTE | — | PENDENTE |
 
 Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUARDANDO_VALIDACAO`, `VALIDADA`.
@@ -611,3 +611,31 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - **Como validar manualmente:** nenhuma funcionalidade nova; entrega F6 já aprovada. Roteiro de consulta/cadastro preservado no README.
 - **Pendências:** refinamentos posteriores ainda sem escopo definido; demais questões abertas da F7/F8 preservadas.
 - **Próximo passo autorizado:** aguardar autorização explícita para iniciar F7-T01. A aprovação da F6 não inicia a próxima etapa automaticamente.
+
+
+### 2026-10-27 — F7-T01 — Autorização e inspeção
+- **Estado:** EM_ANDAMENTO.
+- **Autorização:** “Autorizado”, em resposta à apresentação da F7 como próxima etapa. Somente F7-T01 autorizada; ajustes posteriores ao MVP continuam reservados para após o roadmap.
+- **Inspeção:** `main` limpo, commit `7ca27cc`; status e documentos do contrato lidos. Existem consulta pública vigente por frigorífico e séries externas com períodos/revisões armazenados; nenhum gráfico ou simulador implementado anteriormente.
+- **Plano/arquivos esperados:** módulo `src/features/dashboard` com filtros, consultas e indicadores; gráfico SVG acessível com tabela equivalente, sem nova biblioteca; dashboard público, simulador separado com validação/cálculos fora da UI; testes de domínio/banco/navegador, README, documentos de metodologia e status. Aceite: filtros/região/categoria/período, fonte/unidade/datas, vazio/defasagem, fórmulas explícitas, resultados verificados e isolamento preservado.
+- **Decisões solicitadas antes das partes dependentes:** a F5 autorizou apenas cotação vigente e mantém versões anteriores privadas; solicitada permissão explícita para publicar evolução por data, sem correções substituídas/autores, ou restringir gráficos a dados externos. Solicitada validação da fórmula do simulador já proposta no documento: peso vivo kg × rendimento % / 100 / 15; receita por animal = arrobas × preço; margem = receita − custo total por animal informado, sem premissas comerciais automáticas.
+- **Testes:** inspeção/leitura realizadas; testes funcionais pendentes da implementação. Nenhum dado alterado.
+- **Commit:** não realizado; este status integrará o commit pertinente da etapa.
+- **Aprovação:** início autorizado; decisões acima e validação final pendentes. Próximo passo: progredir nas partes independentes e aguardar respostas antes de implementar publicação ampliada/cálculos dependentes. Não iniciar F8.
+
+
+### 2026-10-27 — F7-T01 — Base independente preparada; decisões de produto pendentes
+- **Estado:** EM_ANDAMENTO, entrega parcial. F7 não concluída nem submetida à validação final; F8 não iniciada.
+- **Objetivo atendido nesta execução:** preparar filtros de período, gráfico SVG com tabela equivalente, leitura de referências externas por período e indicadores aritméticos, sem implementar as partes dependentes das respostas do usuário. A base ainda não foi conectada às páginas públicas.
+- **Arquivos alterados/criados:** `src/features/dashboard/{filters.ts,chart.tsx,indicators.ts,external-service.ts}`, `tests/dashboard.test.ts`, `tests/dashboard-data.test.ts`, `PROJECTS_STATUS.md`.
+- **Decisões técnicas:** período padrão de 90 datas civis na Bahia, janela máxima de 366 datas sem referência futura; gráfico individual por série/unidade, eixo zero e tabela acessível, sem interpolar datas ausentes. Consulta externa considera fim da referência, conserva o período completo e seleciona somente a última revisão de cada período, sem autor/ID de observação. Indicador percentual compara primeira/última observação disponível; base zero não gera percentual. Relação de troca expressa arrobas necessárias por bezerro (R$/cabeça dividido por R$/@), sem presumir peso de carcaça; exige métricas corretas, mesma localidade/frequência/período e referências válidas sem defasagem.
+- **Decisões pendentes:** autorização explícita para ampliar a publicação da F5 a evolução por frigorífico/data (sem correções substituídas ou autoria), ou manter cotações vigentes e gráficos apenas externos; validação do simulador com peso vivo kg × rendimento % / 100 / 15, receita por animal = arrobas × preço, margem = receita − custo total por animal informado. Duas perguntas enviadas por ferramenta assíncrona, sem resposta recebida nesta execução. Não inferir aprovação pelo tempo decorrido.
+- **Testes executados (comando → resultado real):**
+  - `node --conditions=react-server --env-file-if-exists=.env --import tsx --test tests/dashboard.test.ts` → **4/4 aprovados**, filtros civis/fuso, janela inválida, variação exata e relação de troca/comparabilidade.
+  - `node --conditions=react-server --env-file-if-exists=.env --import tsx --test tests/dashboard-data.test.ts` → **6/6 aprovados**, PostgreSQL isolado: série vazia, última revisão, filtros de período, DTO sem autoria/IDs/versões, base zero/uma observação, trimestre, validade/defasagem e identificadores/janelas inválidos. Fixtures removidas ao fim.
+  - `npm run typecheck`, `npm run lint`, `npm run build` → exit 0. Formatação aplicada via Prettier aos arquivos novos; `npm run format:check` e `git diff --check` → aprovados na conferência final.
+- **Testes não executados e motivo:** regressão de navegador/visual e suítes anteriores não repetidas para módulos ainda sem conexão às rotas; execução necessária quando a jornada F7 for implementada após as decisões. Não há teste manual de nova tela nesta entrega parcial.
+- **Commit Conventional Commits:** `chore(dashboard): prepare F7 foundation pending product decisions`; hash: consultar Git após criação. Commit preserva base parcial testada e status; não representa funcionalidade F7 concluída.
+- **Como conferir esta execução:** executar os dois comandos de teste acima; nenhuma tela nova da F7 foi disponibilizada.
+- **Aprovação:** início da F7 autorizado; mudança de publicação, premissas comerciais e aprovação final da entrega ainda pendentes.
+- **Próximo passo autorizado:** aguardar respostas às duas decisões e então continuar somente F7, concluir telas/testes/documentação, criar commit de implementação e submeter à validação humana. Sem avanço automático à F8.
