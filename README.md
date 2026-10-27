@@ -5,12 +5,14 @@ consolidados. As cotações individuais dos frigoríficos são privadas.
 
 ## Estado da implementação
 
-F0-T01, F1-T01 e F2-T01 foram validadas pelo usuário. A F3-T01 acrescenta
-cadastro de regiões e gestão privada de frigoríficos e acessos. O login usa sessões PostgreSQL e Better Auth. O histórico e a aprovação de cada etapa estão em
+F0-T01 a F3-T01 foram validadas pelo usuário. A F4-T01 acrescenta categorias
+e cotações privadas com histórico de versões; sua validação humana está pendente.
+O login usa sessões PostgreSQL e Better Auth. O histórico e a aprovação de cada etapa estão em
 [PROJECTS_STATUS.md](./PROJECTS_STATUS.md).
 
 A página pública continua simples, em português e sem dados de mercado,
-exibindo “Dados insuficientes”. Cotações não são expostas por API ou formulários nesta etapa.
+exibindo “Dados insuficientes”. Cotações individuais são exibidas somente na área
+privada do próprio frigorífico; não há API pública de preços.
 
 ## Requisitos e execução local
 
@@ -57,9 +59,9 @@ persistir valores monetários. `referenceDate` é uma data civil (`DATE`);
 
 As relações impedem excluir cadastros ainda referenciados. A região de cada
 cotação fica preservada mesmo se a região atual do frigorífico mudar.
-O modelo comporta vários registros históricos; a futura operação de atualização
-de cotações deverá acrescentar registros, preservando os anteriores. A política
-de escrita e a autoria das cotações serão tratadas na F4-T01.
+Atualizar uma cotação acrescenta uma versão, preservando preço, categoria, data,
+região e autoria anteriores. A primeira versão de registros anteriores à F4
+mantém a autoria como não registrada, sem atribuição fictícia.
 
 Nenhuma região, categoria ou cotação de negócio é criada automaticamente.
 Dados externos e indicadores serão modelados nas respectivas etapas, conforme
@@ -83,8 +85,8 @@ npm run db:migrate -- --name descricao_da_alteracao
 
 A configuração é `prisma7.config.ts`, explícita nos scripts, e o schema está em
 `prisma/schema.prisma`. O cliente gerado fica em `src/generated/prisma/` e não
-é versionado. A restrição de preço positivo e o índice único `lower(name)` das
-regiões são mantidos nas migrations SQL, pois não são representados no schema
+é versionado. A restrição de preço positivo, os índices únicos `lower(name)`
+de regiões/categorias e a forma das versões de cotações são mantidos nas migrations SQL, pois não são representados no schema
 Prisma; preserve-os em migrations futuras.
 
 O acesso da aplicação é `getDatabase()` em `src/lib/db.ts`: somente no servidor,
@@ -139,7 +141,7 @@ Entre em <http://localhost:3000/login>. `/acesso` encaminha ao destino do perfil
 `/gestor` ou `/frigorifico`. Cada página privada verifica a sessão e a permissão
 no servidor. Perfil incorreto é encaminhado a `/acesso-negado`; visitante e
 acesso desativado são encaminhados ao login. O gestor administra os cadastros;
-a área do frigorífico ainda não oferece cotações (F4-T01).
+a área do frigorífico oferece cadastro, atualização e histórico próprios de cotações.
 
 As sessões duram no máximo oito horas, sem renovação automática nem cache de
 permissões no cookie. O cookie é HttpOnly e SameSite=Lax. Logout exclui a sessão
@@ -212,7 +214,8 @@ A suíte versionada cobre login/logout com JavaScript desativado, envio por Ente
 ausência de credenciais nas URLs, alias de origem, fluxo aprimorado, bloqueio por
 perfil e limpeza de URLs antigas. Também cobre a F3: cadastro/edição/desativação,
 criação e administração de acessos, mensagens, troca de senha e proteção das
-Server Actions. Ela inicia e encerra seu próprio servidor em
+Server Actions. A F4 acrescenta a jornada privada de categoria, cotação e
+revisão, incluindo isolamento entre frigoríficos. Ela inicia e encerra seu próprio servidor em
 loopback:3100, usando exclusivamente `TEST_DATABASE_URL` e segredo efêmero.
 Pare outros servidores Next.js deste repositório antes de executar os testes.
 
@@ -404,6 +407,45 @@ alteram contas de desenvolvimento.
    rolagem horizontal. A URL não deve conter e-mail ou senha.
 8. Abra o portal sem login: deve continuar em “Dados insuficientes”, sem nomes,
    e-mails ou preços individuais. Finalize encerrando as sessões de teste.
+
+## Cotações privadas (F4-T01)
+
+O gestor cadastra categorias por nome em `/gestor/categorias`, sem lista
+predefinida. Nomes têm até 120 caracteres; espaços são normalizados e nomes
+que diferem apenas por caixa são recusados. O frigorífico usa uma categoria
+cadastrada para informar preço em R$/@, sem separador de milhar e com até duas
+casas decimais, e data civil de referência. A região é derivada do cadastro
+atual do frigorífico, sem campo editável no formulário.
+
+Em `/frigorifico`, os acessos da empresa veem somente as versões atuais das
+suas cotações. **Atualizar e ver histórico** abre todas as versões da série,
+incluindo autor e horário. Uma correção acrescenta versão e preserva a região
+da primeira; outro frigorífico recebe 404 ao tentar abrir essa série. Não há
+publicação de preços nesta etapa. Escritas são limitadas a 30 por minuto por
+frigorífico, compartilhadas entre seus acessos.
+
+A migration `20261026211810_quote_versions_and_categories` adiciona série,
+versão, vínculo à versão anterior e autoria. Os testes cobrem validação,
+isolamento, concorrência, histórico e limites:
+
+```sh
+npm run test:quotes
+PLAYWRIGHT_CHANNEL=chrome npm run test:browser
+```
+
+Para validar manualmente:
+
+1. Aplique as migrations com `npm run db:deploy` e entre como gestor.
+2. Cadastre uma categoria em **Categorias**. Tente repetir em maiúsculas e
+   confira a mensagem de duplicidade.
+3. Entre com um acesso de frigorífico, abra **Cadastrar cotação**, informe
+   categoria, preço e data e salve. Confira a cotação na lista privada.
+4. Abra **Atualizar e ver histórico**, altere o preço e salve. Confira duas
+   versões, valores anteriores preservados e autor/horário de cada uma.
+5. Entre com um acesso de outro frigorífico: a cotação não deve aparecer, e
+   a URL do histórico da primeira empresa deve retornar 404. O portal público
+   continua em “Dados insuficientes”, sem nomes ou preços individuais.
+6. Repita o envio com JavaScript desativado e confira a interface no celular.
 
 ## Conferência do banco (F1-T01)
 

@@ -3,11 +3,11 @@
 **Regra:** atualizar após **cada tarefa executada**, preservando todas as entradas. Ver `AGENTS.md`. O status é a fonte de verdade do andamento.
 
 ## Estado atual
-- Data de referência: 2026-10-26.
+- Data de referência: 2026-10-27.
 - Fase atual: **F4 — cotações privadas e histórico próprio**.
-- Etapa atual: **F4-T01 — EM_ANDAMENTO**.
+- Etapa atual: **F4-T01 — IMPLEMENTADA_AGUARDANDO_VALIDACAO**.
 - Aprovação do usuário: **F0-T01, F1-T01, F2-T01 e F3-T01 VALIDADAS**; F3 confirmada explicitamente em 2026-10-26.
-- Implementações concluídas: **F0-T01 a F3-T01 VALIDADAS**; F4-T01 autorizada e em implementação.
+- Implementações concluídas: **F0-T01 a F3-T01 VALIDADAS**; F4-T01 implementada e aguardando validação humana.
 - Commit da F0-T01: `d42c693` — `chore(setup): initialize Next.js project foundation`.
 - Testes atuais da F2-T01: **27 de autenticação + 8 de banco + 4 de navegador aprovados**; navegador repetido em desenvolvimento e produção, com JavaScript desativado/ativado, POST/Enter, origem canônica e proteção de URLs/logs. Lint, typecheck, formatação, build, instalação limpa e auditoria npm aprovados; detalhes no histórico.
 - Commit da F1-T01: `c9650fd` — `feat(database): add PostgreSQL schema and initial migration`.
@@ -15,7 +15,8 @@
 - Commit da correção validada: `3805007` — `fix(auth): make login work before hydration`.
 - Testes da F3-T01: **19 de gestão + 27 de autenticação + 8 de banco + 8 de navegador aprovados (62 distintos)**; navegador aprovado em desenvolvimento e produção. Lint, typecheck, formatação, validação Prisma e build aprovados.
 - Commit validado da F3-T01: `7e0b966` — `feat(slaughterhouses): manage regions, slaughterhouses and accesses`.
-- Próxima ação: concluir somente F4-T01 e submeter à validação; usuário pediu pausa no ponto de trabalho ao atingir o limite de uso de 5 horas do Codex. Não iniciar F5. A troca local de senha recomendada na F2 não foi confirmada pelo usuário.
+- Testes da F4-T01: **19 cotações + 19 gestão + 27 autenticação + 8 banco + 9 navegador aprovados (82 distintos)**; navegador aprovado em desenvolvimento e produção. Lint, typecheck, formatação, validação Prisma e build aprovados.
+- Próxima ação: usuário testar e validar explicitamente a F4-T01. Não iniciar F5. A troca local de senha recomendada na F2 não foi confirmada pelo usuário.
 
 ## Quadro de etapas
 | ID | Etapa | Estado | Commit | Validação do usuário |
@@ -24,7 +25,7 @@
 | F1-T01 | Banco e modelo inicial | VALIDADA | `c9650fd` | CONFIRMADA em 2026-10-26 |
 | F2-T01 | Login e permissões | VALIDADA | `746e44d` + correção `3805007` | CONFIRMADA em 2026-10-26 |
 | F3-T01 | Gestor: cadastro de frigoríficos | VALIDADA | `7e0b966` | CONFIRMADA em 2026-10-26 |
-| F4-T01 | Frigorífico: cadastro/atualização de cotações | EM_ANDAMENTO | — | PENDENTE |
+| F4-T01 | Frigorífico: cadastro/atualização de cotações | IMPLEMENTADA_AGUARDANDO_VALIDACAO | `93cd0ec` + `a614bee` + commit final (consultar Git) | PENDENTE |
 | F5-T01 | Agregação regional e consulta pública | PENDENTE | — | PENDENTE |
 | F6-T01 | Integrações externas e cadastro manual | PENDENTE | — | PENDENTE |
 | F7-T01 | Gráficos, indicadores e simulador | PENDENTE | — | PENDENTE |
@@ -468,3 +469,23 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - **Testes:** inspeções Git, banco, modelos e suítes existentes; testes da F4 pendentes.
 - **Commit:** não realizado; criar somente após conclusão/verificação, ou registrar parcial se ocorrer interrupção.
 - **Aprovação:** execução/categorias autorizadas; entrega final da F4 ainda pendente de validação humana.
+
+### 2026-10-27 — F4-T01 — Conclusão técnica de cotações privadas e histórico
+- **Estado:** IMPLEMENTADA_AGUARDANDO_VALIDACAO. Somente F4-T01 concluída tecnicamente; F5 não iniciada.
+- **Objetivo e critérios atendidos:** gestor cadastra categorias por nome; frigorífico cria cotação com categoria, preço em R$/@ e data, consulta a lista própria e atualiza por nova versão. Histórico preserva preços, categoria, data, região, autoria e instante anteriores. Leitura/escrita de outra empresa e acesso de visitante/gestor às cotações são negados; portal público continua sem preços individuais.
+- **Arquivos da implementação:** `prisma/schema.prisma`, `prisma/migrations/20261026211810_quote_versions_and_categories/migration.sql`, `src/features/quotes/{actions,components,format,rate-limit,schema,service}.ts(x)`, páginas privadas `src/app/(private)/frigorifico/{page.tsx,cotacoes/[id]/page.tsx}` e `src/app/(private)/gestor/categorias/page.tsx`; ajustes de navegação/gestão, fixtures e `tests/quotes.test.ts` já presentes no commit `93cd0ec`. Nesta retomada: `tests/quotes-browser.ts`, `tests/login-browser.test.ts`, `src/features/quotes/service.ts`, `README.md` e este status.
+- **Implementação e decisões:** categoria criada pelo gestor, normalizada e única sem diferenciar caixa; nenhum seed comercial. Preço validado como decimal positivo de até duas casas, sem separador de milhar; data civil validada; empresa, região e autor derivados no servidor. Atualização acrescenta versão e rejeita revisão obsoleta, inclusive concorrente. Região da série permanece a original mesmo se o cadastro da empresa mudar. Registros anteriores não recebem autoria inventada. Limite atômico de 30 escritas/minuto por frigorífico. Leituras transacionais passaram a ser sequenciais no mesmo cliente, sem lançar consultas paralelas no mesmo `pg` client. A migration aditiva aplicada preservou dados existentes. O fluxo de navegador foi acrescentado e README atualizado para a entrega real.
+- **Histórico de Git observado na retomada:** `93cd0ec` (`feat: initialize F4-T01`) continha a implementação inicial e os testes de domínio; `a614bee` (`fix: remove text`) alterou uma linha do README. Ambos já existiam em `main` com workspace limpo ao retomar; não foram reescritos. O commit final desta conclusão inclui testes de navegador, ajuste de leitura, README e status, conforme o fluxo de Git.
+- **Testes executados (comando → resultado real):**
+  - `npm run test:quotes` → **19/19 aprovados**, zero falhas/skips, após ajuste de leitura. Cobrem categorias, validação de preço/data, isolamento, versões/concorrência, região/autoria, paginação, desativação e limite. O driver `pg` ainda emitiu aviso de depreciação de consulta concorrente em algum fluxo da suíte; nenhuma falha funcional.
+  - `PLAYWRIGHT_CHANNEL=chrome npm run test:browser` → **9/9 aprovados em desenvolvimento**; nova jornada sem JavaScript cadastra categoria, cria/revisa cotação, confere as duas versões, 404 para outra empresa e ausência do preço no portal. Regressões de login/gestão preservadas.
+  - `TEST_APP_MODE=production PLAYWRIGHT_CHANNEL=chrome npm run test:browser` → **9/9 aprovados em produção local**; mesma jornada e regressões.
+  - `npm run test:management` → **19/19 aprovados**; `npm run test:auth` → **27/27 aprovados**; `npm run test:db` → **8/8 aprovados**. Total de **82 testes distintos** (19+19+27+8+9), sem contar a repetição do navegador como casos novos.
+  - `npm run lint`, `npm run typecheck`, `npm run format:check`, `npm run db:validate`, `npm run build` → exit 0. `npm run format` aplicado aos arquivos cobertos pelo formatter. `npm run db:status` → cinco migrations encontradas, banco de desenvolvimento atualizado. Consulta SQL ao banco `cotaroba_test` após as suítes → **0 usuários, 0 frigoríficos, 0 cotações, 0 categorias, 0 eventos administrativos**.
+  - Primeira tentativa de `npm run test:quotes` e `npm run db:status` no sandbox falhou por acesso local `EPERM`/`P1001`; repetidas com acesso ao PostgreSQL local, aprovadas. `git diff --check` → sem erro de whitespace.
+- **Testes não executados e motivo:** validação humana com cadastros reais, outros navegadores e revisão de publicação agregada (F5) não pertencem ao gate automatizado desta entrega. Instalação limpa/auditoria npm não repetidas porque não houve mudança de dependências.
+- **Commit Conventional Commits:** `feat(quotes): complete private quote workflow and browser coverage`; hash: consultar `git log -1 --format=%h` após criação. Este status integra o mesmo commit final; hash real será informado ao usuário.
+- **Como validar manualmente:** aplicar migrations com `npm run db:deploy`, executar `npm run dev` e entrar como gestor em `/gestor/categorias`; criar categoria e conferir duplicidade em maiúsculas. Entrar como frigorífico em `/frigorifico`, salvar preço/data/categoria, abrir **Atualizar e ver histórico**, corrigir valor e conferir duas versões com autores/horários. Entrar como outro frigorífico: cotação ausente e URL da série retorna 404. Abrir portal sem login: “Dados insuficientes”, sem preço/empresa. Repetir com JavaScript desativado e no celular. Detalhes no README.
+- **Pendências/bloqueios:** nenhum bloqueio técnico da F4-T01; validação explícita do usuário pendente. Política de suficiência/publicação regional permanece questão da F5, não resolvida nesta etapa. Aviso de depreciação do `pg` será acompanhado se persistir na atualização futura do driver.
+- **Aprovação do usuário:** PENDENTE. Testes automatizados e commit não equivalem à validação humana.
+- **Próximo passo autorizado:** parar e aguardar teste e confirmação explícita da F4-T01; não iniciar F5 automaticamente.

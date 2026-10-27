@@ -116,24 +116,22 @@ export function getQuoteWorkspace(
       slaughterhouseId: member.slaughterhouse.id,
       nextQuote: null,
     };
-    const [records, total, categories] = await Promise.all([
-      transaction.quote.findMany({
-        where,
-        select: quoteSelect,
-        orderBy: [
-          { referenceDate: "desc" },
-          { createdAt: "desc" },
-          { id: "desc" },
-        ],
-        skip: (currentPage - 1) * QUOTES_PAGE_SIZE,
-        take: QUOTES_PAGE_SIZE,
-      }),
-      transaction.quote.count({ where }),
-      transaction.cattleCategory.findMany({
-        orderBy: { name: "asc" },
-        select: { id: true, name: true },
-      }),
-    ]);
+    const records = await transaction.quote.findMany({
+      where,
+      select: quoteSelect,
+      orderBy: [
+        { referenceDate: "desc" },
+        { createdAt: "desc" },
+        { id: "desc" },
+      ],
+      skip: (currentPage - 1) * QUOTES_PAGE_SIZE,
+      take: QUOTES_PAGE_SIZE,
+    });
+    const total = await transaction.quote.count({ where });
+    const categories = await transaction.cattleCategory.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, name: true },
+    });
     return {
       slaughterhouse: {
         name: member.slaughterhouse.name,
@@ -164,20 +162,18 @@ export function getQuoteHistory(
     });
     if (!current) throw new QuoteError("nao-encontrada");
     const currentPage = validPage(page);
-    const [versions, total, categories] = await Promise.all([
-      transaction.quote.findMany({
-        where,
-        select: quoteSelect,
-        orderBy: { version: "desc" },
-        take: QUOTES_PAGE_SIZE,
-        skip: (currentPage - 1) * QUOTES_PAGE_SIZE,
-      }),
-      transaction.quote.count({ where }),
-      transaction.cattleCategory.findMany({
-        orderBy: { name: "asc" },
-        select: { id: true, name: true },
-      }),
-    ]);
+    const versions = await transaction.quote.findMany({
+      where,
+      select: quoteSelect,
+      orderBy: { version: "desc" },
+      take: QUOTES_PAGE_SIZE,
+      skip: (currentPage - 1) * QUOTES_PAGE_SIZE,
+    });
+    const total = await transaction.quote.count({ where });
+    const categories = await transaction.cattleCategory.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, name: true },
+    });
     return {
       current: toQuoteDto(current),
       versions: versions.map(toQuoteDto),
