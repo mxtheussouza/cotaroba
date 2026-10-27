@@ -4,10 +4,10 @@
 
 ## Estado atual
 - Data de referência: 2026-10-27.
-- Fase atual: **F5 — consulta pública por frigorífico concluída**.
-- Etapa atual: **F5-T01 — VALIDADA**; F6-T01 pendente de autorização.
+- Fase atual: **F6 — integrações externas e entrada manual**.
+- Etapa atual: **F6-T01 — IMPLEMENTADA_AGUARDANDO_VALIDACAO**.
 - Aprovação do usuário: **F0-T01 a F5-T01 VALIDADAS**; F5 confirmada explicitamente em 2026-10-27.
-- Implementações concluídas: **F0-T01 a F5-T01 VALIDADAS**.
+- Implementações concluídas: **F0-T01 a F5-T01 VALIDADAS; F6-T01 implementada e aguardando validação**.
 - Commit da F0-T01: `d42c693` — `chore(setup): initialize Next.js project foundation`.
 - Testes atuais da F2-T01: **27 de autenticação + 8 de banco + 4 de navegador aprovados**; navegador repetido em desenvolvimento e produção, com JavaScript desativado/ativado, POST/Enter, origem canônica e proteção de URLs/logs. Lint, typecheck, formatação, build, instalação limpa e auditoria npm aprovados; detalhes no histórico.
 - Commit da F1-T01: `c9650fd` — `feat(database): add PostgreSQL schema and initial migration`.
@@ -19,7 +19,9 @@
 - Commit final da F4-T01: `0d69b35` — `feat(quotes): complete private quote workflow and browser coverage`.
 - Testes da F5-T01: **5 de publicação + 19 cotações + 19 gestão + 27 autenticação + 8 banco + 9 navegador aprovados (87 distintos)**; navegador aprovado em desenvolvimento e produção. Lint, typecheck, formatação, validação Prisma e build aprovados.
 - Commit da F5-T01: `3e5e034` — `feat(public-quotes): publish slaughterhouse prices by region`.
-- Próxima ação: aguardar autorização explícita para iniciar F6-T01. A troca local de senha recomendada na F2 não foi confirmada pelo usuário.
+- Testes da F6-T01: **20 de dados externos + 5 de publicação + 19 cotações + 19 gestão + 27 autenticação + 8 banco + 11 navegador aprovados (109 distintos)**; navegador aprovado em desenvolvimento e produção. Fontes reais PTAX/IBGE validadas sem gravar dados; lint/typecheck/formatação/Prisma/build aprovados.
+- Commit planejado da F6-T01: `feat(external-data): integrate PTAX and IBGE with manual data entry`; hash: consultar Git.
+- Próxima ação: aguardar teste e validação explícita da F6-T01; não iniciar F7. A troca local de senha recomendada na F2 não foi confirmada pelo usuário.
 
 ## Quadro de etapas
 | ID | Etapa | Estado | Commit | Validação do usuário |
@@ -30,7 +32,7 @@
 | F3-T01 | Gestor: cadastro de frigoríficos | VALIDADA | `7e0b966` | CONFIRMADA em 2026-10-26 |
 | F4-T01 | Frigorífico: cadastro/atualização de cotações | VALIDADA | `93cd0ec` + `a614bee` + `0d69b35` | CONFIRMADA em 2026-10-27 |
 | F5-T01 | Consulta pública por frigorífico e região | VALIDADA | `3e5e034` | CONFIRMADA em 2026-10-27 |
-| F6-T01 | Integrações externas e cadastro manual | PENDENTE | — | PENDENTE |
+| F6-T01 | Integrações externas e cadastro manual | IMPLEMENTADA_AGUARDANDO_VALIDACAO | consultar Git | PENDENTE |
 | F7-T01 | Gráficos, indicadores e simulador | PENDENTE | — | PENDENTE |
 | F8-T01 | Homologação e deploy | PENDENTE | — | PENDENTE |
 
@@ -52,7 +54,7 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - Nomes de regiões e categorias comerciais serão definidos pelo gestor nos cadastros autorizados pelo usuário; não há lista predefinida.
 - Revisão dos aspectos concorrenciais da publicação individual antes do deploy público da F8.
 - Provedor hospedado do banco, domínio HTTPS e segredos de produção; desenvolvimento usa PostgreSQL local e Better Auth com sessões no banco.
-- Licenças e endpoints das fontes externas.
+- Acesso/licenciamento das demais fontes externas (INMET, Open-Meteo, CONAB e CEPEA); PTAX e IBGE avaliados e integrados na F6.
 - Parâmetros e fórmulas comerciais do simulador.
 
 ## Histórico imutável (acrescentar entradas; não apagar)
@@ -557,3 +559,42 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - **Como validar manualmente:** validação já confirmada pelo usuário; roteiro e resultados da F5 constam na entrada anterior e no README.
 - **Pendências:** revisão concorrencial da publicação individual antes do deploy público da F8; demais questões da F6–F8 preservadas. A validação da F5 não autoriza iniciar a próxima etapa por si só.
 - **Próximo passo autorizado:** aguardar autorização explícita para F6-T01; não iniciar integrações ou entrada manual automaticamente.
+
+
+### 2026-10-27 — F6-T01 — Autorização e início
+- **Estado:** EM_ANDAMENTO.
+- **Autorização:** “Pode iniciar a proxima etapa”, após validação da F5; somente F6-T01 autorizada.
+- **Plano/aceite:** persistência de séries externas e observações versionadas; conectores PTAX diário de venda e IBGE tabela 1092 (abates trimestrais BA); gestor cria séries manuais e acrescenta registros/correções; consulta simples sem dependência da API durante leitura pública, fonte/unidade/período/coleta e defasagem explícitos. Sem dashboard analítico, gráficos, simulador ou deploy da F7/F8.
+- **Arquivos esperados:** schema/migration Prisma, módulo `src/features/external-data`, telas `/gestor/dados` e `/dados`, navegação, testes de domínio/conectores/navegador, README e documentação de fontes.
+- **Inspeção:** Git inicialmente limpo em `main`, commit `5caff0b`; PostgreSQL local saudável. Leitura do status e dos oito documentos do contrato realizada. Endpoints PTAX e metadados/resultados do IBGE responderam HTTP 200 via curl/Node com TLS validado. Python local apresentou erro de CA; não foi desativada a validação TLS.
+- **Fontes:** BCB catalogado sob ODbL; IBGE API pública oficial com metadados/códigos conferidos. INMET exige solicitação de acesso; Open-Meteo restringe API gratuita a uso não comercial; CONAB/CEPEA sem contrato automatizado confirmado, portanto sem scraping, serviço pago ou credenciais presumidas.
+- **Testes:** verificações funcionais pendentes de implementação.
+- **Commit:** não realizado; status será incluído no commit da etapa após testes.
+- **Aprovação da entrega:** pendente. Próximo passo autorizado: concluir somente F6 e aguardar validação.
+
+
+### 2026-10-27 — F6-T01 — Integrações externas e cadastro manual concluídos tecnicamente
+- **Estado:** IMPLEMENTADA_AGUARDANDO_VALIDACAO. Somente F6-T01 implementada; F7 não iniciada.
+- **Objetivo e critérios atendidos:** gestor sincroniza PTAX venda diário nacional e abates bovinos trimestrais da Bahia via APIs oficiais; cadastra séries/observações manuais de dólar, chuva, milho/soja, abates, bezerro e referência da arroba. Histórico e origem preservados; repetições não duplicam; falhas de fonte conservam dados e último sucesso. Consulta pública simples em `/dados`, sem dependência das fontes no carregamento, mostra fonte/unidade/localidade/período/coleta/validade e defasagem; autoria e versões anteriores ficam no gestor.
+- **Arquivos alterados/criados:** `prisma/schema.prisma`, `prisma/migrations/20261027123944_external_data/migration.sql`; `src/features/external-data/{schema,connectors,service,actions,components}.ts(x)`; `src/app/(private)/gestor/dados/{page.tsx,[id]/page.tsx}`, `src/app/dados/page.tsx`; navegação em `src/features/slaughterhouses/manager-shell.tsx` e `src/app/page.tsx`; `tests/external-data.test.ts`, `tests/external-data-browser.ts`, `tests/login-browser.test.ts`, `tests/helpers/auth-fixtures.ts`; `scripts/check-external-sources.ts`, `package.json`, README, `docs/{DATA_AND_INTEGRATIONS,TECHNICAL_SPEC,QUALITY_AND_SECURITY}.md` e este status.
+- **Implementação e decisões:**
+  - Migration aditiva com `ExternalSeries`, `ExternalObservation` e `ExternalSync`, enums, índices e CHECKs de valor/período/validade/autoria/revisão. Valores `NUMERIC(18,4)`, períodos `DATE`, instantes com fuso; sem nova dependência ou serviço. Migrations aplicadas em desenvolvimento e teste, preservando cotações/cadastros existentes.
+  - Metadados fixos por série; unidade deriva da métrica. Geografia textual externa não é confundida com região comercial dos frigoríficos. Correção no mesmo período acrescenta revisão sob lock da série; igualdade com versão atual é idempotente, inclusive sob envios simultâneos. Referência pública mais recente precede correções de períodos antigos. Histórico e listas paginados em 20 registros.
+  - Séries manuais permanecem separadas das automáticas para preservar atribuição, evitar mistura de metodologias e impedir substituição silenciosa ao recuperar a API. Autor manual no servidor; público não recebe autor, ID de observação nem histórico. Sem importação, edição de metadados, gráficos, indicadores derivados, simulador ou deploy.
+  - Coleta pelo botão do gestor, sem cron nesta etapa. Cada fonte tem lease/limite global de uma tentativa por minuto; ações compartilham limite administrativo de 30 escritas/minuto. Timeout de oito segundos, tamanho máximo de 256 KB, hosts fixos, sem redirecionamentos. Autorização antes do HTTP e novamente antes de persistir; não há transação aberta durante acesso à fonte. URL fornecida no cadastro manual é apenas atribuição e nunca é buscada no servidor.
+  - PTAX: venda, quatro casas, últimos 14 dias corridos; abates: SIDRA 1092/variável 284, UF 29, total trimestral de todos rebanhos e inspeções, quatro últimos trimestres. Escopo/unidades/datas validados. Símbolos não numéricos não viram zero. Defasagem calculada pela referência e não pela coleta: cinco dias para PTAX, 180 para abates; manual exige prazo de 1–730 dias. Validade encerrada tem prioridade.
+  - Avaliação de fontes e referências oficiais registrada em `docs/DATA_AND_INTEGRATIONS.md`: PTAX ODbL, com atribuição/link; IBGE via API oficial pública e política de dados abertos, com atribuição/SIDRA sem presumir licença CC nominal. INMET exige solicitação; Open-Meteo gratuito restringe uso comercial; CONAB/CEPEA sem contrato automatizado confirmado, portanto sem scraping, compra ou credenciais presumidas. Cadastro manual exige fonte publicável e não concede licença de redistribuição.
+- **Testes executados (comando → resultado real):**
+  - `npm run test:external-data` → **20/20 aprovados**, zero falhas/skips: contratos de PTAX/IBGE, referências civis/trimestres, unidade/geografia/classificações, falhas HTTP/rede/timeout e formato, resposta excessiva, vazio/supressão, validação de precisão/URL/período/validade, autorização antes do HTTP, correções/reversão/concorrência, última referência, privacidade, defasagem, sincronização idempotente, falha preservando sucesso/dados, limite global, lote inválido, fallback e paginação. Repetido após reforço da proteção de cleanup da suíte para não remover dados se o pré-requisito de tabelas vazias falhar e validação estrita das quatro casas da PTAX, inclusive diferenças muito pequenas sem tolerância de arredondamento.
+  - `npm run test:public-quotes` → **5/5**; `npm run test:quotes` → **19/19**; `npm run test:management` → **19/19**; `npm run test:auth` → **27/27**; `npm run test:db` → **8/8**. Aviso de depreciação `pg` previamente conhecido na suíte de cotações, sem falha. Logs esperados de credencial/origem inválida nos casos negativos de autenticação.
+  - `TEST_SCREENSHOT_DIR=/private/tmp/cotaroba-f6-qa PLAYWRIGHT_CHANNEL=chrome npm run test:browser` → **11/11 aprovados em desenvolvimento**; `TEST_APP_MODE=production PLAYWRIGHT_CHANNEL=chrome npm run test:browser` → **11/11 em produção local**. Novos fluxos sem JavaScript criam série, registram/corrigem valor, conferem histórico/autoria privada, consultam último valor sem autoria e sem chamada externa no navegador; visitante/frigorífico têm acesso recusado ao gestor/histórico. Sem rolagem horizontal em 320/390/1280px. Capturas pública 320px e gestor 1280px inspecionadas visualmente, fora do Git. Total: **109 casos distintos**, sem contar repetições de ambiente como novos casos.
+  - `npm run data:check-sources` → exit 0: **10 registros PTAX válidos, última referência 2026-10-26; 4 registros IBGE válidos, último trimestre encerrado em 2026-06-30**. Probe real somente leitura, sem gravar no banco. Primeira execução retornou HTTP 400 do BCB por parâmetro de ordenação desnecessário codificado com `+`; parâmetro removido, ordenação permanece local e nova execução passou nas duas fontes. Python do ambiente apresentou erro de CA na inspeção inicial; curl/Node validaram TLS normalmente, sem desativá-lo.
+  - `npm run db:migrate -- --name external_data --create-only` → migration criada; `npm run db:deploy` e deploy com URL isolada validada pelo helper `getTestDatabaseUrl()` → sexta migration aplicada nos dois bancos. `npm run db:status` → seis migrations, banco atualizado. `npm exec -- prisma format --config prisma7.config.ts`, `npm run db:validate` → exit 0.
+  - `npm run format`, `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm run build` → exit 0. Build mantém home estática e acrescenta rotas dinâmicas `/dados`, `/gestor/dados` e `/gestor/dados/[id]`, sem buscar fontes externas durante build. `git diff --check` → sem whitespace inválido. Uma conferência intermediária de formatação sinalizou `tests/external-data.test.ts` após o ajuste de cleanup; formatter aplicado e conferência final repetida.
+  - Consulta SQL ao banco de testes após navegador de produção → **0 usuários, 0 frigoríficos, 0 cotações, 0 séries externas, 0 observações e 0 estados de sincronização**. Fixtures e probe não inseriram dados de negócio no banco de desenvolvimento. SQL de desenvolvimento confirmou preservação de 1 região, 1 categoria, 1 frigorífico e 1 cotação; nenhuma série/observação externa foi inserida pelo QA.
+- **Testes não executados e motivo:** homologação humana, outros navegadores, cron e hospedagem ficam para os gates correspondentes. Rede real conferida pelo probe dos conectores, enquanto regressões de persistência/falha usam respostas determinísticas; não se afirma falha real do provedor como teste de navegador. Instalação limpa/auditoria npm não repetidas porque não houve alteração de dependências.
+- **Commit Conventional Commits:** `feat(external-data): integrate PTAX and IBGE with manual data entry`; hash: consultar `git log -1 --format=%h` após criação. Código, migration, testes, documentação e este status no mesmo commit; hash real informado ao usuário.
+- **Como validar manualmente:** executar `npm run db:deploy` e `npm run dev`; como gestor, abrir `/gestor/dados`, sincronizar dólar e abates separadamente, conferir fonte/unidade/período e repetir após um minuto sem duplicação. Criar série manual de chuva diária com fonte/localidade/prazo, registrar dia passado e corrigir o mesmo período; conferir versões no histórico. Abrir `/dados` sem login: somente último valor vigente, sem autoria; conferir referência antiga, validade encerrada e série vazia. Testar celular e JavaScript desativado. Frigorífico/visitante não acessam gestor/histórico. Roteiro completo no README.
+- **Pendências/limitações:** validação humana da F6. Agendamento ainda não configurado; coleta é sob demanda, sem garantia de tempo real. INMET/Open-Meteo/CONAB/CEPEA mantêm entrada manual com fonte autorizada, sem conectores automáticos presumidos. Revisão concorrencial da F5 e infraestrutura/segredos de produção permanecem para F8.
+- **Aprovação do usuário:** PENDENTE para a entrega F6; autorização de início não equivale a aprovação da implementação.
+- **Próximo passo autorizado:** parar e aguardar teste/validação explícita da F6-T01. Não iniciar F7 automaticamente.

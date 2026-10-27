@@ -37,6 +37,9 @@ export function ManagerShell({
         >
           Categorias
         </Link>
+        <Link href="/gestor/dados" className="underline underline-offset-4">
+          Dados externos
+        </Link>
         <Link href="/" className="underline underline-offset-4">
           Portal público
         </Link>

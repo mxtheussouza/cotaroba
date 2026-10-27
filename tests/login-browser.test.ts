@@ -13,6 +13,7 @@ import { createAuthFixtures } from "./helpers/auth-fixtures";
 import { getTestDatabaseUrl } from "./helpers/database";
 import { registerManagementBrowserTests } from "./management-browser";
 import { registerQuoteBrowserTests } from "./quotes-browser";
+import { registerExternalDataBrowserTests } from "./external-data-browser";
 
 const origin = "http://localhost:3100";
 const originalDatabaseUrl = process.env.DATABASE_URL;
@@ -252,6 +253,13 @@ describe(
     });
 
     registerQuoteBrowserTests(() => ({
+      browser: browser!,
+      database: database!,
+      fixtures: fixtures!,
+      origin,
+    }));
+
+    registerExternalDataBrowserTests(() => ({
       browser: browser!,
       database: database!,
       fixtures: fixtures!,

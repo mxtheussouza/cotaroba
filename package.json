@@ -28,7 +28,9 @@
     "test:browser": "node --conditions=react-server --env-file-if-exists=.env --import tsx --test tests/login-browser.test.ts",
     "test:management": "node --conditions=react-server --env-file-if-exists=.env --import tsx --test tests/management.test.ts",
     "test:quotes": "node --conditions=react-server --env-file-if-exists=.env --import tsx --test tests/quotes.test.ts",
-    "test:public-quotes": "node --conditions=react-server --env-file-if-exists=.env --import tsx --test tests/public-quotes.test.ts"
+    "test:public-quotes": "node --conditions=react-server --env-file-if-exists=.env --import tsx --test tests/public-quotes.test.ts",
+    "test:external-data": "node --conditions=react-server --env-file-if-exists=.env --import tsx --test tests/external-data.test.ts",
+    "data:check-sources": "node --conditions=react-server --import tsx scripts/check-external-sources.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.1",

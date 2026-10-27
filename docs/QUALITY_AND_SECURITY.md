@@ -23,6 +23,7 @@
 - Página sem cotação vigente mostra “Dados insuficientes”.
 - Página pública retorna somente os campos de publicação aprovados, sem IDs de cotação, versões anteriores ou autoria pessoal.
 - Falha de API externa preserva dado anterior e indica defasagem.
+- F6: cobrir respostas malformadas, erro HTTP/rede/timeout, limite de resposta, unidade/geografia/período incorretos, repetição e concorrência, revisões, zero válido para chuva/abates e autorização antes da chamada externa. Defasagem depende da referência, não da última tentativa de coleta. DTO público não inclui autoria ou histórico. Conferir cadastro manual sem JavaScript e consulta sem requisição à fonte no navegador.
 - Simulador valida entradas e calcula corretamente.
 - Layout funcional em desktop e celular.
 

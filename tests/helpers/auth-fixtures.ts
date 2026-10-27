@@ -83,6 +83,21 @@ export async function createAuthFixtures(database: PrismaClient) {
       await database.managementEvent.deleteMany({
         where: { actorId: manager.id },
       });
+      // External observations keep their author for audit; remove only fixture-owned data.
+      const externalSeries = await database.externalSeries.findMany({
+        where: { observations: { some: { createdById: manager.id } } },
+        select: { id: true },
+      });
+      await database.externalObservation.deleteMany({
+        where: { createdById: manager.id },
+      });
+      await database.externalSeries.deleteMany({
+        where: {
+          id: { in: externalSeries.map((series) => series.id) },
+          connector: null,
+          observations: { none: {} },
+        },
+      });
       await database.user.deleteMany({
         where: {
           id: { in: [manager.id, ...users.map((u) => u.id), ...createdUsers] },

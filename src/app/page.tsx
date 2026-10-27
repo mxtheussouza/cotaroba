@@ -68,13 +68,17 @@ export default function HomePage() {
           >
             Indicadores adicionais
           </h2>
-          <div className="mt-6 rounded-xl bg-secondary p-6">
-            <p className="font-semibold">Dados insuficientes</p>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
-              Outros indicadores estarão disponíveis em etapas futuras. As
-              cotações por frigorífico já podem ser consultadas acima.
-            </p>
-          </div>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted">
+            Consulte dólar, dados de produção e referências cadastradas pelo
+            gestor, com fonte, unidade e período. Séries sem registros mostram
+            “Dados insuficientes”.
+          </p>
+          <Link
+            href="/dados"
+            className="mt-4 inline-block font-semibold text-primary underline underline-offset-4"
+          >
+            Consultar dados externos
+          </Link>
           <p className="mt-6 text-sm leading-relaxed text-muted">
             A página de cotações mostra os preços vigentes informados pelos
             frigoríficos. O histórico de versões e os dados dos responsáveis

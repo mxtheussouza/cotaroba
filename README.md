@@ -5,8 +5,8 @@ informados por cada frigorífico, por região e categoria.
 
 ## Estado da implementação
 
-F0-T01 a F4-T01 foram validadas pelo usuário. A F5-T01 acrescenta a consulta
-pública por frigorífico; sua validação humana está pendente.
+F0-T01 a F5-T01 foram validadas pelo usuário. A F6-T01 acrescenta fontes
+externas e cadastro manual; sua validação humana está pendente.
 O login usa sessões PostgreSQL e Better Auth. O histórico e a aprovação de cada etapa estão em
 [PROJECTS_STATUS.md](./PROJECTS_STATUS.md).
 
@@ -41,7 +41,7 @@ porta ou nome do banco, atualize também as URLs. Variáveis já definidas no
 ambiente têm precedência. Não versione `.env` nem credenciais reais.
 
 `npm ci` gera o cliente Prisma via `postinstall`; não exige conexão com banco.
-O build continua independente do PostgreSQL. A consulta pública `/cotacoes`
+O build continua independente do PostgreSQL. As consultas públicas `/cotacoes` e `/dados`
 requer o banco local em execução.
 
 ## Modelo do domínio
@@ -65,8 +65,10 @@ região e autoria anteriores. A primeira versão de registros anteriores à F4
 mantém a autoria como não registrada, sem atribuição fictícia.
 
 Nenhuma região, categoria ou cotação de negócio é criada automaticamente.
-Dados externos e indicadores serão modelados nas respectivas etapas, conforme
-as regras aprovadas. Os modelos de autenticação estão descritos abaixo.
+Dados externos usam `ExternalSeries` (metadados fixos), `ExternalObservation`
+(valores e revisões em `NUMERIC(18,4)`, períodos civis, origem, coleta e autoria privada)
+e `ExternalSync` (última tentativa/sucesso da fonte). Indicadores calculados aguardam F7.
+Os modelos de autenticação estão descritos abaixo.
 
 ## Migrations e Prisma
 
@@ -217,7 +219,8 @@ ausência de credenciais nas URLs, alias de origem, fluxo aprimorado, bloqueio p
 perfil e limpeza de URLs antigas. Também cobre a F3: cadastro/edição/desativação,
 criação e administração de acessos, mensagens, troca de senha e proteção das
 Server Actions. A F4 acrescenta a jornada privada de categoria, cotação e
-revisão; a F5 confere a consulta pública. Ela inicia e encerra seu próprio servidor em
+revisão; a F5 confere a consulta pública e a F6 cobre série manual, correção,
+consulta externa pública e bloqueio por perfil. Ela inicia e encerra seu próprio servidor em
 loopback:3100, usando exclusivamente `TEST_DATABASE_URL` e segredo efêmero.
 Pare outros servidores Next.js deste repositório antes de executar os testes.
 
@@ -500,3 +503,83 @@ Leia [AGENTS.md](./AGENTS.md), [PROJECTS_STATUS.md](./PROJECTS_STATUS.md) e os
 arquivos de [docs/](./docs/), começando pela especificação de produto e roadmap.
 Cada etapa exige testes, atualização do status, commit Conventional Commits e
 validação explícita do usuário antes da próxima etapa.
+
+## Dados externos — F6
+
+Entre como gestor e abra **Dados externos** (`/gestor/dados`). Os botões
+**Sincronizar dólar** e **Sincronizar abates** consultam APIs oficiais, validam o
+resultado e armazenam os registros. Não há coleta agendada nesta etapa; o clique
+inicia a coleta automática. Nenhum serviço pago ou credencial adicional é necessário.
+
+- **Dólar:** PTAX de venda do Banco Central, em R$/US$, referência diária nacional,
+  últimos 14 dias corridos. Mantém quatro casas decimais e tolera fins de semana/feriados;
+  sinaliza defasagem após cinco dias da referência. Fonte e licença ODbL aparecem na consulta.
+- **Abates:** IBGE/SIDRA 1092, variável 284, Bahia/UF 29, total do trimestre,
+  todos os rebanhos e tipos de inspeção. Armazena os quatro últimos trimestres
+  divulgados, em cabeças, sem transformar o trimestre em dado diário. Prazo de
+  atualização: 180 dias após o encerramento do trimestre.
+
+Cada conector tem timeout de oito segundos, resposta limitada a 256 KB e no
+máximo uma tentativa por minuto em toda a aplicação. Repetir uma coleta não
+multiplica registros; correções da fonte geram revisões. Falhas não removem
+valores anteriores nem atualizam artificialmente sua data de referência.
+O sucesso de uma fonte independe da outra. Novas coletas cobrem apenas as janelas
+acima; o histórico já armazenado é preservado além delas.
+
+O gestor também pode criar séries manuais de dólar, chuva acumulada, milho,
+soja, abates, bezerro e referência da arroba. Deve informar nome, localidade,
+fonte/link HTTPS, frequência e prazo de atualização; as unidades aparecem no formulário.
+Use somente dados cuja publicação seja permitida pela fonte. Uma série mantém
+metadados fixos para preservar a comparabilidade; outra fonte/localidade/frequência
+exige outra série. Não há importação de arquivos nesta etapa.
+
+Na série manual, cadastre início e fim do período, valor e validade opcional.
+Use um dia, sete dias, mês completo ou trimestre completo conforme a frequência.
+Períodos futuros/incompletos são recusados. Preços são positivos; chuva e abates
+aceitam zero, e abates exigem inteiro. A correção do mesmo período acrescenta uma
+versão, inclusive ao voltar a um valor anterior; enviar novamente a versão atual
+não duplica o registro. A autoria do gestor fica apenas no histórico privado.
+
+Se uma fonte automática falhar, crie/utilize uma série manual com identificação
+própria. As séries ficam separadas e identificadas na consulta, sem mistura nem
+substituição silenciosa. INMET, Open-Meteo, CONAB e CEPEA não têm coleta automática
+implementada; acesso, licenciamento e formato precisam estar confirmados antes
+de acrescentar conectores. Veja [a avaliação das fontes](./docs/DATA_AND_INTEGRATIONS.md).
+
+A consulta `/dados`, também acessível pela página inicial, mostra a última
+referência de cada série, sua origem, fonte, unidade, localidade, período e coleta.
+“Dado defasado” considera o fim do período mais o prazo da série;
+“Validade encerrada” considera a validade informada. Uma coleta recente não
+rejuvenesce uma referência antiga. Séries vazias mostram “Dados insuficientes”.
+A leitura pública consulta somente PostgreSQL e não faz chamadas às fontes.
+Histórico e listagem têm paginação de 20 registros/séries. Não há gráficos,
+indicadores derivados, simulador ou deploy nesta etapa.
+
+Teste automatizado (banco separado já migrado):
+
+```sh
+npm run test:external-data
+PLAYWRIGHT_CHANNEL=chrome npm run test:browser
+```
+
+A suíte determinística usa respostas sintéticas de API, cobre falhas, validação,
+autorização, deduplicação concorrente, revisões, defasagem e privacidade.
+Para conferir somente o acesso às fontes reais, sem gravar no banco:
+
+```sh
+npm run data:check-sources
+```
+
+Roteiro de validação manual:
+
+1. Execute `npm run db:deploy` e `npm run dev`; entre como gestor em `/gestor/dados`.
+2. Sincronize dólar e abates separadamente e confira referência, unidade e fonte.
+   Aguarde um minuto e repita: não deve criar versões iguais.
+3. Cadastre uma série manual de chuva diária para uma localidade, com fonte e
+   prazo. Registre um dia passado e um valor; depois corrija o valor no mesmo dia.
+4. Confira as duas versões no histórico. Abra `/dados` sem login: somente o
+   valor vigente da referência mais recente deve aparecer, sem autoria pessoal.
+5. Confira uma referência antiga, uma validade encerrada e uma série sem registros.
+   Repita o cadastro com JavaScript desativado e confira as telas no celular.
+6. Com o acesso de frigorífico, `/gestor/dados` e URLs de histórico devem ser
+   recusados. Sem login, essas rotas devem encaminhar ao login.

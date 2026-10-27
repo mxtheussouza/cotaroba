@@ -88,12 +88,13 @@ model User {
   createdAt        DateTime @default(now()) @db.Timestamptz(3)
   updatedAt        DateTime @updatedAt @db.Timestamptz(3)
 
-  slaughterhouse            Slaughterhouse?   @relation(fields: [slaughterhouseId], references: [id], onDelete: Restrict)
+  slaughterhouse            Slaughterhouse?       @relation(fields: [slaughterhouseId], references: [id], onDelete: Restrict)
   sessions                  Session[]
   accounts                  Account[]
-  performedManagementEvents ManagementEvent[] @relation("ManagementActor")
-  accessManagementEvents    ManagementEvent[] @relation("ManagementTarget")
-  authoredQuotes            Quote[]           @relation("QuoteAuthor")
+  performedManagementEvents ManagementEvent[]     @relation("ManagementActor")
+  accessManagementEvents    ManagementEvent[]     @relation("ManagementTarget")
+  authoredQuotes            Quote[]               @relation("QuoteAuthor")
+  externalObservations      ExternalObservation[]
 
   @@index([slaughterhouseId])
 }
@@ -178,4 +179,70 @@ model ManagementEvent {
   @@index([slaughterhouseId, createdAt])
   @@index([actorId, createdAt])
   @@index([targetUserId])
+}
+
+enum ExternalMetric {
+  USD_BRL
+  RAINFALL
+  CORN
+  SOYBEAN
+  CATTLE_SLAUGHTER
+  CALF_PRICE
+  ARROBA_REFERENCE
+}
+
+enum ExternalFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+}
+
+enum ExternalOrigin {
+  API
+  MANUAL
+}
+
+/// Metadata is fixed after creation so historical values keep their meaning.
+model ExternalSeries {
+  id             String                @id @default(uuid()) @db.Uuid
+  name           String                @unique @db.VarChar(160)
+  connector      String?               @unique @db.VarChar(40)
+  metric         ExternalMetric
+  frequency      ExternalFrequency
+  geography      String                @db.VarChar(160)
+  sourceName     String                @db.VarChar(160)
+  sourceUrl      String                @db.VarChar(1000)
+  staleAfterDays Int
+  createdAt      DateTime              @default(now()) @db.Timestamptz(3)
+  observations   ExternalObservation[]
+}
+
+/// Corrections append revisions; synchronization never replaces stored history.
+model ExternalObservation {
+  id          String         @id @default(uuid()) @db.Uuid
+  seriesId    String         @db.Uuid
+  periodStart DateTime       @db.Date
+  periodEnd   DateTime       @db.Date
+  value       Decimal        @db.Decimal(18, 4)
+  validUntil  DateTime?      @db.Date
+  revision    Int
+  origin      ExternalOrigin
+  collectedAt DateTime       @default(now()) @db.Timestamptz(3)
+  createdById String?        @db.Uuid
+  series      ExternalSeries @relation(fields: [seriesId], references: [id], onDelete: Restrict)
+  createdBy   User?          @relation(fields: [createdById], references: [id], onDelete: Restrict)
+
+  @@unique([seriesId, periodStart, periodEnd, revision])
+  @@index([seriesId, periodEnd, periodStart, revision])
+  @@index([createdById])
+}
+
+/// A short lease bounds simultaneous synchronization attempts across instances.
+model ExternalSync {
+  connector   String    @id @db.VarChar(40)
+  attemptedAt DateTime  @db.Timestamptz(3)
+  succeededAt DateTime? @db.Timestamptz(3)
+  status      String    @db.VarChar(20)
+  errorCode   String?   @db.VarChar(40)
 }
