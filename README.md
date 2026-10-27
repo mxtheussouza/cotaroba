@@ -5,8 +5,9 @@ informados por cada frigorífico, por região e categoria.
 
 ## Estado da implementação
 
-F0-T01 a F5-T01 foram validadas pelo usuário. A F6-T01 acrescenta fontes
-externas e cadastro manual; sua validação humana está pendente.
+F0-T01 a F6-T01 foram validadas pelo usuário. A F6-T01, com fontes
+externas e cadastro manual, foi aprovada para o MVP. Ajustes adicionais serão
+definidos após concluir as etapas do roadmap; a F7 aguarda autorização.
 O login usa sessões PostgreSQL e Better Auth. O histórico e a aprovação de cada etapa estão em
 [PROJECTS_STATUS.md](./PROJECTS_STATUS.md).
 

@@ -4,10 +4,10 @@
 
 ## Estado atual
 - Data de referência: 2026-10-27.
-- Fase atual: **F6 — integrações externas e entrada manual**.
-- Etapa atual: **F6-T01 — IMPLEMENTADA_AGUARDANDO_VALIDACAO**.
-- Aprovação do usuário: **F0-T01 a F5-T01 VALIDADAS**; F5 confirmada explicitamente em 2026-10-27.
-- Implementações concluídas: **F0-T01 a F5-T01 VALIDADAS; F6-T01 implementada e aguardando validação**.
+- Fase atual: **F6 — integrações externas e entrada manual concluída**.
+- Etapa atual: **F6-T01 — VALIDADA para o MVP**; F7-T01 pendente de autorização.
+- Aprovação do usuário: **F0-T01 a F6-T01 VALIDADAS**; F6 aprovada explicitamente para o MVP em 2026-10-27.
+- Implementações concluídas: **F0-T01 a F6-T01 VALIDADAS**.
 - Commit da F0-T01: `d42c693` — `chore(setup): initialize Next.js project foundation`.
 - Testes atuais da F2-T01: **27 de autenticação + 8 de banco + 4 de navegador aprovados**; navegador repetido em desenvolvimento e produção, com JavaScript desativado/ativado, POST/Enter, origem canônica e proteção de URLs/logs. Lint, typecheck, formatação, build, instalação limpa e auditoria npm aprovados; detalhes no histórico.
 - Commit da F1-T01: `c9650fd` — `feat(database): add PostgreSQL schema and initial migration`.
@@ -20,8 +20,8 @@
 - Testes da F5-T01: **5 de publicação + 19 cotações + 19 gestão + 27 autenticação + 8 banco + 9 navegador aprovados (87 distintos)**; navegador aprovado em desenvolvimento e produção. Lint, typecheck, formatação, validação Prisma e build aprovados.
 - Commit da F5-T01: `3e5e034` — `feat(public-quotes): publish slaughterhouse prices by region`.
 - Testes da F6-T01: **20 de dados externos + 5 de publicação + 19 cotações + 19 gestão + 27 autenticação + 8 banco + 11 navegador aprovados (109 distintos)**; navegador aprovado em desenvolvimento e produção. Fontes reais PTAX/IBGE validadas sem gravar dados; lint/typecheck/formatação/Prisma/build aprovados.
-- Commit planejado da F6-T01: `feat(external-data): integrate PTAX and IBGE with manual data entry`; hash: consultar Git.
-- Próxima ação: aguardar teste e validação explícita da F6-T01; não iniciar F7. A troca local de senha recomendada na F2 não foi confirmada pelo usuário.
+- Commit validado da F6-T01: `a1efb85` — `feat(external-data): integrate PTAX and IBGE with manual data entry`.
+- Próxima ação: aguardar autorização explícita para F7-T01. Ajustes adicionais serão discutidos após a conclusão das etapas, conforme orientação do usuário. A troca local de senha recomendada na F2 não foi confirmada pelo usuário.
 
 ## Quadro de etapas
 | ID | Etapa | Estado | Commit | Validação do usuário |
@@ -32,7 +32,7 @@
 | F3-T01 | Gestor: cadastro de frigoríficos | VALIDADA | `7e0b966` | CONFIRMADA em 2026-10-26 |
 | F4-T01 | Frigorífico: cadastro/atualização de cotações | VALIDADA | `93cd0ec` + `a614bee` + `0d69b35` | CONFIRMADA em 2026-10-27 |
 | F5-T01 | Consulta pública por frigorífico e região | VALIDADA | `3e5e034` | CONFIRMADA em 2026-10-27 |
-| F6-T01 | Integrações externas e cadastro manual | IMPLEMENTADA_AGUARDANDO_VALIDACAO | consultar Git | PENDENTE |
+| F6-T01 | Integrações externas e cadastro manual | VALIDADA | `a1efb85` | CONFIRMADA para o MVP em 2026-10-27 |
 | F7-T01 | Gráficos, indicadores e simulador | PENDENTE | — | PENDENTE |
 | F8-T01 | Homologação e deploy | PENDENTE | — | PENDENTE |
 
@@ -48,6 +48,7 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - Cada etapa é implementada, testada, commitada e submetida à validação humana **antes** da seguinte.
 - Autenticação por e-mail/senha com Better Auth e sessões PostgreSQL; sem cadastro público ou serviço externo de autenticação.
 - Regiões cadastradas por nome pelo gestor, conforme opção 1 aprovada em 2026-10-26; sem lista comercial ou geográfica predefinida.
+- F6 aprovada como entrega do MVP; ajustes adicionais serão definidos após concluir as etapas do roadmap. Não há lista de ajustes nem mudança de escopo autorizada neste registro.
 
 ## Questões ainda abertas
 - Nome/identidade visual definitiva.
@@ -598,3 +599,15 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - **Pendências/limitações:** validação humana da F6. Agendamento ainda não configurado; coleta é sob demanda, sem garantia de tempo real. INMET/Open-Meteo/CONAB/CEPEA mantêm entrada manual com fonte autorizada, sem conectores automáticos presumidos. Revisão concorrencial da F5 e infraestrutura/segredos de produção permanecem para F8.
 - **Aprovação do usuário:** PENDENTE para a entrega F6; autorização de início não equivale a aprovação da implementação.
 - **Próximo passo autorizado:** parar e aguardar teste/validação explícita da F6-T01. Não iniciar F7 automaticamente.
+
+
+### 2026-10-27 — F6-T01 — Aprovação humana para o MVP
+- **Estado:** VALIDADA.
+- **Aprovação do usuário:** “Aprovado para um MVP, mas depois que concluirmos todas as etapas faremos alguns ajustes”. Aprovação explícita da entrega F6, com refinamentos adicionais reservados para depois da conclusão do roadmap.
+- **Commit validado:** `a1efb85` — `feat(external-data): integrate PTAX and IBGE with manual data entry`.
+- **Objetivo/arquivos alterados:** atualizar o quadro e as decisões em `PROJECTS_STATUS.md`, preservando o histórico; alinhar o resumo do README à aprovação. Nenhuma mudança de código, banco ou funcionalidade.
+- **Testes executados:** revisão do diff e `git diff --check` → sem erros. Testes de aplicação não repetidos por ser registro documental; os 109 casos e verificações da entrega permanecem registrados acima. Aprovação fornecida pelo usuário.
+- **Commit Conventional Commits:** `docs(status): record F6 MVP approval`; hash: consultar Git após criação.
+- **Como validar manualmente:** nenhuma funcionalidade nova; entrega F6 já aprovada. Roteiro de consulta/cadastro preservado no README.
+- **Pendências:** refinamentos posteriores ainda sem escopo definido; demais questões abertas da F7/F8 preservadas.
+- **Próximo passo autorizado:** aguardar autorização explícita para iniciar F7-T01. A aprovação da F6 não inicia a próxima etapa automaticamente.
