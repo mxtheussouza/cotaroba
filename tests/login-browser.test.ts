@@ -14,6 +14,7 @@ import { getTestDatabaseUrl } from "./helpers/database";
 import { registerManagementBrowserTests } from "./management-browser";
 import { registerQuoteBrowserTests } from "./quotes-browser";
 import { registerExternalDataBrowserTests } from "./external-data-browser";
+import { registerDashboardBrowserTests } from "./dashboard-browser";
 
 const origin = "http://localhost:3100";
 const originalDatabaseUrl = process.env.DATABASE_URL;
@@ -260,6 +261,13 @@ describe(
     }));
 
     registerExternalDataBrowserTests(() => ({
+      browser: browser!,
+      database: database!,
+      fixtures: fixtures!,
+      origin,
+    }));
+
+    registerDashboardBrowserTests(() => ({
       browser: browser!,
       database: database!,
       fixtures: fixtures!,

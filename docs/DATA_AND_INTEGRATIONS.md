@@ -41,7 +41,7 @@ Valor, unidade, categoria/produto, região, fonte, origem (`API`/`MANUAL`/`IMPOR
 - Variação temporal da arroba e comparação regional.
 - Relação de troca boi/bezerro apenas quando houver dados comparáveis.
 - Clima, dólar, milho/soja e abates como **contexto**, não previsão garantida.
-- Simulador: peso vivo × rendimento / 15 = arrobas de carcaça estimadas; receita = arrobas × preço; margem = receita − custos informados. Validar premissas comerciais com o cliente.
+- Simulador por animal, confirmado explicitamente pelo usuário na F7: peso vivo kg × rendimento (%) / 100 / 15 = arrobas de carcaça estimadas; receita = arrobas × preço; margem = receita − custo total informado por animal. Sem rendimento, taxa ou preço comercial predefinido. Comparação opcional mantém peso/rendimento/custo e usa outro preço informado.
 - Sempre mostrar hipóteses e limitações.
 
 ## Referências
@@ -51,3 +51,11 @@ Valor, unidade, categoria/produto, região, fonte, origem (`API`/`MANUAL`/`IMPOR
 - CONAB: https://portaldeinformacoes.conab.gov.br/
 - Open-Meteo: https://open-meteo.com/en/docs
 - CEPEA: https://onetoone.cepea.org.br/docs/api
+
+
+## Metodologia da F7 — aprovada em 2026-10-27
+- O usuário autorizou evolução pública por frigorífico/data, ampliando a regra da F5. A consulta considera apenas registros sem sucessor de correção, da região atual e de empresa ativa; escolhe uma cotação por data/categoria/frigorífico por atualização/ID de desempate. Correções substituídas continuam privadas, mesmo ao mudarem data/categoria. Sem snapshots, médias, autores ou IDs de cotação no resultado público.
+- Séries externas do gráfico selecionam última revisão de cada período; frequência/unidade/localidade nunca são mescladas. Janela padrão de 90 datas, máximo 366, sem futuro; filtragem externa pelo fim da referência. SVG e tabela equivalente mostram observações sem interpolar lacunas. Uma observação não define tendência.
+- Variação absoluta = último − primeiro ponto disponível; percentual = diferença / primeiro × 100, duas casas. Duas datas necessárias; base zero não gera percentual. O indicador é descritivo do recorte, não retorno financeiro nem previsão.
+- Relação de troca em @/bezerro = preço do bezerro R$/cabeça / referência da arroba R$/@. Séries explicitamente selecionadas, valores positivos, mesma geografia textual normalizada, frequência e período, atuais e não expiradas. Dados incompatíveis/ausentes → “Dados insuficientes”; não presumir peso de um boi nem equivalência entre regiões externas e comerciais.
+- Simulação usa Decimal e valores por animal; carcaça = peso × rendimento% / 100, arrobas = carcaça / 15, receita = arrobas × preço, margem = receita − custo informado. Preço de equilíbrio = custo / arrobas. Custos omitidos não são presumidos. Apenas a exibição monetária arredonda para centavos (meio para cima), sem reutilizar arrobas arredondadas no cálculo. Campos não são persistidos nem colocados na URL.

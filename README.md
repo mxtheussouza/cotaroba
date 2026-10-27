@@ -7,13 +7,16 @@ informados por cada frigorífico, por região e categoria.
 
 F0-T01 a F6-T01 foram validadas pelo usuário. A F6-T01, com fontes
 externas e cadastro manual, foi aprovada para o MVP. Ajustes adicionais serão
-definidos após concluir as etapas do roadmap; a F7 aguarda autorização.
+definidos após concluir as etapas do roadmap. A F7 acrescenta painel, gráficos e
+simulador, com validação humana pendente.
 O login usa sessões PostgreSQL e Better Auth. O histórico e a aprovação de cada etapa estão em
 [PROJECTS_STATUS.md](./PROJECTS_STATUS.md).
 
 A página inicial leva à consulta `/cotacoes`. Ela mostra nome, preço vigente,
 categoria, região e datas, conforme a mudança de produto autorizada em F5.
-Histórico de versões, autores pessoais e contas continuam privados.
+Na F7, `/painel` publica evolução por frigorífico/data usando apenas registros
+vigentes; correções substituídas, autores pessoais e contas continuam privados.
+O simulador fica em `/simulador`, sem login ou gravação de premissas.
 
 ## Requisitos e execução local
 
@@ -584,3 +587,126 @@ Roteiro de validação manual:
    Repita o cadastro com JavaScript desativado e confira as telas no celular.
 6. Com o acesso de frigorífico, `/gestor/dados` e URLs de histórico devem ser
    recusados. Sem login, essas rotas devem encaminhar ao login.
+
+## Painel e simulador — F7
+
+A página inicial oferece **Abrir painel** (`/painel`) e **Simular receita e margem**
+(`/simulador`). Ambas são públicas e funcionam com JavaScript desativado.
+As funcionalidades seguem as duas decisões explícitas do usuário na F7:
+publicar evolução por frigorífico/data sem correções substituídas e usar a
+fórmula do simulador descrita abaixo.
+
+### Filtros e gráficos
+
+O painel permite escolher região, categoria, frigorífico, datas e uma região
+para comparação. Os preços vigentes continuam individuais, sem média, e
+mantêm referência e atualização próprias. As listas atuais respondem à região e
+categoria; o período responde pelos gráficos. O painel mostra até 20 cotações
+por região, com link à consulta paginada completa. Ao mudar de região, aplique
+os filtros para atualizar os frigoríficos disponíveis nela.
+
+Para o gráfico local, selecione uma categoria específica. Para cada data no
+recorte, a consulta toma o registro vigente mais recentemente informado daquele
+frigorífico/categoria na região atual. Versões substituídas ficam fora mesmo
+quando uma correção muda sua data ou categoria. Logo, atualizar repetidamente
+uma única série pode deixar somente sua referência atual; registrar uma nova
+cotação para cada nova referência preserva os pontos distintos. Não há snapshot
+público imutável nem reconstrução de preços corrigidos. Frigoríficos inativos e
+cotações da região anterior não contribuem.
+
+As séries externas são selecionadas separadamente, com sua própria unidade,
+localidade, frequência, fonte/link, coleta e situação de atualização. Seleciona-se
+apenas a última revisão de cada período. Para semanas, meses e trimestres, o
+filtro considera a data final da referência e preserva o período completo na tabela.
+O painel lê PostgreSQL; uma falha na API da fonte não exige consultá-la durante
+a navegação. O prazo da F6 continua sinalizando referências antigas/expiradas.
+
+O recorte padrão tem 90 datas civis na Bahia; aceita até 366 datas, sem datas
+futuras. Datas inválidas mostram mensagem e retomam o padrão. Os gráficos SVG
+possuem escala começando em zero, datas proporcionais, pontos observados e tabela
+expansível acessível; não preenchem dias sem informação. Uma única observação
+não define tendência. Vazio mostra **Dados insuficientes**.
+
+Variação no período = último valor − primeiro valor observado; percentual =
+(último − primeiro) ÷ primeiro × 100. São necessárias duas datas distintas;
+com base zero, o percentual fica indisponível. O cálculo é por frigorífico ou
+série específica, nunca média entre empresas. A variação não é previsão de preço.
+
+### Relação de troca
+
+Selecione uma série externa **Referência da arroba** e uma de **Bezerro**.
+O indicador mostra quantas arrobas seriam necessárias para o preço de um bezerro:
+
+```text
+arrobas por bezerro = preço do bezerro (R$/cabeça) / referência da arroba (R$/@)
+```
+
+Exige valores positivos, mesma localidade textual normalizada (sem inferir
+mapeamentos entre praças), frequência e início/fim do período, sem validade
+encerrada ou defasagem. Escolhas ausentes ou incompatíveis mostram **Dados
+insuficientes**. Os nomes/fontes e datas permanecem visíveis para o visitante
+conferir condições comerciais. Não se presume peso de carcaça nem se transforma
+uma referência nacional em preço regional.
+
+### Simulador por animal
+
+Todos os campos principais são preenchidos pelo visitante, sem rendimento,
+preço ou custo comerciais predefinidos:
+
+```text
+carcaça (kg) = peso vivo (kg) × rendimento (%) / 100
+arrobas = carcaça (kg) / 15
+receita = arrobas × preço da arroba
+margem = receita − custo total por animal informado
+preço de equilíbrio = custo / arrobas
+```
+
+O preço alternativo é opcional e muda apenas a receita/margem, mantendo peso,
+rendimento e custo. Compra, alimentação, frete, tributos e descontos só entram
+se incluídos no custo informado. Não há taxas automáticas, promessa de lucro,
+previsão ou gravação das premissas. Envio por POST, sem colocar custos na URL.
+A implementação usa Server Action e aprimoramento progressivo com
+[`useActionState`](https://react.dev/reference/react/useActionState).
+
+Peso: maior que zero, até 2.000 kg, três casas; rendimento: maior que zero e até
+100%, duas casas; preços: positivos até R$ 1.000.000, duas casas; custo: zero a
+R$ 10.000.000, duas casas. São limites operacionais de entrada. Aceita vírgula ou
+ponto decimal, sem milhar/expoentes. Cálculos usam Decimal; intermediários não
+são arredondados para gerar receita. Resultados monetários são arredondados para
+centavos e mostram explicitamente margem positiva, zero ou negativa. Arrobas
+são exibidas com quatro casas e carcaça com três.
+
+Exemplo verificável: 500 kg, rendimento 55%, R$ 300/@ e custo R$ 4.000 por animal
+resultam em 275 kg de carcaça, 18,3333 @ exibidas, receita R$ 5.500 e margem
+R$ 1.500. Com preço alternativo R$ 270/@, receita R$ 4.950 e margem R$ 950.
+
+### Testar a F7
+
+```sh
+npm run test:dashboard
+PLAYWRIGHT_CHANNEL=chrome npm run test:browser
+npm run build
+TEST_APP_MODE=production PLAYWRIGHT_CHANNEL=chrome npm run test:browser
+```
+
+O script de dashboard executa os arquivos sequencialmente porque as fixtures
+isoladas de banco exercitam a restrição de gestor inicial único. As suítes
+usam apenas `TEST_DATABASE_URL` local separado; não execute simultaneamente
+outras suítes que criam esse gestor no mesmo banco.
+
+Roteiro manual:
+
+1. Execute `npm run dev`, abra `/painel` sem login e escolha região/categoria.
+   Compare outra região, conferindo nomes/preços individuais e datas, sem média.
+2. Cadastre cotações de datas distintas no frigorífico; selecione-o no painel,
+   altere o período e abra **Ver valores do gráfico**. Corrija uma cotação e
+   confira que o valor substituído não aparece; autoria e IDs internos não aparecem.
+3. Sincronize ou cadastre séries externas no gestor; selecione-as no painel e
+   confira período/unidade/fonte/variação. Referência antiga deve ser sinalizada.
+4. Cadastre referências comparáveis de arroba/bezerro no gestor e escolha ambas
+   nos filtros. R$ 300/@ e R$ 2.400/cabeça no mesmo local/período dão 8 @/bezerro;
+   períodos ou locais diferentes devem mostrar **Dados insuficientes**.
+5. Abra `/simulador`, use o exemplo acima, altere preço/custo e confira a margem
+   negativa quando o custo superar a receita. Teste rendimento inválido e custo zero.
+6. Repita filtros/tabela/simulador sem JavaScript e no celular. Para o painel,
+   use duas datas distintas de referência, não duas versões de correção da mesma data.

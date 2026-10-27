@@ -52,6 +52,12 @@ export default function HomePage() {
         </p>
 
         <Link
+          href="/painel"
+          className="mt-8 mr-4 inline-block rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground hover:bg-primary-hover"
+        >
+          Abrir painel
+        </Link>
+        <Link
           href="/cotacoes"
           className="mt-8 inline-block rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground hover:bg-primary-hover"
         >
@@ -80,10 +86,16 @@ export default function HomePage() {
             Consultar dados externos
           </Link>
           <p className="mt-6 text-sm leading-relaxed text-muted">
-            A página de cotações mostra os preços vigentes informados pelos
-            frigoríficos. O histórico de versões e os dados dos responsáveis
-            permanecem na área privada.
+            A página de cotações mostra preços vigentes. O painel traz evolução
+            por frigorífico e data; correções substituídas e dados pessoais dos
+            responsáveis permanecem privados.
           </p>
+          <Link
+            href="/simulador"
+            className="mt-4 inline-block font-semibold text-primary underline underline-offset-4"
+          >
+            Simular receita e margem
+          </Link>
         </section>
       </main>
 

@@ -34,7 +34,7 @@ Criar componentes **quando a etapa precisar deles**, não todos antecipadamente.
 - Exibir carregamento, erro, vazio, desatualizado e “Dados insuficientes”.
 - Não usar apenas cor para representar variação; exibir sinais/texto.
 - Gráficos devem ter período, legenda e eixos claros; evitar distorção.
-- Na página pública de cotações, mostrar nome do frigorífico e preço vigente conforme decisão da F5, sempre com região, categoria, unidade e data. Histórico e autoria pessoal continuam na área privada.
+- Na consulta de cotações, mostrar preço vigente conforme F5. No painel F7, evolução autorizada por data sem média entre frigoríficos; correções substituídas e autoria pessoal continuam privadas. Gráficos individuais por unidade, eixo zero, datas proporcionais e tabela acessível; sinais/textos para variação e margem negativa.
 
 ## Páginas
 Públicas: início/dashboard, cotações, indicadores/clima, simulador.

@@ -30,7 +30,8 @@
     "test:quotes": "node --conditions=react-server --env-file-if-exists=.env --import tsx --test tests/quotes.test.ts",
     "test:public-quotes": "node --conditions=react-server --env-file-if-exists=.env --import tsx --test tests/public-quotes.test.ts",
     "test:external-data": "node --conditions=react-server --env-file-if-exists=.env --import tsx --test tests/external-data.test.ts",
-    "data:check-sources": "node --conditions=react-server --import tsx scripts/check-external-sources.ts"
+    "data:check-sources": "node --conditions=react-server --import tsx scripts/check-external-sources.ts",
+    "test:dashboard": "node --conditions=react-server --env-file-if-exists=.env --import tsx --test --test-concurrency=1 tests/dashboard.test.ts tests/dashboard-data.test.ts tests/dashboard-quotes.test.ts tests/simulation.test.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.1",

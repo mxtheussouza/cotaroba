@@ -21,13 +21,13 @@ export function TimeSeriesChart({
   const last = points.length
     ? Date.parse(`${points.at(-1)!.date}T00:00:00Z`)
     : 0;
-  const position = (point: ChartPoint) => ({
+  const position = (point: ChartPoint, width: number) => ({
     x:
       last === first
-        ? 300
+        ? width / 2
         : 72 +
           ((Date.parse(`${point.date}T00:00:00Z`) - first) / (last - first)) *
-            488,
+            (width - 112),
     y: 208 - (Number(point.value) / ceiling) * 172,
   });
   return (
@@ -40,84 +40,101 @@ export function TimeSeriesChart({
         <p className="mt-6 font-semibold">Dados insuficientes</p>
       ) : (
         <>
-          <svg
-            role="img"
-            aria-label={`${title}. ${points.length} observações; valores disponíveis na tabela abaixo.`}
-            viewBox="0 0 600 260"
-            className="mt-4 h-auto w-full text-primary"
-          >
-            <text x="12" y="22" fontSize="17" fill="currentColor">
-              {unit}
-            </text>
-            {[0, 0.5, 1].map((fraction) => (
-              <g key={fraction}>
-                <line
-                  x1="72"
-                  x2="560"
-                  y1={208 - fraction * 172}
-                  y2={208 - fraction * 172}
-                  stroke="currentColor"
-                  strokeOpacity="0.18"
-                />
-                <text
-                  x="65"
-                  y={213 - fraction * 172}
-                  textAnchor="end"
-                  fontSize="17"
-                  fill="currentColor"
-                >
-                  {new Intl.NumberFormat("pt-BR", {
-                    notation: "compact",
-                    maximumFractionDigits: 1,
-                  }).format(ceiling * fraction)}
-                </text>
-              </g>
-            ))}
-            {points.length > 1 && (
-              <polyline
-                points={points
-                  .map((point) => {
-                    const { x, y } = position(point);
-                    return `${x},${y}`;
-                  })
-                  .join(" ")}
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="3"
-              />
-            )}
-            {points.map((point) => {
-              const { x, y } = position(point);
-              return (
-                <circle
-                  key={point.date}
-                  cx={x}
-                  cy={y}
-                  r="4"
-                  fill="currentColor"
-                >
-                  <title>
-                    {formatReferenceDate(point.date)}:{" "}
-                    {formatExternalValue(point.value)} {unit}
-                  </title>
-                </circle>
-              );
-            })}
-            <text x="72" y="241" fontSize="17" fill="currentColor">
-              {formatReferenceDate(points[0].date)}
-            </text>
-            {points.length > 1 && (
+          {[360, 600].map((width) => (
+            <svg
+              key={width}
+              role="img"
+              aria-label={`${title}. ${points.length} observações; valores disponíveis na tabela abaixo.`}
+              viewBox={`0 0 ${width} 260`}
+              className={
+                width === 360
+                  ? "mt-4 h-auto w-full text-primary sm:hidden"
+                  : "mt-4 hidden max-h-[360px] w-full text-primary sm:block"
+              }
+            >
               <text
-                x="560"
-                y="241"
-                textAnchor="end"
-                fontSize="17"
+                x="12"
+                y="22"
+                fontSize={width === 360 ? 18 : 17}
                 fill="currentColor"
               >
-                {formatReferenceDate(points.at(-1)!.date)}
+                {unit}
               </text>
-            )}
-          </svg>
+              {[0, 0.5, 1].map((fraction) => (
+                <g key={fraction}>
+                  <line
+                    x1="72"
+                    x2={width - 40}
+                    y1={208 - fraction * 172}
+                    y2={208 - fraction * 172}
+                    stroke="currentColor"
+                    strokeOpacity="0.18"
+                  />
+                  <text
+                    x="65"
+                    y={213 - fraction * 172}
+                    textAnchor="end"
+                    fontSize={width === 360 ? 18 : 17}
+                    fill="currentColor"
+                  >
+                    {new Intl.NumberFormat("pt-BR", {
+                      notation: "compact",
+                      maximumFractionDigits: 1,
+                    }).format(ceiling * fraction)}
+                  </text>
+                </g>
+              ))}
+              {points.length > 1 && (
+                <polyline
+                  points={points
+                    .map((point) => {
+                      const { x, y } = position(point, width);
+                      return `${x},${y}`;
+                    })
+                    .join(" ")}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                />
+              )}
+              {points.map((point) => {
+                const { x, y } = position(point, width);
+                return (
+                  <circle
+                    key={point.date}
+                    cx={x}
+                    cy={y}
+                    r="4"
+                    fill="currentColor"
+                  >
+                    <title>
+                      {formatReferenceDate(point.date)}:{" "}
+                      {formatExternalValue(point.value)} {unit}
+                    </title>
+                  </circle>
+                );
+              })}
+              <text
+                x="72"
+                y="241"
+                fontSize={width === 360 ? 18 : 17}
+                fill="currentColor"
+              >
+                {formatReferenceDate(points[0].date)}
+              </text>
+              {points.length > 1 && (
+                <text
+                  x={width - 40}
+                  y="241"
+                  textAnchor="end"
+                  fontSize={width === 360 ? 18 : 17}
+                  fill="currentColor"
+                >
+                  {formatReferenceDate(points.at(-1)!.date)}
+                </text>
+              )}
+            </svg>
+          ))}
           <p className="mt-2 text-sm text-muted">
             Eixo vertical começa em zero. Pontos representam observações; a
             linha apenas os conecta, sem preencher datas sem dados.{" "}

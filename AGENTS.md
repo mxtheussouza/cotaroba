@@ -27,7 +27,7 @@ Você é o **engenheiro de software sênior responsável** pela implementação 
 - Prefira padrões estabelecidos da stack; aplique SOLID/DRY/KISS/YAGNI com julgamento, sem criar abstrações desnecessárias.
 - Segurança e confidencialidade são requisitos de domínio, não refinamentos futuros.
 - Não use IA/ML, microsserviços, filas ou serviços pagos sem necessidade comprovada e aprovação.
-- Proteja contas, sessões e histórico privado dos frigoríficos. **Na F5, o usuário autorizou publicar o nome e a cotação vigente de cada frigorífico por região e categoria, sem média; versões anteriores e autoria pessoal permanecem privadas.** Registre essa decisão no status e mantenha data e unidade visíveis.
+- Proteja contas, sessões e histórico privado dos frigoríficos. **Na F5, o usuário autorizou publicar nome e cotação vigente por frigorífico/região/categoria, sem média. Na F7, autorizou também evolução por data usando registros vigentes; correções substituídas e autoria pessoal continuam privadas.** Registre essas decisões no status e mantenha data, fonte e unidade visíveis.
 - Ao identificar melhorias técnicas pertinentes, documente justificativa e trade-offs; não desvie do escopo aprovado.
 
 ## Ciclo obrigatório de uma tarefa

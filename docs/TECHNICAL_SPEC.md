@@ -17,11 +17,12 @@
 - Autenticação e autorização verificadas no servidor em **cada** operação protegida.
 - Valores monetários em `Decimal`/`NUMERIC`, com unidade explícita.
 - Datas com fuso e referência claros; apresentação `pt-BR`.
-- Separar DTO público de entidade privada; na F5, o DTO público contém apenas nome do frigorífico, região, categoria, preço vigente, unidade, data de referência e atualização. Não serializar IDs de cotações, autores, acessos, sessões ou versões anteriores.
+- Separar DTO público de entidade privada; na F5, somente nome, região, categoria, preço vigente, unidade, referência e atualização. Na F7, a evolução autorizada contém uma cotação vigente por data, sem versões substituídas. Nunca serializar IDs de cotações, autores, acessos ou sessões.
 - API externa → normalização/validação → persistência → cálculo → dashboard; nunca depender diretamente da API no carregamento público.
 - Jobs curtos e idempotentes; Vercel Cron se adequado. Não criar infraestrutura complexa prematuramente.
 - Usar migrations versionadas; não alterar schema de produção sem plano de migração.
 - F6: `src/features/external-data` separa contratos, conectores HTTP, serviços transacionais e ações autenticadas. Séries possuem metadados fixos; observações acrescentam revisões sob lock da série. `ExternalSync` registra tentativa/sucesso e limita concorrência entre instâncias, sem transação aberta durante HTTP. Coleta sob demanda pelo gestor; `/dados` lê somente dados persistidos. Sem novo serviço ou dependência.
+- F7: dashboard em `/painel`, monólito com consultas parametrizadas no servidor e SVG renderizado com tabela equivalente, sem biblioteca adicional. Cálculos decimais ficam em serviços próprios. Simulador público usa Server Action e `useActionState` com permalink para aprimoramento progressivo; POST sem persistência, logs de entradas ou parâmetros de custo na URL. Sem banco ou nova infraestrutura para cálculos.
 - Não criar abstrações apenas para “parecer enterprise”; SOLID, KISS, DRY e YAGNI com bom senso.
 
 ## Decisões técnicas

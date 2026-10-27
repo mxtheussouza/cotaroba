@@ -5,9 +5,9 @@
 ## Estado atual
 - Data de referência: 2026-10-27.
 - Fase atual: **F7 — dashboard, gráficos, indicadores e simulador**.
-- Etapa atual: **F7-T01 — EM_ANDAMENTO**, autorizada pelo usuário.
+- Etapa atual: **F7-T01 — IMPLEMENTADA_AGUARDANDO_VALIDACAO**.
 - Aprovação do usuário: **F0-T01 a F6-T01 VALIDADAS**; F6 aprovada explicitamente para o MVP em 2026-10-27.
-- Implementações concluídas: **F0-T01 a F6-T01 VALIDADAS**.
+- Implementações concluídas: **F0-T01 a F6-T01 VALIDADAS; F7-T01 implementada e aguardando validação**.
 - Commit da F0-T01: `d42c693` — `chore(setup): initialize Next.js project foundation`.
 - Testes atuais da F2-T01: **27 de autenticação + 8 de banco + 4 de navegador aprovados**; navegador repetido em desenvolvimento e produção, com JavaScript desativado/ativado, POST/Enter, origem canônica e proteção de URLs/logs. Lint, typecheck, formatação, build, instalação limpa e auditoria npm aprovados; detalhes no histórico.
 - Commit da F1-T01: `c9650fd` — `feat(database): add PostgreSQL schema and initial migration`.
@@ -21,7 +21,9 @@
 - Commit da F5-T01: `3e5e034` — `feat(public-quotes): publish slaughterhouse prices by region`.
 - Testes da F6-T01: **20 de dados externos + 5 de publicação + 19 cotações + 19 gestão + 27 autenticação + 8 banco + 11 navegador aprovados (109 distintos)**; navegador aprovado em desenvolvimento e produção. Fontes reais PTAX/IBGE validadas sem gravar dados; lint/typecheck/formatação/Prisma/build aprovados.
 - Commit validado da F6-T01: `a1efb85` — `feat(external-data): integrate PTAX and IBGE with manual data entry`.
-- Próxima ação: implementar somente F7-T01, resolver as decisões pendentes e submeter à validação humana. Ajustes adicionais serão discutidos após a conclusão das etapas, conforme orientação do usuário. A troca local de senha recomendada na F2 não foi confirmada pelo usuário.
+- Testes da F7-T01: **24 de dashboard/simulador + 20 dados externos + 5 publicação + 19 cotações + 19 gestão + 27 autenticação + 8 banco + 14 navegador aprovados (136 distintos)**; navegador em desenvolvimento e produção local. Lint, typecheck, formatação, validação Prisma e build aprovados.
+- Base da F7: `c1fc534`; commit final planejado: `feat(dashboard): add public trends and per-animal simulator`; hash: consultar Git.
+- Próxima ação: aguardar teste e aprovação explícita da F7-T01; não iniciar F8. Ajustes adicionais serão discutidos após a conclusão das etapas, conforme orientação do usuário. A troca local de senha recomendada na F2 não foi confirmada pelo usuário.
 
 ## Quadro de etapas
 | ID | Etapa | Estado | Commit | Validação do usuário |
@@ -33,7 +35,7 @@
 | F4-T01 | Frigorífico: cadastro/atualização de cotações | VALIDADA | `93cd0ec` + `a614bee` + `0d69b35` | CONFIRMADA em 2026-10-27 |
 | F5-T01 | Consulta pública por frigorífico e região | VALIDADA | `3e5e034` | CONFIRMADA em 2026-10-27 |
 | F6-T01 | Integrações externas e cadastro manual | VALIDADA | `a1efb85` | CONFIRMADA para o MVP em 2026-10-27 |
-| F7-T01 | Gráficos, indicadores e simulador | EM_ANDAMENTO | — | PENDENTE |
+| F7-T01 | Gráficos, indicadores e simulador | IMPLEMENTADA_AGUARDANDO_VALIDACAO | `c1fc534` + consultar Git | PENDENTE |
 | F8-T01 | Homologação e deploy | PENDENTE | — | PENDENTE |
 
 Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUARDANDO_VALIDACAO`, `VALIDADA`.
@@ -42,6 +44,7 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - Portal público, sem login para consulta.
 - Gestor cadastra frigoríficos e acessos; frigoríficos informam/atualizam cotações próprias.
 - Na F5, por decisão explícita do usuário em 2026-10-27, público vê **nome e preço vigente de cada frigorífico por região/categoria**, sem média; versões anteriores e autores pessoais continuam privados.
+- Na F7, o usuário ampliou a publicação à evolução por frigorífico/data, sem correções substituídas nem autoria pessoal; confirmou o simulador por animal com peso vivo × rendimento % / 100 / 15, receita = arrobas × preço e margem = receita − custo total informado.
 - Dados externos por APIs/fontes públicas, com entrada manual pelo gestor quando necessário.
 - Next.js + TypeScript, PostgreSQL, Prisma, deploy planejado na Vercel.
 - Produto simples: sem marketplace, IA, microserviços ou alertas avançados no MVP.
@@ -56,7 +59,7 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - Revisão dos aspectos concorrenciais da publicação individual antes do deploy público da F8.
 - Provedor hospedado do banco, domínio HTTPS e segredos de produção; desenvolvimento usa PostgreSQL local e Better Auth com sessões no banco.
 - Acesso/licenciamento das demais fontes externas (INMET, Open-Meteo, CONAB e CEPEA); PTAX e IBGE avaliados e integrados na F6.
-- Parâmetros e fórmulas comerciais do simulador.
+- Refinamentos comerciais futuros do simulador, caso solicitados; fórmula básica por animal confirmada na F7.
 
 ## Histórico imutável (acrescentar entradas; não apagar)
 ### 2026-10-26 — DOC-001 — Kit de instruções para Codex
@@ -639,3 +642,42 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - **Como conferir esta execução:** executar os dois comandos de teste acima; nenhuma tela nova da F7 foi disponibilizada.
 - **Aprovação:** início da F7 autorizado; mudança de publicação, premissas comerciais e aprovação final da entrega ainda pendentes.
 - **Próximo passo autorizado:** aguardar respostas às duas decisões e então continuar somente F7, concluir telas/testes/documentação, criar commit de implementação e submeter à validação humana. Sem avanço automático à F8.
+
+
+### 2026-10-27 — F7-T01 — Decisões confirmadas e retomada
+- **Estado:** EM_ANDAMENTO.
+- **Decisões explícitas:** usuário respondeu “1. Podemoss sim / 2. Confirmo” às duas perguntas. Autorizada evolução pública por frigorífico/data sem correções substituídas/autores; confirmadas fórmulas por animal do simulador, com peso vivo kg, rendimento % e preço/custo informados pelo visitante. Não repetir a solicitação dessas decisões.
+- **Base já testada:** commit `c1fc534` — `chore(dashboard): prepare F7 foundation pending product decisions`; quatro testes de domínio e seis de leitura externa aprovados, lint/typecheck/build aprovados na execução anterior.
+- **Plano/aceite final:** `/painel` com filtros, comparação de preços individuais entre regiões, gráfico de cotações vigentes por data e série externa, variações e relação de troca quando comparáveis; `/simulador` com cálculo decimal, validação, premissas e cenários; navegação pública, estados vazios/erro/carregamento e verificação responsiva/sem JavaScript. Testes de domínio/banco/navegador e regressões, documentação alinhada à decisão e commit único de conclusão da F7.
+- **Testes/commit nesta retomada:** pendentes da implementação; nenhum resultado antecipado. Somente F7 autorizada; F8 aguarda validação e autorização próprias.
+
+
+### 2026-10-27 — F7-T01 — Dashboard, indicadores e simulador concluídos tecnicamente
+- **Estado:** IMPLEMENTADA_AGUARDANDO_VALIDACAO. Somente F7-T01 concluída tecnicamente; F8 não iniciada.
+- **Decisões/autorização:** respostas explícitas “1. Podemoss sim / 2. Confirmo” autorizaram evolução pública por frigorífico/data sem correções substituídas/autores e confirmaram as fórmulas por animal. A autorização de regras não equivale à validação final das telas.
+- **Objetivo e critérios atendidos:** `/painel` público com seleção de região/categoria/frigorífico/período, comparação de preços individuais entre duas regiões, evolução por frigorífico e série externa, variação exata e relação de troca quando comparável. `/simulador` público com peso/rendimento/preço/custo informados, cenário alternativo opcional, receita/margem/equilíbrio, validação e fórmulas explícitas. Jornadas sem login e com JavaScript desativado/ativado; fontes/unidades/referências/coletas, estados vazios/erro/defasagem e layout responsivo.
+- **Arquivos alterados/criados:** `src/features/dashboard/{chart,components,filter-form,quote-service,service}.ts(x)` (a base `filters/indicators/external-service` permanece no commit anterior `c1fc534`); `src/features/simulation/{schema,calculate,actions,form}.ts(x)`; `src/components/public-shell.tsx`; `src/app/painel/{page,error}.tsx`, `src/app/simulador/page.tsx`, `src/app/page.tsx`; `tests/{dashboard-quotes.test,simulation.test,dashboard-browser}.ts`, `tests/login-browser.test.ts`, `package.json`; comentário de `prisma/schema.prisma`; `AGENTS.md`, `CODEX_START_PROMPT.md`, README, `docs/{PRODUCT_SPEC,TECHNICAL_SPEC,DESIGN_SYSTEM,DATA_AND_INTEGRATIONS,QUALITY_AND_SECURITY}.md` e este status. Documentos correntes alinhados à decisão; histórico anterior preservado.
+- **Implementação e decisões:**
+  - Painel ligado pela página inicial; home permanece estática. Preços vigentes respondem à região/categoria, sem média, até 20 por região com link à consulta completa. Janela dos gráficos: 90 datas por padrão, máximo 366, data civil na Bahia, sem futuro; entrada inválida gera mensagem e retorna ao padrão. Ao trocar região, aplicar o filtro atualiza as opções de frigoríficos.
+  - SQL parametrizado da evolução usa somente cabeças vigentes das séries (sem sucessor), de frigorífico ativo na região atual; escolhe último registro por data/categoria/empresa, com empate por instante/ID. Correções substituídas jamais reaparecem, mesmo se uma revisão mudar data/categoria. Uma série atualizada diariamente pode manter somente sua referência final; registros novos por referência distinta alimentam a evolução. Essa semântica e a ausência de snapshot público foram documentadas e testadas.
+  - DTO do gráfico local contém apenas nomes de empresa/região/categoria e pontos `date/value/updatedAt`. Séries externas usam última revisão de cada período e mantêm fonte/unidade/localidade/frequência/coleta/validade; nenhuma autoria ou ID de observação. Leituras públicas não chamam provedores externos. Região comercial não é inferida da geografia de fontes externas.
+  - SVG renderizado no servidor, dois enquadramentos responsivos (somente um visível por largura), eixo zero, espaçamento temporal proporcional, tooltip nativo dos pontos e tabela expansível equivalente. Uma observação não define tendência; sem interpolação ou preenchimento de dias. Nenhuma biblioteca/dependência nova.
+  - Variação = último − primeiro valor disponível; percentual = diferença / primeiro × 100, duas casas, com duas referências distintas. Base zero não gera percentual. Relação de troca em @/bezerro usa referências externas explicitamente escolhidas, métricas positivas corretas e mesma geografia textual normalizada/frequência/período, sem defasagem ou validade encerrada. Sem equivalência presumida entre praças, peso de boi ou previsão causal.
+  - Simulador por animal: carcaça kg = peso vivo × rendimento% / 100; arrobas = carcaça / 15; receita = arrobas × preço; margem = receita − custo informado; equilíbrio = custo / arrobas. Preço alternativo mantém peso/rendimento/custos. Nenhuma premissa comercial predefinida. Decimal com intermediários preservados e exibição monetária em centavos (meio para cima), carcaça com três casas e arrobas com quatro. Limites operacionais e formatos documentados; margem positiva/zero/negativa explícita.
+  - Formulário usa Server Action pública por POST, validação Zod, origem canônica, campos permitidos/limitados e `useActionState` com permalink `/simulador`, conforme documentação oficial React. Não grava valores, não consulta banco no cálculo, não registra entradas em logs nem as inclui em URL. Referência: https://react.dev/reference/react/useActionState.
+  - Estado de carregamento dos filtros por aprimoramento progressivo e navegação GET nativa. Uma tentativa inicial com `loading.tsx` produziu conteúdo oculto no navegador sem JavaScript; removida a fronteira de streaming e mantido formulário HTML normal com feedback opcional de envio. `error.tsx` oferece mensagem segura, nova tentativa e retorno ao início.
+  - Schema persistido não mudou; apenas comentário de publicação foi atualizado. Nenhuma migration, seed de mercado, novo conector, taxa externa, serviço pago, cron ou deploy nesta etapa. Refinamentos posteriores ao MVP continuam reservados para depois do roadmap.
+- **Testes executados (comando → resultado real):**
+  - `npm run test:dashboard` → **24/24 aprovados**, zero falhas/skips/cancelamentos: quatro filtros/indicadores, seis leituras externas, oito evolução local/comparação/região/privacidade e seis simulações/limites/arredondamento/cenários. Primeira configuração rodava arquivos em paralelo e encontrou a restrição de gestor inicial único (16 casos aprovados e sete cancelados por hook); script corrigido para `--test-concurrency=1`, nova execução aprovada, sem alterar o bootstrap ou afrouxar autorização. O teste adicional de comparação regional também passou na rodada final.
+  - `npm run test:external-data` → **20/20**; `npm run test:public-quotes` → **5/5**; `npm run test:quotes` → **19/19**; `npm run test:management` → **19/19**; `npm run test:auth` → **27/27**; `npm run test:db` → **8/8**. Executados sequencialmente no banco isolado. Aviso de depreciação `pg` já conhecido na suíte de cotações, sem falha; mensagens negativas esperadas de credenciais/origem na autenticação.
+  - `TEST_SCREENSHOT_DIR=/private/tmp/cotaroba-f7-qa PLAYWRIGHT_CHANNEL=chrome npm run test:browser` → **14/14 aprovados em desenvolvimento** após correção do streaming. Primeira execução: **13/14**, painel sem JavaScript com seletor oculto por fronteira de carregamento, corrigido conforme decisão acima. Os dois testes de simulador já passaram nessa primeira execução.
+  - `TEST_APP_MODE=production TEST_SCREENSHOT_DIR=/private/tmp/cotaroba-f7-qa PLAYWRIGHT_CHANNEL=chrome npm run test:browser` → **14/14 aprovados em produção local**, repetido após reforço de captura: recarregar a página após redimensionamento evita artefato de composição do Chrome. DOM com um `main` e um `header`; capturas finais sem repetição. Novos cenários conferem gráfico e tabela sem JavaScript, preço corrigido sem versão substituída/IDs/autores, relação 8 @/bezerro, ausência de requisições externas no navegador, simulação por POST sem entradas em URL, erro de rendimento inválido e margem negativa com JavaScript ativo.
+  - Capturas finais de painel 320/1280px e simulador 320px inspecionadas visualmente; eixos adaptados ao celular, sem rolagem horizontal em 320/390/1280px. Artefatos fora do Git. Total: **136 casos distintos**, sem contar repetição de ambientes como testes novos; os dez casos da base já estão incluídos nos 24 da F7.
+  - `npm run lint`, `npm run typecheck`, `npm run format:check`, `npm run db:validate`, `npm run build` → exit 0. Lint inicial encontrou link HTML interno e import não utilizado, ambos corrigidos antes da conferência final. `npm run format` aplicado ao código e README. Build: `/painel` dinâmico; `/`, `/simulador` estáticos, sem acesso às APIs externas. `git diff --check` → sem whitespace inválido.
+  - SQL de conferência após suítes/navegador → banco de testes com **0 usuários, 0 frigoríficos, 0 cotações, 0 categorias, 0 séries externas, 0 observações e 0 estados de sincronização**. Banco de desenvolvimento consultado apenas para contagens: **1 região, 1 categoria, 1 frigorífico, 1 cotação, 2 séries externas e 14 observações**; nenhum fixture da F7 inserido nesse banco. Não se presume quem inseriu os dados de negócio existentes.
+- **Testes não executados e motivo:** validação humana e navegadores além de Chrome aguardam os gates correspondentes; deploy/revisão concorrencial/infraestrutura pertencem à F8. Probe de APIs não repetido porque os conectores não mudaram e o painel depende dos dados persistidos; instalação limpa/auditoria npm não repetidas, sem mudança de dependências. Não foi feito deploy nem push.
+- **Commit Conventional Commits:** `feat(dashboard): add public trends and per-animal simulator`; hash: consultar `git log -1 --format=%h` após criação. Base da mesma etapa em `c1fc534`; conclusão, testes e status no commit final.
+- **Como validar manualmente:** executar `npm run dev`; abrir `/painel` sem login, escolher região/categoria/frigorífico e período, comparar outra região e conferir datas/preços individuais. Criar novas cotações em datas distintas para alimentar a curva; corrigir uma e conferir que preço substituído fica privado. Selecionar série externa e abrir **Ver valores do gráfico**; conferir fonte/unidade/período/variação/defasagem. Escolher referências comparáveis de arroba/bezerro (R$ 300/@ e R$ 2.400/cabeça → 8 @/bezerro); seleção incompatível mostra “Dados insuficientes”. Em `/simulador`, usar 500 kg, 55%, R$ 300/@ e R$ 4.000 de custo → receita R$ 5.500, margem R$ 1.500; alternativo R$ 270/@ → receita R$ 4.950, margem R$ 950. Repetir com custo maior que receita, rendimento inválido, celular e JavaScript desativado. Roteiro completo e metodologia no README.
+- **Pendências/limitações:** entrega F7 aguarda validação explícita; dados insuficientes permanecem quando não há referências distintas/comparáveis. Cotações corrigidas não são snapshot público, uma coleta recente não rejuvenesce referência antiga e custos omitidos não são inferidos. Revisão concorrencial e infraestrutura/segredos/domínio continuam pendentes para F8.
+- **Aprovação do usuário:** PENDENTE para a implementação F7; regras de publicação e premissas já CONFIRMADAS.
+- **Próximo passo autorizado:** parar e aguardar teste e aprovação explícita da F7-T01. Não iniciar homologação/deploy da F8 automaticamente.

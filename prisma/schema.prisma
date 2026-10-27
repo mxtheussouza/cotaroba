@@ -39,7 +39,8 @@ model Slaughterhouse {
 }
 
 /// Historical records. The F5 public view selects only the current published
-/// price per active slaughterhouse and category; versions and authors stay private.
+/// price per active slaughterhouse and category; F7 also publishes current records
+/// by reference date. Superseded corrections and authors stay private.
 /// Quote changes must append a record rather than overwrite a previous price.
 model Quote {
   id               String   @id @default(uuid()) @db.Uuid

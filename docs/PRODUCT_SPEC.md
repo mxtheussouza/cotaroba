@@ -12,11 +12,11 @@ Criar um site público, simples e responsivo, de consulta e inteligência do mer
 1. Cadastro de frigoríficos pelo gestor e acesso autenticado.
 2. Cadastro e atualização manual de preços da arroba por frigorífico, com data, região, categoria e histórico.
 3. Consulta pública por região com nome e cotação vigente de cada frigorífico, por categoria, sem média. Histórico de versões e autoria pessoal permanecem privados.
-4. Dashboard de cotações e gráficos de tendência por região/período.
+4. Dashboard de cotações e gráficos de evolução por frigorífico/região/categoria/período, conforme autorização explícita da F7. Apenas registros vigentes por data, sem correções substituídas nem autoria; comparação entre regiões por preços individuais, sem média.
 5. Dados externos de dólar, clima/chuvas, milho/soja, abates e referências de mercado quando disponíveis/licenciados.
 6. Cadastro manual pelo gestor para dados externos indisponíveis automaticamente.
 7. Indicadores simples: variação de preços, relação de troca (quando houver preço do bezerro), contexto climático e econômico.
-8. Simulador de receita, custos e margem estimados, com premissas visíveis.
+8. Simulador de receita, custos e margem estimados por animal, com premissas preenchidas pelo visitante, fórmula aprovada e comparação opcional de preço alternativo. Sem armazenar entradas.
 
 ## Limites
 - Não apresentar hipótese de chuva/alta de preços como certeza causal.
@@ -32,3 +32,4 @@ Criar um site público, simples e responsivo, de consulta e inteligência do mer
 - Indicador sem base suficiente exibe “Dados insuficientes”.
 - Mostrar fonte, região, unidade e data de referência/atualização.
 - Falhas de fonte externa não impedem consulta ao histórico armazenado.
+- F7: `/painel` mostra evolução de referências vigentes por data e variação entre primeira/última observação do recorte; uma observação não define tendência. Relação de troca exige unidades/localidade/frequência/períodos compatíveis, validade e atualidade. `/simulador` aplica peso vivo kg × rendimento % / 100 / 15, receita = arrobas × preço, margem = receita − custo total informado por animal.
