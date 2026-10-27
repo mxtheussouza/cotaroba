@@ -4,10 +4,10 @@
 
 ## Estado atual
 - Data de referência: 2026-10-27.
-- Fase atual: **F4 — cotações privadas e histórico próprio**.
-- Etapa atual: **F4-T01 — IMPLEMENTADA_AGUARDANDO_VALIDACAO**.
-- Aprovação do usuário: **F0-T01, F1-T01, F2-T01 e F3-T01 VALIDADAS**; F3 confirmada explicitamente em 2026-10-26.
-- Implementações concluídas: **F0-T01 a F3-T01 VALIDADAS**; F4-T01 implementada e aguardando validação humana.
+- Fase atual: **F5 — agregação regional e consulta pública**.
+- Etapa atual: **F5-T01 — BLOQUEADA** até decisão sobre a política de publicação de preços.
+- Aprovação do usuário: **F0-T01 a F4-T01 VALIDADAS**; F4 confirmada explicitamente em 2026-10-27.
+- Implementações concluídas: **F0-T01 a F4-T01 VALIDADAS**; F5 autorizada para início, sem implementação de publicação.
 - Commit da F0-T01: `d42c693` — `chore(setup): initialize Next.js project foundation`.
 - Testes atuais da F2-T01: **27 de autenticação + 8 de banco + 4 de navegador aprovados**; navegador repetido em desenvolvimento e produção, com JavaScript desativado/ativado, POST/Enter, origem canônica e proteção de URLs/logs. Lint, typecheck, formatação, build, instalação limpa e auditoria npm aprovados; detalhes no histórico.
 - Commit da F1-T01: `c9650fd` — `feat(database): add PostgreSQL schema and initial migration`.
@@ -16,7 +16,8 @@
 - Testes da F3-T01: **19 de gestão + 27 de autenticação + 8 de banco + 8 de navegador aprovados (62 distintos)**; navegador aprovado em desenvolvimento e produção. Lint, typecheck, formatação, validação Prisma e build aprovados.
 - Commit validado da F3-T01: `7e0b966` — `feat(slaughterhouses): manage regions, slaughterhouses and accesses`.
 - Testes da F4-T01: **19 cotações + 19 gestão + 27 autenticação + 8 banco + 9 navegador aprovados (82 distintos)**; navegador aprovado em desenvolvimento e produção. Lint, typecheck, formatação, validação Prisma e build aprovados.
-- Próxima ação: usuário testar e validar explicitamente a F4-T01. Não iniciar F5. A troca local de senha recomendada na F2 não foi confirmada pelo usuário.
+- Commit final da F4-T01: `0d69b35` — `feat(quotes): complete private quote workflow and browser coverage`.
+- Próxima ação: receber decisão explícita sobre a política de publicação da F5 antes de implementar agregação/consulta pública. A troca local de senha recomendada na F2 não foi confirmada pelo usuário.
 
 ## Quadro de etapas
 | ID | Etapa | Estado | Commit | Validação do usuário |
@@ -25,8 +26,8 @@
 | F1-T01 | Banco e modelo inicial | VALIDADA | `c9650fd` | CONFIRMADA em 2026-10-26 |
 | F2-T01 | Login e permissões | VALIDADA | `746e44d` + correção `3805007` | CONFIRMADA em 2026-10-26 |
 | F3-T01 | Gestor: cadastro de frigoríficos | VALIDADA | `7e0b966` | CONFIRMADA em 2026-10-26 |
-| F4-T01 | Frigorífico: cadastro/atualização de cotações | IMPLEMENTADA_AGUARDANDO_VALIDACAO | `93cd0ec` + `a614bee` + commit final (consultar Git) | PENDENTE |
-| F5-T01 | Agregação regional e consulta pública | PENDENTE | — | PENDENTE |
+| F4-T01 | Frigorífico: cadastro/atualização de cotações | VALIDADA | `93cd0ec` + `a614bee` + `0d69b35` | CONFIRMADA em 2026-10-27 |
+| F5-T01 | Agregação regional e consulta pública | BLOQUEADA | — | PENDENTE |
 | F6-T01 | Integrações externas e cadastro manual | PENDENTE | — | PENDENTE |
 | F7-T01 | Gráficos, indicadores e simulador | PENDENTE | — | PENDENTE |
 | F8-T01 | Homologação e deploy | PENDENTE | — | PENDENTE |
@@ -489,3 +490,25 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - **Pendências/bloqueios:** nenhum bloqueio técnico da F4-T01; validação explícita do usuário pendente. Política de suficiência/publicação regional permanece questão da F5, não resolvida nesta etapa. Aviso de depreciação do `pg` será acompanhado se persistir na atualização futura do driver.
 - **Aprovação do usuário:** PENDENTE. Testes automatizados e commit não equivalem à validação humana.
 - **Próximo passo autorizado:** parar e aguardar teste e confirmação explícita da F4-T01; não iniciar F5 automaticamente.
+
+### 2026-10-27 — F4-T01 — Validação humana e autorização da F5
+- **Estado:** VALIDADA.
+- **Aprovação do usuário:** confirmação explícita “Validada! Iniciar a F%” recebida em 2026-10-27; “F%” interpretado como F5-T01, a próxima etapa do roadmap.
+- **Commit validado:** `0d69b35` — `feat(quotes): complete private quote workflow and browser coverage`, além dos commits anteriores da mesma etapa `93cd0ec` e `a614bee`.
+- **Arquivos alterados:** somente este status nesta atividade; histórico preservado.
+- **Testes:** aprovação manual informada pelo usuário; nenhum teste adicional da F4 executado nesta validação. Resultados anteriores preservados.
+- **Próximo passo autorizado:** iniciar somente F5-T01, sujeito à definição prévia da política de publicação exigida por `docs/DATA_AND_INTEGRATIONS.md` e pela regra 7 do `AGENTS.md`.
+
+### 2026-10-27 — F5-T01 — Inspeção e decisão de publicação pendente
+- **Estado:** BLOQUEADA por decisão de produto/segurança necessária antes de implementar a publicação.
+- **Objetivo e critérios:** consolidar cotações comparáveis por região/categoria/período e oferecer consulta pública sem identidade nem preço individual; exibir “Dados insuficientes” quando não houver base segura. Uma empresa não pode multiplicar o próprio peso. Metodologia e versão dos indicadores devem ser documentadas.
+- **Inspeção:** Git limpo em `main`, commit `0d69b35`; página pública ainda estática, sem consulta ao banco. O banco local de desenvolvimento possui **1 região, 1 categoria, 1 frigorífico e 1 cotação** (somente contagens consultadas; nenhum preço ou identificador foi exibido). O contrato do projeto não define atraso, janela, recortes, suficiência nem medidas contra inferência entre publicações sucessivas.
+- **Motivo da decisão:** `docs/DATA_AND_INTEGRATIONS.md` proíbe presumir que um limiar fixo garanta anonimato e exige política aprovada antes da F5. O Cade alerta que informações recentes e desagregadas sobre preço entre concorrentes são sensíveis; referência: https://www.gov.br/cade/pt-br/acesso-a-informacao/perguntas-frequentes/perguntas-sobre-infracoes-a-ordem-economica. O risco não se resolve apenas escolhendo um número mínimo de frigoríficos.
+- **Decisão solicitada ao usuário:** preparar cálculo e página mantendo valores de preços ocultos até revisão da política de divulgação (opção conservadora), ou fornecer uma política/parecer já aprovado para orientar publicação. Pergunta assíncrona enviada; resposta pendente neste registro.
+- **Arquivos alterados:** `PROJECTS_STATUS.md`; nenhum código ou migration da F5 alterado.
+- **Testes executados (comando → resultado):** `git status --short --branch` → limpo no início, `main` um commit à frente de `origin/main`; leitura de `docs/ROADMAP.md`, `docs/DATA_AND_INTEGRATIONS.md`, `docs/QUALITY_AND_SECURITY.md`, página pública e serviço de cotações → escopo e fronteiras revisados; `docker compose exec -T db psql -U cotaroba -d cotaroba -Atc 'SELECT ... contagens ...'` → `1|1|1|1` para regiões/categorias/frigoríficos/cotações. Testes de aplicação não executados porque não houve implementação da F5.
+- **Commit Conventional Commits:** `docs(status): record F4 approval and F5 publication decision`; hash: consultar Git após criação.
+- **Como validar manualmente:** não há funcionalidade nova da F5 para validar neste ponto. A F4 já foi validada pelo usuário.
+- **Pendência/bloqueio:** política de publicação e critérios de suficiência explicitamente aprovados ou decisão de manter valores ocultos durante esta etapa. Não inferir autorização da ausência de resposta.
+- **Aprovação do usuário:** F4 confirmada; F5 autorizada para início, política pendente; entrega F5 ainda não implementada nem validada.
+- **Próximo passo autorizado:** aguardar a decisão solicitada, então implementar somente o escopo da F5 correspondente, testar, atualizar status, commitar e submeter à validação. Não iniciar F6.
