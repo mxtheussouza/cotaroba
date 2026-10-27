@@ -4,10 +4,10 @@
 
 ## Estado atual
 - Data de referência: 2026-10-27.
-- Fase atual: **F5 — agregação regional e consulta pública**.
-- Etapa atual: **F5-T01 — IMPLEMENTADA_AGUARDANDO_VALIDACAO**.
-- Aprovação do usuário: **F0-T01 a F4-T01 VALIDADAS**; F4 confirmada explicitamente em 2026-10-27.
-- Implementações concluídas: **F0-T01 a F4-T01 VALIDADAS**; F5 implementada e aguardando validação humana.
+- Fase atual: **F5 — consulta pública por frigorífico concluída**.
+- Etapa atual: **F5-T01 — VALIDADA**; F6-T01 pendente de autorização.
+- Aprovação do usuário: **F0-T01 a F5-T01 VALIDADAS**; F5 confirmada explicitamente em 2026-10-27.
+- Implementações concluídas: **F0-T01 a F5-T01 VALIDADAS**.
 - Commit da F0-T01: `d42c693` — `chore(setup): initialize Next.js project foundation`.
 - Testes atuais da F2-T01: **27 de autenticação + 8 de banco + 4 de navegador aprovados**; navegador repetido em desenvolvimento e produção, com JavaScript desativado/ativado, POST/Enter, origem canônica e proteção de URLs/logs. Lint, typecheck, formatação, build, instalação limpa e auditoria npm aprovados; detalhes no histórico.
 - Commit da F1-T01: `c9650fd` — `feat(database): add PostgreSQL schema and initial migration`.
@@ -18,7 +18,8 @@
 - Testes da F4-T01: **19 cotações + 19 gestão + 27 autenticação + 8 banco + 9 navegador aprovados (82 distintos)**; navegador aprovado em desenvolvimento e produção. Lint, typecheck, formatação, validação Prisma e build aprovados.
 - Commit final da F4-T01: `0d69b35` — `feat(quotes): complete private quote workflow and browser coverage`.
 - Testes da F5-T01: **5 de publicação + 19 cotações + 19 gestão + 27 autenticação + 8 banco + 9 navegador aprovados (87 distintos)**; navegador aprovado em desenvolvimento e produção. Lint, typecheck, formatação, validação Prisma e build aprovados.
-- Próxima ação: usuário testar e validar explicitamente a F5-T01. A troca local de senha recomendada na F2 não foi confirmada pelo usuário.
+- Commit da F5-T01: `3e5e034` — `feat(public-quotes): publish slaughterhouse prices by region`.
+- Próxima ação: aguardar autorização explícita para iniciar F6-T01. A troca local de senha recomendada na F2 não foi confirmada pelo usuário.
 
 ## Quadro de etapas
 | ID | Etapa | Estado | Commit | Validação do usuário |
@@ -28,7 +29,7 @@
 | F2-T01 | Login e permissões | VALIDADA | `746e44d` + correção `3805007` | CONFIRMADA em 2026-10-26 |
 | F3-T01 | Gestor: cadastro de frigoríficos | VALIDADA | `7e0b966` | CONFIRMADA em 2026-10-26 |
 | F4-T01 | Frigorífico: cadastro/atualização de cotações | VALIDADA | `93cd0ec` + `a614bee` + `0d69b35` | CONFIRMADA em 2026-10-27 |
-| F5-T01 | Consulta pública por frigorífico e região | IMPLEMENTADA_AGUARDANDO_VALIDACAO | commit final (consultar Git) | PENDENTE |
+| F5-T01 | Consulta pública por frigorífico e região | VALIDADA | `3e5e034` | CONFIRMADA em 2026-10-27 |
 | F6-T01 | Integrações externas e cadastro manual | PENDENTE | — | PENDENTE |
 | F7-T01 | Gráficos, indicadores e simulador | PENDENTE | — | PENDENTE |
 | F8-T01 | Homologação e deploy | PENDENTE | — | PENDENTE |
@@ -545,3 +546,14 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - **Como validar manualmente:** com PostgreSQL local ativo, executar `npm run dev` e abrir `/cotacoes` sem login; a região/categoria existentes devem exibir o nome, preço e datas da cotação já cadastrada. Entrar como frigorífico, atualizar a cotação e recarregar a página pública: somente o novo preço vigente deve aparecer. Se houver outro frigorífico com cotação na mesma região/categoria, cada um deve aparecer separadamente, sem média. Testar filtros e uma região/categoria sem cotações (“Dados insuficientes”); conferir que histórico de versões e nome do responsável não aparecem publicamente. Repetir em celular e com JavaScript desativado.
 - **Aprovação do usuário:** PENDENTE para a F5-T01; decisão sobre regra de publicação recebida, mas não equivale à validação da entrega implementada.
 - **Próximo passo autorizado:** parar e aguardar teste e aprovação explícita da F5-T01. Não iniciar F6 automaticamente.
+
+### 2026-10-27 — F5-T01 — Validação humana da consulta pública
+- **Estado:** VALIDADA.
+- **Aprovação do usuário:** confirmação explícita “Testado e aprovado” recebida em 2026-10-27, após teste manual da entrega F5-T01.
+- **Commit validado:** `3e5e034` — `feat(public-quotes): publish slaughterhouse prices by region`.
+- **Arquivos alterados:** somente `PROJECTS_STATUS.md` para registrar a aprovação e atualizar o quadro; histórico preservado.
+- **Testes executados (comando → resultado):** aprovação manual informada pelo usuário; nenhum teste automatizado adicional executado nesta atividade. Resultados técnicos da implementação permanecem registrados na entrada anterior.
+- **Commit Conventional Commits:** `docs(status): record F5 approval`; hash: consultar `git log -1 --format=%h` após criação.
+- **Como validar manualmente:** validação já confirmada pelo usuário; roteiro e resultados da F5 constam na entrada anterior e no README.
+- **Pendências:** revisão concorrencial da publicação individual antes do deploy público da F8; demais questões da F6–F8 preservadas. A validação da F5 não autoriza iniciar a próxima etapa por si só.
+- **Próximo passo autorizado:** aguardar autorização explícita para F6-T01; não iniciar integrações ou entrada manual automaticamente.
