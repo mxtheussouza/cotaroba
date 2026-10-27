@@ -512,3 +512,14 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - **Pendência/bloqueio:** política de publicação e critérios de suficiência explicitamente aprovados ou decisão de manter valores ocultos durante esta etapa. Não inferir autorização da ausência de resposta.
 - **Aprovação do usuário:** F4 confirmada; F5 autorizada para início, política pendente; entrega F5 ainda não implementada nem validada.
 - **Próximo passo autorizado:** aguardar a decisão solicitada, então implementar somente o escopo da F5 correspondente, testar, atualizar status, commitar e submeter à validação. Não iniciar F6.
+
+### 2026-10-27 — F5-T01 — Proposta de média com um ou dois frigoríficos
+- **Estado:** BLOQUEADA até confirmação explícita da mudança na regra de confidencialidade.
+- **Proposta do usuário:** “Caso uma região tenha apenas um frigorifico, mantem o preco do mesmo, se tiver 2 ou mais ai sim tiramos a media.”
+- **Análise:** com um participante, o indicador público reproduz uma cotação individual; com dois, cada participante que conhece o próprio preço consegue calcular o preço do outro a partir da média (`outro = 2 × média − próprio`). A proposta contraria a decisão confirmada de que o público nunca vê cotação individual e o requisito de privacidade em `AGENTS.md`, `docs/PRODUCT_SPEC.md` e `docs/QUALITY_AND_SECURITY.md`. A condição também precisa considerar categoria e período, pois o número de frigoríficos por região isoladamente não assegura contribuições comparáveis.
+- **Decisão solicitada:** confirmar se o usuário quer substituir explicitamente a regra de confidencialidade e autorizar a exposição/inferência descrita, ou preservar a privacidade e definir outra política de publicação. Pergunta enviada pela ferramenta assíncrona; resposta pendente neste registro.
+- **Arquivos alterados:** `PROJECTS_STATUS.md` somente. Nenhuma alteração de código, migration ou dados públicos.
+- **Testes:** nenhum teste de aplicação executado; nenhuma implementação de F5 foi feita. Conferência aritmética da inferência para dois participantes.
+- **Commit Conventional Commits:** `docs(status): record F5 disclosure proposal and privacy conflict`; hash: consultar Git após criação.
+- **Aprovação:** proposta recebida, mas substituição do requisito anterior ainda não confirmada.
+- **Próximo passo:** aguardar confirmação explícita antes de implementar qualquer saída pública de preço. Não iniciar F6.
