@@ -33,3 +33,6 @@ Criar um site público, simples e responsivo, de consulta e inteligência do mer
 - Mostrar fonte, região, unidade e data de referência/atualização.
 - Falhas de fonte externa não impedem consulta ao histórico armazenado.
 - F7: `/painel` mostra evolução de referências vigentes por data e variação entre primeira/última observação do recorte; uma observação não define tendência. Relação de troca exige unidades/localidade/frequência/períodos compatíveis, validade e atualidade. `/simulador` aplica peso vivo kg × rendimento % / 100 / 15, receita = arrobas × preço, margem = receita − custo total informado por animal.
+
+## Regra permanente de UX
+Toda funcionalidade de consulta deve exigir o menor número possível de cliques, sem comprometer clareza, acessibilidade ou precisão. Ações frequentes têm acesso direto; filtros e contexto são preservados ao alternar visualizações, evitando etapas redundantes e sobrecarga de informação.

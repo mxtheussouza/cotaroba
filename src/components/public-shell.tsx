@@ -5,10 +5,12 @@ export function PublicShell({
   title,
   description,
   children,
+  compact = false,
 }: {
   title: string;
   description: string;
   children: ReactNode;
+  compact?: boolean;
 }) {
   return (
     <>
@@ -51,15 +53,19 @@ export function PublicShell({
       <main
         id="conteudo"
         tabIndex={-1}
-        className="mx-auto w-full max-w-[1200px] flex-1 px-4 py-10 [overflow-wrap:anywhere] sm:px-6 sm:py-12"
+        className={`mx-auto w-full max-w-[1200px] flex-1 px-4 [overflow-wrap:anywhere] sm:px-6 ${compact ? "py-5 sm:py-6" : "py-10 sm:py-12"}`}
       >
         <p className="text-sm font-semibold tracking-wide text-primary uppercase">
           Mercado pecuário · Bahia
         </p>
-        <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
+        <h1
+          className={`${compact ? "mt-2 text-2xl sm:text-3xl" : "mt-4 text-3xl sm:text-4xl"} font-bold tracking-tight`}
+        >
           {title}
         </h1>
-        <p className="mt-4 max-w-3xl leading-relaxed text-muted">
+        <p
+          className={`${compact ? "mt-2 text-sm" : "mt-4"} max-w-3xl leading-relaxed text-muted`}
+        >
           {description}
         </p>
         {children}

@@ -26,3 +26,27 @@ body {
   outline: 2px solid var(--color-primary);
   outline-offset: 4px;
 }
+
+/* Preserve all GET values; expose controls relevant to the current view. */
+.dashboard[data-view="precos"]
+  [data-filter-views]:not([data-filter-views~="precos"]),
+.dashboard[data-view="evolucao"]
+  [data-filter-views]:not([data-filter-views~="evolucao"]),
+.dashboard[data-view="contexto"]
+  [data-filter-views]:not([data-filter-views~="contexto"]),
+.dashboard[data-view="troca"]
+  [data-filter-views]:not([data-filter-views~="troca"]) {
+  display: none;
+}
+
+.chart-explorer {
+  display: none;
+}
+.chart[data-interactive] .chart-explorer {
+  display: block;
+}
+@media (min-width: 1024px) {
+  .dashboard[data-view="evolucao"] .dashboard-fields {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}

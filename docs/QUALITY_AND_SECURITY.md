@@ -30,3 +30,9 @@
 
 ## Aprovação
 Teste automatizado aprovado **não substitui** validação do usuário. Após cada etapa, apresentar passos para teste manual e aguardar autorização explícita.
+
+## Regressão de UX/UI do painel — F7-UX01
+- Conferir uma aba visível, campos pertinentes, preços prioritários acima da dobra em desktop e ausência de rolagem horizontal em 320/390/768/1280px.
+- Testar mudança de filtros sem recarga do documento, abas sem nova consulta quando não há atualização pendente, atalhos, foco/teclado/toque, URL compartilhável, voltar/avançar, recarga e retorno pelo menu.
+- Simular resposta lenta: nova aba e último filtro devem prevalecer juntos. Datas temporariamente inválidas não descartam rascunho nem resultados anteriores.
+- Repetir abas, GET, tabela e expansão da lista com JavaScript desativado. Conferir valores/correções privadas e simulador existente, sem ampliar publicação ou alterar fórmulas.

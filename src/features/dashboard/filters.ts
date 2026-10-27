@@ -2,6 +2,16 @@ import { civilDate } from "@/features/external-data/schema";
 import { todayInBahia } from "@/features/quotes/format";
 
 export type DashboardSearch = Record<string, string | string[] | undefined>;
+export const dashboardViews = [
+  { id: "precos", label: "Preços" },
+  { id: "evolucao", label: "Evolução" },
+  { id: "contexto", label: "Contexto" },
+  { id: "troca", label: "Relação de troca" },
+] as const;
+export type DashboardView = (typeof dashboardViews)[number]["id"];
+export function dashboardView(value: string | null | undefined): DashboardView {
+  return dashboardViews.find((view) => view.id === value)?.id ?? "precos";
+}
 export function single(value: string | string[] | undefined) {
   return typeof value === "string" ? value : undefined;
 }

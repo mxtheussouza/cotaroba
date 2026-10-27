@@ -5,9 +5,9 @@
 ## Estado atual
 - Data de referência: 2026-10-27.
 - Fase atual: **F7 — dashboard, gráficos, indicadores e simulador**.
-- Etapa atual: **F7-T01 — IMPLEMENTADA_AGUARDANDO_VALIDACAO**.
+- Etapa atual: **F7-UX01 — IMPLEMENTADA_AGUARDANDO_VALIDACAO**, refatoração de UX/UI solicitada sobre a F7 ainda não validada.
 - Aprovação do usuário: **F0-T01 a F6-T01 VALIDADAS**; F6 aprovada explicitamente para o MVP em 2026-10-27.
-- Implementações concluídas: **F0-T01 a F6-T01 VALIDADAS; F7-T01 implementada e aguardando validação**.
+- Implementações concluídas: **F0-T01 a F6-T01 VALIDADAS; F7-T01 e sua refatoração F7-UX01 implementadas e aguardando validação**.
 - Commit da F0-T01: `d42c693` — `chore(setup): initialize Next.js project foundation`.
 - Testes atuais da F2-T01: **27 de autenticação + 8 de banco + 4 de navegador aprovados**; navegador repetido em desenvolvimento e produção, com JavaScript desativado/ativado, POST/Enter, origem canônica e proteção de URLs/logs. Lint, typecheck, formatação, build, instalação limpa e auditoria npm aprovados; detalhes no histórico.
 - Commit da F1-T01: `c9650fd` — `feat(database): add PostgreSQL schema and initial migration`.
@@ -21,9 +21,11 @@
 - Commit da F5-T01: `3e5e034` — `feat(public-quotes): publish slaughterhouse prices by region`.
 - Testes da F6-T01: **20 de dados externos + 5 de publicação + 19 cotações + 19 gestão + 27 autenticação + 8 banco + 11 navegador aprovados (109 distintos)**; navegador aprovado em desenvolvimento e produção. Fontes reais PTAX/IBGE validadas sem gravar dados; lint/typecheck/formatação/Prisma/build aprovados.
 - Commit validado da F6-T01: `a1efb85` — `feat(external-data): integrate PTAX and IBGE with manual data entry`.
-- Testes da F7-T01: **24 de dashboard/simulador + 20 dados externos + 5 publicação + 19 cotações + 19 gestão + 27 autenticação + 8 banco + 14 navegador aprovados (136 distintos)**; navegador em desenvolvimento e produção local. Lint, typecheck, formatação, validação Prisma e build aprovados.
-- Base da F7: `c1fc534`; commit final planejado: `feat(dashboard): add public trends and per-animal simulator`; hash: consultar Git.
-- Próxima ação: aguardar teste e aprovação explícita da F7-T01; não iniciar F8. Ajustes adicionais serão discutidos após a conclusão das etapas, conforme orientação do usuário. A troca local de senha recomendada na F2 não foi confirmada pelo usuário.
+- Testes da entrega original F7-T01: **24 de dashboard/simulador + 20 dados externos + 5 publicação + 19 cotações + 19 gestão + 27 autenticação + 8 banco + 14 navegador aprovados (136 distintos)**; navegador em desenvolvimento e produção local. Lint, typecheck, formatação, validação Prisma e build aprovados.
+- Base da F7: `c1fc534`; entrega original: `47f5c9a` — `feat(dashboard): add public trends and per-animal simulator`.
+- Verificação F7-UX01: **24 dashboard/simulador + 5 publicação + 16 navegador aprovados (45 distintos)**; navegador em desenvolvimento e produção local, com/sem JavaScript, teclado/toque e 320/390/768/1280px. Lint, typecheck, formatação e build aprovados.
+- Commit F7-UX01: `refactor(dashboard): simplify views and interactive filters`; hash: consultar Git após criação.
+- Próxima ação: aguardar teste e validação humana explícita da F7 com a refatoração F7-UX01. Não iniciar F8 automaticamente. Demais ajustes futuros continuam sem escopo; a troca local de senha recomendada na F2 não foi confirmada pelo usuário.
 
 ## Quadro de etapas
 | ID | Etapa | Estado | Commit | Validação do usuário |
@@ -35,7 +37,8 @@
 | F4-T01 | Frigorífico: cadastro/atualização de cotações | VALIDADA | `93cd0ec` + `a614bee` + `0d69b35` | CONFIRMADA em 2026-10-27 |
 | F5-T01 | Consulta pública por frigorífico e região | VALIDADA | `3e5e034` | CONFIRMADA em 2026-10-27 |
 | F6-T01 | Integrações externas e cadastro manual | VALIDADA | `a1efb85` | CONFIRMADA para o MVP em 2026-10-27 |
-| F7-T01 | Gráficos, indicadores e simulador | IMPLEMENTADA_AGUARDANDO_VALIDACAO | `c1fc534` + consultar Git | PENDENTE |
+| F7-T01 | Gráficos, indicadores e simulador | IMPLEMENTADA_AGUARDANDO_VALIDACAO | `c1fc534` + `47f5c9a` | PENDENTE |
+| F7-UX01 | Refatoração da UX/UI do dashboard | IMPLEMENTADA_AGUARDANDO_VALIDACAO | `refactor(dashboard)`; consultar Git | PENDENTE |
 | F8-T01 | Homologação e deploy | PENDENTE | — | PENDENTE |
 
 Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUARDANDO_VALIDACAO`, `VALIDADA`.
@@ -51,7 +54,8 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - Cada etapa é implementada, testada, commitada e submetida à validação humana **antes** da seguinte.
 - Autenticação por e-mail/senha com Better Auth e sessões PostgreSQL; sem cadastro público ou serviço externo de autenticação.
 - Regiões cadastradas por nome pelo gestor, conforme opção 1 aprovada em 2026-10-26; sem lista comercial ou geográfica predefinida.
-- F6 aprovada como entrega do MVP; ajustes adicionais serão definidos após concluir as etapas do roadmap. Não há lista de ajustes nem mudança de escopo autorizada neste registro.
+- F6 aprovada como entrega do MVP; demais ajustes futuros serão definidos depois do roadmap. O pedido posterior F7-UX01 autorizou antecipar somente a refatoração de UX/UI do dashboard.
+- Regra permanente de UX confirmada: toda consulta exige o menor número possível de cliques sem comprometer clareza, acessibilidade ou precisão; acesso direto às ações frequentes e contexto preservado. Registrada em `AGENTS.md`, especificação de produto e Design System.
 
 ## Questões ainda abertas
 - Nome/identidade visual definitiva.
@@ -681,3 +685,45 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - **Pendências/limitações:** entrega F7 aguarda validação explícita; dados insuficientes permanecem quando não há referências distintas/comparáveis. Cotações corrigidas não são snapshot público, uma coleta recente não rejuvenesce referência antiga e custos omitidos não são inferidos. Revisão concorrencial e infraestrutura/segredos/domínio continuam pendentes para F8.
 - **Aprovação do usuário:** PENDENTE para a implementação F7; regras de publicação e premissas já CONFIRMADAS.
 - **Próximo passo autorizado:** parar e aguardar teste e aprovação explícita da F7-T01. Não iniciar homologação/deploy da F8 automaticamente.
+
+
+### 2026-10-27 — F7-UX01 — Refatoração de UX/UI autorizada e iniciada
+- **Estado:** EM_ANDAMENTO. Correção/refatoração da F7 não validada; F8 não iniciada.
+- **Autorização e aceite:** pedido explícito de simplificar dashboard, reduzir rolagem, alternar visualizações sem navegação redundante, filtros dinâmicos, gráficos interativos/acessíveis e responsividade; funcionalidades e regras de preço/privacidade preservadas. Regra permanente: menor número possível de cliques sem comprometer clareza, acessibilidade ou precisão.
+- **Inspeção/plano:** Git inicialmente limpo em `47f5c9a`; documentos do contrato lidos. Nove filtros e todos os resultados empilhados. Usar quatro abas (Preços/Evolução/Contexto/Relação de troca), filtros por contexto, atualização pelo App Router, histórico de URL e fallback GET; SVG existente aprimorado, sem dependências novas. Listas compactas, fontes/datas/unidades visíveis e metodologia expansível.
+- **Arquivos esperados:** módulo dashboard, página `/painel`, opção compacta no shell público, CSS, testes de navegador, instruções permanentes/design system, README e status.
+- **Testes:** inspeção de Git e PostgreSQL local saudável; validação funcional pendente. Sem mudanças de banco, preço, publicação, conectores ou simulador.
+- **Commit:** não realizado; implementação será commitada após verificações.
+- **Aprovação:** execução autorizada; validação da entrega pendente. Próximo passo: concluir somente F7-UX01 e aguardar teste/aprovação explícita.
+
+
+### 2026-10-27 — F7-UX01 — Retomada da verificação final
+- **Estado:** EM_ANDAMENTO; usuário pediu “Continue de onde parou”. Mantido somente o escopo de refatoração da F7.
+- **Ajuste final:** seleção de aba imediata, inclusive enquanto a URL é confirmada; formulário usa a visão visível para conservar o contexto. Teste de foco aguardava a aba errada: corrigido para esperar o painel visível antes de focar o campo. Instrumentação temporária removida; não foi mantida uma restauração artificial de foco.
+- **Teste executado:** `PLAYWRIGHT_CHANNEL=chrome node --conditions=react-server --env-file-if-exists=.env --import tsx --test --test-name-pattern='switches views instantly' tests/login-browser.test.ts` → **1/1 aprovado**, incluindo filtros, teclado/toque, resposta lenta, datas temporariamente inválidas, voltar/avançar, recarga e menu.
+- **Pendências:** concluir suítes completas e verificações estáticas da versão final, registrar os resultados e criar commit. Nenhum commit ou validação humana antecipados; F8 não iniciada.
+
+
+### 2026-10-27 — F7-UX01 — Refatoração de UX/UI concluída tecnicamente
+- **Estado:** IMPLEMENTADA_AGUARDANDO_VALIDACAO. Somente refatoração da F7; F8 não iniciada. Pedido “Continue de onde parou” retomou a mesma tarefa, sem ampliar escopo.
+- **Objetivo/aceite:** reduzir informações simultâneas e rolagem, facilitar filtros e consultas, alternar visualizações no próprio painel, aprimorar gráficos e manter precisão, acessibilidade, responsividade e funcionalidades existentes.
+- **Arquivos alterados:** `src/features/dashboard/{chart,components,filter-form,filters,workspace}.ts(x)`, `src/app/painel/page.tsx`, `src/app/globals.css`, `src/components/public-shell.tsx`, `tests/dashboard-browser.ts`, `AGENTS.md`, `README.md`, `docs/{PRODUCT_SPEC,TECHNICAL_SPEC,DESIGN_SYSTEM,QUALITY_AND_SECURITY}.md` e este status.
+- **Implementação/decisões:**
+  - Quatro abas: Preços, Evolução, Contexto e Relação de troca. Apenas um painel e seus filtros ficam visíveis; demais campos permanecem no GET para conservar a seleção. Abas têm labels/controles ARIA, setas/Home/End e foco visível; links continuam utilizáveis sem JavaScript.
+  - Formulário existente aprimorado com App Router: seleções aplicam automaticamente, datas após 500 ms e atalhos 30/90/365 dias em um clique. Mantidos botão explícito e GET nativo. Período temporariamente inválido conserva rascunho e resultado anterior; usa a mesma validação do servidor. Região atualiza opções de frigorífico, sem segundo envio obrigatório.
+  - Trocas normais de aba usam histórico local sem nova consulta; durante filtro pendente, nova aba e valores atuais são enviados juntos com `router.push`, preservando uma entrada para Voltar. Campos comuns usam `replace`, sem salto de rolagem. `useOptimistic` usa a visão da URL como base, em transição React, evitando conservar uma seleção temporária no histórico. Referência consultada: https://react.dev/reference/react/useOptimistic. Sem store ou biblioteca adicional.
+  - Layout compacto usa tokens existentes, sem alterar a apresentação padrão do simulador. Preços em linhas com nome/categoria/valor/referência/atualização; cinco inicialmente, demais expansíveis, até 20 por região e link para todos. Primeiros preços verificados acima da dobra em desktop de 1280×800. Simulador com acesso direto no topo; explicações extensas em seções expansíveis.
+  - SVG existente preserva eixos a partir de zero e datas proporcionais, com enquadramentos para celular/tablet/desktop. Cotações: linha contínua/círculos; referências externas: tracejada/quadrados; chuva/abates: barras de totais por período. Legendas/unidades/fontes e tabela equivalente mantidas. Consulta de pontos por ponteiro/toque ou controle de observações com teclado e anúncio de data/valor/unidade. Sem JavaScript, SVG/tabela permanecem disponíveis e o controle dependente de script fica oculto.
+  - Não houve alteração de cálculos Decimal, regras de preço/publicação, persistência, conectores, autenticação ou fórmulas do simulador. Sem dependência, migration, seed de negócio, infraestrutura ou deploy novos. Regra permanente de UX registrada nas instruções e especificações.
+- **Testes executados (comando → resultado real):**
+  - `npm run test:dashboard` → **24/24 aprovados**: filtros/indicadores, dados externos, evolução local/privacidade/comparação e simulador. `npm run test:public-quotes` → **5/5 aprovados**, preços individuais vigentes e exclusão de correções/autoria/empresas inativas. Serviços de negócio permanecem sem alteração nesta refatoração.
+  - `TEST_SCREENSHOT_DIR=/private/tmp/cotaroba-f7-ux-qa PLAYWRIGHT_CHANNEL=chrome npm run test:browser` → **16/16 aprovados na versão final em desenvolvimento**. `TEST_APP_MODE=production TEST_SCREENSHOT_DIR=/private/tmp/cotaroba-f7-ux-qa PLAYWRIGHT_CHANNEL=chrome npm run test:browser` → **16/16 aprovados na versão final em produção local**. Total desta tarefa: **45 casos distintos**, sem contar ambientes/repetições como casos novos.
+  - Casos de navegador conferem abas sem recarga do documento, ausência de nova consulta na troca ociosa, filtros/atalhos, foco e teclado, toque real em contexto móvel, períodos inválidos sem perder rascunho, resposta atrasada mantendo último filtro e visão, URL compartilhável, voltar/avançar, recarga e menu. Conferem também expansão dos preços sem JavaScript, SVG/tabela, privacidade de versões/autores e regressões de login/gestão/cotações/dados externos/simulador.
+  - Responsividade em **320/390/768/1280px**, uma visualização por vez, sem rolagem horizontal. Capturas finais de preços desktop e gráficos desktop/celular inspecionadas visualmente; artefatos apenas em `/private/tmp/cotaroba-f7-ux-qa`, fora do Git. Capturas aguardam dois frames após mudar a aba para medir corretamente a página inteira.
+  - `npm run lint`, `npm run typecheck`, `npm run format:check`, `npm run build` → **exit 0**; código/README formatados com Prettier. Build mantém `/painel` dinâmico e `/simulador` estático. `git diff --check` → aprovado na revisão anterior ao registro final; repetido antes do commit.
+  - Conferência via Node/Prisma apontando explicitamente para `getTestDatabaseUrl()` após a última suíte → **0 usuários, regiões, frigoríficos, categorias, cotações, séries externas e observações**. Fixtures isoladas e removidas; não foram gravados dados de teste no banco de desenvolvimento.
+- **Falhas intermediárias e correções:** rodadas de navegador chegaram a 14/15 ou 15/16 antes dos reforços finais. Teste com resposta lenta revelou cancelamento de filtros por alteração isolada do histórico, perda da entrada para Voltar e seleção temporária restaurada; corrigidos pela submissão conjunta, `push` na troca pendente e `useOptimistic` baseado na URL. O teste de foco tentava focar antes de a aba ficar visível: espera corrigida e restauração artificial removida. Teste de toque passou a colocar o gráfico na área visível; interceptações esperam encerrar antes da remoção. Instrumentação temporária que encontrou `__name` do tsx foi removida. As versões finais completas acima passaram sem falhas, skips ou cancelamentos.
+- **Testes não repetidos/motivo:** demais suítes isoladas de autenticação/gestão/banco/conectores e probe de APIs não repetidos integralmente porque seus módulos não mudaram; regressão integrada de navegador foi executada. Sem alteração de dependências/schema, não houve instalação limpa, auditoria npm nem validação/migration Prisma novas. Acessibilidade verificada por teclado/sem JavaScript e sem alegar auditoria automática WCAG. Outros navegadores e validação humana continuam pendentes.
+- **Commit Conventional Commits:** `refactor(dashboard): simplify views and interactive filters`; hash: consultar `git log -1 --format=%h` após criação. Implementação, documentação e status integram o mesmo commit; hash real informado na entrega. Não houve push ou deploy.
+- **Como validar manualmente:** executar `npm run dev` e abrir `/painel`; em Preços, escolher região/categoria e comparação. Alternar abas, selecionar frigorífico/série, usar períodos rápidos e conferir preservação dos filtros. Explorar gráfico por mouse/toque e setas, abrir tabela/metodologia, testar intervalo inválido, vazio e expansão de preços. Usar voltar/avançar, recarregar e voltar ao painel pelo menu; repetir em celular/tablet e sem JavaScript usando Aplicar filtros. Roteiro ampliado no README.
+- **Aprovação do usuário:** PENDENTE para F7/F7-UX01; sucesso automatizado não equivale à validação humana. **Próximo passo:** aguardar teste e aprovação explícita, conforme `AGENTS.md`; não iniciar F8 automaticamente.

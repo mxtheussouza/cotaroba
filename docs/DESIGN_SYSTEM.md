@@ -39,3 +39,11 @@ Criar componentes **quando a etapa precisar deles**, não todos antecipadamente.
 ## Páginas
 Públicas: início/dashboard, cotações, indicadores/clima, simulador.
 Privadas: gestor (frigoríficos, usuários e dados manuais), frigorífico (preços e histórico).
+
+## Regra permanente de UX para consultas
+- Exigir o menor número possível de cliques sem comprometer clareza, acessibilidade ou precisão. Ações frequentes devem ter acesso direto; remover etapas redundantes e reduzir carga cognitiva.
+- No painel, exibir uma visualização por vez: Preços, Evolução, Contexto ou Relação de troca. Filtros ficam junto às abas, mostrando apenas campos pertinentes; valores das demais consultas são preservados.
+- Com JavaScript, seleções atualizam via App Router sem recarregar documento nem saltar a rolagem; abas alternam conteúdo já renderizado. Sem JavaScript, links/GET mantêm a consulta acessível. Teclado: abas com setas/Home/End, controles rotulados e foco visível.
+- Preços individuais em linhas compactas, com referência e atualização próprias; mostrar cinco inicialmente e expandir os demais, mantendo acesso à lista completa. Não criar médias ou novos indicadores.
+- Gráficos: linha contínua/círculos para cotações, tracejada/quadrados para referências externas, barras para totais de chuva/abates por período. Sem misturar unidades; cor acompanha papel da série, nunca sinal de valorização/desvalorização sozinho. Fonte/unidade, observações, período e tabela equivalente presentes.
+- Consulta de pontos por ponteiro/toque e controle de observações operável por teclado, com valor/data/unidade anunciados. SVG e tabela permanecem legíveis sem JavaScript; explicações extensas são expansíveis.

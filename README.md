@@ -602,8 +602,34 @@ O painel permite escolher região, categoria, frigorífico, datas e uma região
 para comparação. Os preços vigentes continuam individuais, sem média, e
 mantêm referência e atualização próprias. As listas atuais respondem à região e
 categoria; o período responde pelos gráficos. O painel mostra até 20 cotações
-por região, com link à consulta paginada completa. Ao mudar de região, aplique
-os filtros para atualizar os frigoríficos disponíveis nela.
+por região, com link à consulta paginada completa. Cinco aparecem inicialmente;
+**Ver mais cotações** expande as demais sem sair do painel.
+
+O painel organiza consultas em quatro abas: **Preços**, **Evolução**, **Contexto**
+e **Relação de troca**. Cada aba mostra somente seus filtros; região/categoria,
+período, comparação e referências continuam preservados ao alternar. O simulador
+tem acesso direto no topo. Explicações e tabelas ficam em seções expansíveis.
+
+Com JavaScript, selecionar um filtro atualiza dados via App Router, sem recarregar
+o documento ou saltar a rolagem. Datas atualizam após 500 ms de pausa; atalhos
+**30/90/365 dias** aplicam períodos em um clique. Um intervalo temporariamente
+inválido mantém o rascunho e a consulta anterior, com mensagem para ajustar as datas.
+Região atualiza automaticamente
+as opções de frigorífico. A URL conserva a visão e os filtros para compartilhar
+ou recarregar; voltar/avançar restaura as abas. Se uma atualização estiver pendente,
+trocar de aba reaplica os filtros atuais junto com a nova visão, evitando perda da
+seleção por respostas atrasadas. **Aplicar filtros** permanece como
+ação explícita e fallback. Sem JavaScript, use as abas como links e envie o GET
+pelo botão; atalhos de período também funcionam como links.
+
+As abas aceitam setas, Home e End no teclado. Gráficos permitem explorar a
+observação por mouse/toque ou controle com setas; a chamada de valor mostra data,
+valor e unidade. Linhas contínuas com círculos identificam cotações; referências
+externas usam linhas tracejadas com quadrados, e totais de chuva/abates usam barras.
+A tabela equivalente permanece disponível em **Ver valores do gráfico**.
+
+Regra permanente para todas as consultas: menor número possível de cliques sem
+comprometer clareza, acessibilidade ou precisão.
 
 Para o gráfico local, selecione uma categoria específica. Para cada data no
 recorte, a consulta toma o registro vigente mais recentemente informado daquele
@@ -696,7 +722,7 @@ outras suítes que criam esse gestor no mesmo banco.
 
 Roteiro manual:
 
-1. Execute `npm run dev`, abra `/painel` sem login e escolha região/categoria.
+1. Execute `npm run dev`, abra `/painel` sem login e, na aba **Preços**, escolha região/categoria.
    Compare outra região, conferindo nomes/preços individuais e datas, sem média.
 2. Cadastre cotações de datas distintas no frigorífico; selecione-o no painel,
    altere o período e abra **Ver valores do gráfico**. Corrija uma cotação e
@@ -710,3 +736,12 @@ Roteiro manual:
    negativa quando o custo superar a receita. Teste rendimento inválido e custo zero.
 6. Repita filtros/tabela/simulador sem JavaScript e no celular. Para o painel,
    use duas datas distintas de referência, não duas versões de correção da mesma data.
+
+### Conferir a refatoração de UX/UI F7-UX01
+
+1. Abra `/painel` em desktop: filtros principais e os primeiros preços devem estar visíveis sem rolagem excessiva. Compare outra região e confira as referências próprias, sem média.
+2. Alterne entre **Preços**, **Evolução**, **Contexto** e **Relação de troca**: uma visualização por vez, filtros pertinentes, seleções preservadas. Com JavaScript, não há recarga do documento; no teclado, use as setas nas abas.
+3. Na **Evolução**, escolha categoria/frigorífico, ajuste datas ou use **30 dias**. Confira atualização automática e ausência de salto de rolagem; valores e variação devem refletir o recorte. Troque região e confira as novas opções.
+4. Explore pontos por mouse, toque e setas no controle de observações. Em **Contexto**, confira unidades e gráficos de linhas para preços/câmbio, barras para chuva/abates. Abra a tabela para conferir valores exatos e datas completas.
+5. Recarregue/compartilhe a URL, use voltar/avançar e repita em 320/390/768/1280px. Desative JavaScript: abas, envio **Aplicar filtros**, atalhos e tabelas devem continuar utilizáveis.
+6. Confira estados sem dados/período inválido, privacidade de correções e o simulador existente. Aprovação humana continua pendente; esta refatoração não inicia F8.

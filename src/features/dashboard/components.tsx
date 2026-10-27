@@ -20,11 +20,27 @@ import type { priceVariation } from "./indicators";
 import type { getDashboard } from "./service";
 
 type Board = Awaited<ReturnType<typeof getDashboard>>;
+const filterFieldClass = fieldClass
+  .replace("mt-2", "mt-1")
+  .replace("py-3", "py-2");
 
 export function DashboardFilters({ board }: { board: Board }) {
   return (
-    <DashboardFilterForm>
-      <div>
+    <DashboardFilterForm
+      today={todayInBahia()}
+      values={{
+        regiao: board.quotes.region?.id ?? "",
+        categoria: board.quotes.categoryId,
+        comparar: board.comparisonRegion?.id ?? "",
+        frigorifico: board.slaughterhouse?.id ?? "",
+        inicio: board.period.start,
+        fim: board.period.end,
+        serie: board.source?.id ?? "",
+        arroba: board.arrobaSource?.id ?? "",
+        bezerro: board.calfSource?.id ?? "",
+      }}
+    >
+      <div data-filter-views="precos evolucao">
         <label htmlFor="dashboard-region" className="text-sm font-semibold">
           Região
         </label>
@@ -32,7 +48,7 @@ export function DashboardFilters({ board }: { board: Board }) {
           id="dashboard-region"
           name="regiao"
           defaultValue={board.quotes.region?.id ?? ""}
-          className={fieldClass}
+          className={filterFieldClass}
         >
           {board.quotes.regions.map((row) => (
             <option key={row.id} value={row.id}>
@@ -41,7 +57,7 @@ export function DashboardFilters({ board }: { board: Board }) {
           ))}
         </select>
       </div>
-      <div>
+      <div data-filter-views="precos evolucao">
         <label htmlFor="dashboard-category" className="text-sm font-semibold">
           Categoria
         </label>
@@ -49,7 +65,7 @@ export function DashboardFilters({ board }: { board: Board }) {
           id="dashboard-category"
           name="categoria"
           defaultValue={board.quotes.categoryId}
-          className={fieldClass}
+          className={filterFieldClass}
         >
           <option value="">Todas as categorias</option>
           {board.quotes.categories.map((row) => (
@@ -59,7 +75,7 @@ export function DashboardFilters({ board }: { board: Board }) {
           ))}
         </select>
       </div>
-      <div>
+      <div data-filter-views="precos">
         <label htmlFor="dashboard-comparison" className="text-sm font-semibold">
           Comparar com outra região
         </label>
@@ -67,7 +83,7 @@ export function DashboardFilters({ board }: { board: Board }) {
           id="dashboard-comparison"
           name="comparar"
           defaultValue={board.comparisonRegion?.id ?? ""}
-          className={fieldClass}
+          className={filterFieldClass}
         >
           <option value="">Sem comparação</option>
           {board.quotes.regions
@@ -79,7 +95,7 @@ export function DashboardFilters({ board }: { board: Board }) {
             ))}
         </select>
       </div>
-      <div>
+      <div data-filter-views="evolucao">
         <label htmlFor="dashboard-company" className="text-sm font-semibold">
           Frigorífico do gráfico
         </label>
@@ -87,7 +103,7 @@ export function DashboardFilters({ board }: { board: Board }) {
           id="dashboard-company"
           name="frigorifico"
           defaultValue={board.slaughterhouse?.id ?? ""}
-          className={fieldClass}
+          className={filterFieldClass}
         >
           {board.slaughterhouses.map((row) => (
             <option key={row.id} value={row.id}>
@@ -95,12 +111,8 @@ export function DashboardFilters({ board }: { board: Board }) {
             </option>
           ))}
         </select>
-        <p className="mt-2 text-sm text-muted">
-          Ao mudar de região, aplique os filtros para carregar os frigoríficos
-          dela.
-        </p>
       </div>
-      <div>
+      <div data-filter-views="evolucao contexto troca">
         <label htmlFor="dashboard-start" className="text-sm font-semibold">
           Início do período
         </label>
@@ -112,10 +124,10 @@ export function DashboardFilters({ board }: { board: Board }) {
           min="0001-01-01"
           max={todayInBahia()}
           defaultValue={board.period.start}
-          className={fieldClass}
+          className={filterFieldClass}
         />
       </div>
-      <div>
+      <div data-filter-views="evolucao contexto troca">
         <label htmlFor="dashboard-end" className="text-sm font-semibold">
           Fim do período
         </label>
@@ -127,10 +139,10 @@ export function DashboardFilters({ board }: { board: Board }) {
           min="0001-01-01"
           max={todayInBahia()}
           defaultValue={board.period.end}
-          className={fieldClass}
+          className={filterFieldClass}
         />
       </div>
-      <div className="lg:col-span-3">
+      <div data-filter-views="contexto">
         <label htmlFor="dashboard-source" className="text-sm font-semibold">
           Série externa do gráfico
         </label>
@@ -138,7 +150,7 @@ export function DashboardFilters({ board }: { board: Board }) {
           id="dashboard-source"
           name="serie"
           defaultValue={board.source?.id ?? ""}
-          className={fieldClass}
+          className={filterFieldClass}
         >
           <option value="">Selecione uma série</option>
           {board.sources.map((row) => (
@@ -148,7 +160,7 @@ export function DashboardFilters({ board }: { board: Board }) {
           ))}
         </select>
       </div>
-      <div>
+      <div data-filter-views="troca">
         <label htmlFor="ratio-arroba" className="text-sm font-semibold">
           Referência da arroba para relação de troca
         </label>
@@ -156,7 +168,7 @@ export function DashboardFilters({ board }: { board: Board }) {
           id="ratio-arroba"
           name="arroba"
           defaultValue={board.arrobaSource?.id ?? ""}
-          className={fieldClass}
+          className={filterFieldClass}
         >
           <option value="">Selecione uma série</option>
           {board.sources
@@ -168,7 +180,7 @@ export function DashboardFilters({ board }: { board: Board }) {
             ))}
         </select>
       </div>
-      <div>
+      <div data-filter-views="troca">
         <label htmlFor="ratio-calf" className="text-sm font-semibold">
           Referência do bezerro para relação de troca
         </label>
@@ -176,7 +188,7 @@ export function DashboardFilters({ board }: { board: Board }) {
           id="ratio-calf"
           name="bezerro"
           defaultValue={board.calfSource?.id ?? ""}
-          className={fieldClass}
+          className={filterFieldClass}
         >
           <option value="">Selecione uma série</option>
           {board.sources
@@ -206,7 +218,7 @@ export function Variation({
   const signed = (value: string) =>
     `${Number(value) > 0 ? "+" : ""}${formatExternalValue(value)}`;
   return (
-    <div className="mt-4 rounded-xl bg-secondary p-4 text-sm">
+    <div className="mt-3 rounded-xl bg-secondary px-4 py-3 text-sm">
       {variation && firstDate && lastDate ? (
         <>
           <p className="font-semibold">
@@ -215,11 +227,12 @@ export function Variation({
               ? ` (${signed(variation.percent)}%)`
               : " (percentual indisponível: base zero)"}
           </p>
-          <p className="mt-2 text-muted">
+          <details className="mt-1 text-muted">
+            <summary className="cursor-pointer">Como é calculada</summary>
             Entre {formatReferenceDate(firstDate)} e{" "}
-            {formatReferenceDate(lastDate)}. Percentual = (último valor −
-            primeiro valor) ÷ primeiro valor × 100, com duas casas decimais.
-          </p>
+            {formatReferenceDate(lastDate)}. Percentual = (último − primeiro) ÷
+            primeiro × 100, duas casas decimais.
+          </details>
         </>
       ) : (
         <p>
@@ -240,75 +253,90 @@ export function CurrentQuoteCards({
     regiao: data.region?.id ?? "",
     categoria: data.categoryId,
   });
-  return (
-    <div>
-      <h3 className="text-xl font-bold">
-        {data.region?.name ?? "Região não cadastrada"}
-      </h3>
-      {data.items.length ? (
-        <ul className="mt-4 space-y-3">
-          {data.items.map((row, index) => (
-            <li
-              key={index}
-              className="rounded-xl border border-border bg-surface p-5"
-            >
-              <p className="font-bold">{row.slaughterhouse}</p>
-              <p className="mt-1 text-sm text-muted">{row.category}</p>
-              <p className="mt-3 text-xl font-bold text-primary">
-                {formatPrice(row.pricePerArroba)}
-              </p>
-              <p className="mt-2 text-sm">
-                Referência: {formatReferenceDate(row.referenceDate)}
-              </p>
-              <p className="mt-1 text-sm text-muted">
-                Fonte: frigorífico · Atualizado em{" "}
-                {formatCollectedAt(row.updatedAt)} (Bahia)
-              </p>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="mt-4 rounded-xl border border-border bg-surface p-6 font-semibold">
-          Dados insuficientes
-        </p>
-      )}
-      <p className="mt-4 text-sm text-muted">
-        {data.total} cotações vigentes nesta seleção. Até 20 exibidas no painel.
+  const rows = data.items.map((row, index) => (
+    <li
+      key={index}
+      className="grid gap-2 border-b border-border py-3 sm:grid-cols-[minmax(0,1fr)_auto]"
+    >
+      <div>
+        <p className="font-semibold">{row.slaughterhouse}</p>
+        <p className="text-sm text-muted">{row.category}</p>
+      </div>
+      <p className="text-xl font-bold text-primary sm:text-right">
+        {formatPrice(row.pricePerArroba)}
       </p>
+      <p className="text-sm text-muted sm:col-span-2">
+        Referência: {formatReferenceDate(row.referenceDate)} · Atualizado em{" "}
+        {formatCollectedAt(row.updatedAt)} (Bahia)
+      </p>
+    </li>
+  ));
+  return (
+    <div className="min-w-0 rounded-xl border border-border bg-surface p-4">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h3 className="text-lg font-bold">
+          {data.region?.name ?? "Região não cadastrada"}
+        </h3>
+        <span className="text-sm text-muted">
+          {data.total} {data.total === 1 ? "cotação" : "cotações"}
+        </span>
+      </div>
+      <p className="mt-1 text-sm text-muted">
+        Fonte: frigoríficos · Preços individuais em R$/@
+      </p>
+      {rows.length ? (
+        <>
+          <ul className="mt-2">{rows.slice(0, 5)}</ul>
+          {rows.length > 5 && (
+            <details className="mt-3">
+              <summary className="cursor-pointer text-sm font-semibold text-primary">
+                Ver mais {rows.length - 5} cotações nesta seleção
+              </summary>
+              <ul>{rows.slice(5)}</ul>
+            </details>
+          )}
+        </>
+      ) : (
+        <p className="py-5 font-semibold">Dados insuficientes</p>
+      )}
       <Link
         href={`/cotacoes?${query}`}
-        className={`${linkClass} mt-2 inline-block`}
+        className={`${linkClass} mt-3 inline-block text-sm`}
       >
         Consultar lista completa de {data.region?.name ?? "cotações"}
       </Link>
+      {data.total > data.items.length && (
+        <p className="mt-1 text-sm text-muted">
+          Até 20 no painel; todos na lista completa.
+        </p>
+      )}
     </div>
   );
 }
 
-export function DashboardCharts({ board }: { board: Board }) {
+export function LocalTrend({ board }: { board: Board }) {
   const local = board.quoteTrend;
-  const external = board.externalTrend;
-  const lastExternal = external?.points.at(-1);
   return (
     <>
-      <section aria-labelledby="local-trend-title" className="mt-10">
-        <h2 id="local-trend-title" className="text-2xl font-bold">
+      <section aria-labelledby="local-trend-title">
+        <h2 id="local-trend-title" className="text-xl font-bold">
           Evolução da arroba por frigorífico
         </h2>
-        <p className="mt-3 max-w-3xl text-sm text-muted">
-          Selecione uma categoria específica e um frigorífico. Cada data mostra
-          a cotação vigente mais recentemente informada para aquele dia.
-          Correções substituídas ficam privadas; se uma atualização alterar a
-          data ou a categoria da cotação, ela deixa de contribuir para a
-          referência anterior. Não há média entre frigoríficos.
-        </p>
+        <details className="mt-2 text-sm text-muted">
+          <summary className="cursor-pointer">
+            Como esta evolução é formada
+          </summary>
+          Cada ponto é uma cotação vigente por data, categoria e frigorífico,
+          sem média. Correções substituídas ficam privadas; alterações de data
+          ou categoria removem a contribuição anterior.
+        </details>
         {local ? (
-          <div className="mt-6">
+          <div className="mt-3">
             <TimeSeriesChart
               title={`${local.slaughterhouse} · ${local.category}`}
               points={local.points}
               unit="R$/@"
-              source={`${local.slaughterhouse} · ${local.region}`}
+              source={`Frigorífico · ${local.region}`}
             />
             <Variation
               variation={local.variation}
@@ -330,23 +358,41 @@ export function DashboardCharts({ board }: { board: Board }) {
           </p>
         )}
       </section>
-      <section aria-labelledby="external-trend-title" className="mt-10">
-        <h2 id="external-trend-title" className="text-2xl font-bold">
+    </>
+  );
+}
+
+export function ExternalTrend({ board }: { board: Board }) {
+  const external = board.externalTrend;
+  const lastExternal = external?.points.at(-1);
+  return (
+    <>
+      <section aria-labelledby="external-trend-title">
+        <h2 id="external-trend-title" className="text-xl font-bold">
           Contexto climático e econômico
         </h2>
-        <p className="mt-3 text-sm text-muted">
-          Dólar, chuva, milho, soja e produção contextualizam o mercado. Os
-          gráficos não indicam causalidade nem previsão de preço. Para séries
-          semanais, mensais e trimestrais, o filtro usa a data final da
-          referência.
-        </p>
+        <details className="mt-2 text-sm text-muted">
+          <summary className="cursor-pointer">
+            Sobre o contexto e os períodos
+          </summary>
+          Dólar, chuva, milho, soja e produção contextualizam o mercado, sem
+          indicar causalidade ou previsão. Para semanas, meses e trimestres, o
+          filtro usa o fim da referência.
+        </details>
         {external ? (
-          <div className="mt-6">
+          <div className="mt-3">
             <TimeSeriesChart
               title={external.name}
               points={external.points}
               unit={external.unit}
               source={external.sourceName}
+              variant="context"
+              kind={
+                external.metric === "RAINFALL" ||
+                external.metric === "CATTLE_SLAUGHTER"
+                  ? "bar"
+                  : "line"
+              }
             />
             <p className="mt-4 text-sm">
               {external.geography} · {frequencies[external.frequency]} ·{" "}
@@ -398,11 +444,18 @@ export function DashboardCharts({ board }: { board: Board }) {
           </p>
         )}
       </section>
+    </>
+  );
+}
+
+export function ReplacementRatio({ board }: { board: Board }) {
+  return (
+    <>
       <section
         aria-labelledby="ratio-title"
-        className="mt-10 rounded-xl border border-border bg-surface p-6 sm:p-8"
+        className="rounded-xl border border-border bg-surface p-5"
       >
-        <h2 id="ratio-title" className="text-2xl font-bold">
+        <h2 id="ratio-title" className="text-xl font-bold">
           Relação de troca: arrobas por bezerro
         </h2>
         <p className="mt-3 text-sm text-muted">

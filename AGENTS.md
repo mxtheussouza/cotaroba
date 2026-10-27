@@ -30,6 +30,9 @@ Você é o **engenheiro de software sênior responsável** pela implementação 
 - Proteja contas, sessões e histórico privado dos frigoríficos. **Na F5, o usuário autorizou publicar nome e cotação vigente por frigorífico/região/categoria, sem média. Na F7, autorizou também evolução por data usando registros vigentes; correções substituídas e autoria pessoal continuam privadas.** Registre essas decisões no status e mantenha data, fonte e unidade visíveis.
 - Ao identificar melhorias técnicas pertinentes, documente justificativa e trade-offs; não desvie do escopo aprovado.
 
+## Regra permanente de UX
+Toda funcionalidade de consulta deve exigir o menor número possível de cliques, sem comprometer clareza, acessibilidade ou precisão. Priorizar acesso direto às ações frequentes, evitar etapas redundantes e reduzir a carga cognitiva. Reutilizar o Design System e manter contexto/filtros ao alternar visualizações.
+
 ## Ciclo obrigatório de uma tarefa
 1. Ler status, escopo e etapa aprovada.
 2. Explicar brevemente o plano, arquivos esperados e critérios de aceite.
