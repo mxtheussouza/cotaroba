@@ -776,3 +776,36 @@ Exemplo: 500 kg, 55%, R$ 300/@ e R$ 4.000 de custo → receita R$ 5.500, margem 
 custo R$ 6.000 → margem −R$ 500. Repetir sem JavaScript e conferir que valores não
 aparecem na URL. Testes do simulador permanecem em `tests/simulation.test.ts` e as
 jornadas no navegador em `tests/dashboard-browser.ts`.
+
+## Cadastro de série manual em modal — F7-UX02b
+
+Em `/gestor/dados`, **Nova série manual** abre o cadastro em duas etapas:
+**Série e localidade** (nome, informação/unidade, frequência e localidade) e
+**Fonte e atualização** (fonte, link HTTPS e prazo). A lista e os botões de
+sincronização permanecem na página; explicações da coleta ficam expansíveis.
+O formulário de registros/correções em `/gestor/dados/[id]` não foi migrado nesta etapa.
+
+Voltar, fechar/Escape e reabrir mantêm os sete campos. Se o servidor rejeitar um
+nome duplicado, o rascunho e a etapa permanecem disponíveis para correção. O estado
+fica somente na memória da interface, em um contexto limitado a essa rota: mudar
+apenas a mensagem de erro na URL conserva o rascunho; sair da página, concluir o
+cadastro ou recarregar o descarta. Não há storage do navegador nem campos na URL.
+
+A ação, as permissões, os limites e o POST continuam os mesmos. **Cadastrar série**
+exibe **Salvando…**, bloqueia edição/fechamento enquanto aguarda e redireciona para
+o histórico da série com a confirmação existente. Os metadados ficam fixos como
+antes; nenhuma observação é criada automaticamente. Nome/unidade, frequência,
+localidade, atribuição HTTPS e prazo conservam o significado e as regras anteriores.
+
+Com JavaScript, validade HTML e o schema existente validam cada etapa, com erros
+junto aos campos. Sem JavaScript, **Nova série manual** expande o mesmo formulário,
+com as duas seções e validação HTML/servidor; um redirecionamento completo de erro
+pode exigir preencher novamente, conforme o contrato anterior que não devolve valores.
+
+Para testar com um gestor: abrir o cadastro, tentar continuar com campos vazios,
+preencher uma fonte própria/autorizada e testar link inválido/HTTP e prazo 731.
+Corrigir para HTTPS e prazo entre 1 e 730; conferir valores ao voltar/fechar/reabrir.
+Usar um nome já existente para conferir erro de duplicidade sem perder o rascunho;
+corrigir o nome e cadastrar. Conferir a confirmação, os sete metadados no histórico
+e formulário vazio ao voltar para iniciar outro cadastro. Repetir sem JavaScript,
+com teclado e nas larguras 320/390/768/1280px. A revisão das demais telas continua pendente.

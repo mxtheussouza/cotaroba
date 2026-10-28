@@ -54,3 +54,10 @@ Privadas: gestor (frigoríficos, usuários e dados manuais), frigorífico (preç
 - Simulador: duas etapas, Animal (peso/rendimento) e Preços e custos (preço/custo/alternativa opcional). Validação por campo usa o schema existente, preserva rascunho e direciona ao primeiro erro. Voltar não apaga valores; envio mostra estado pendente e confirmação no resultado. Não acrescentar confirmação bloqueante para um cálculo reversível.
 - Conteúdo inicial da página: resumo, ação e resultado quando existente; metodologia e detalhes de precisão expansíveis. No envio, impedir ações concorrentes de edição/fechamento até a resposta.
 - Este padrão está implementado somente no simulador nesta entrega. Demais formulários seguem na fila registrada no status, com validação humana entre fluxos. Filtros curtos de consulta continuam diretos, conforme a regra de menor número de cliques.
+
+## Série manual sob demanda — F7-UX02b
+- `/gestor/dados` reutiliza `ActionModal`, os estilos de campo e o botão de envio existentes. A ação Nova série manual aparece antes das fontes; listagem e sincronização continuam diretas.
+- Duas etapas: Série/localidade e Fonte/atualização. Sete campos sempre montados, validação HTML e schema existentes; erros por campo, pendência e retorno do servidor. Foco, Escape, limite de Tab e rolagem interna seguem o modal compartilhado.
+- O rascunho é apenas estado React no layout visual da rota: conserva campos/etapa em redirecionamento de erro na mesma página e descarta ao mudar de caminho, salvar ou recarregar. Sem armazenamento local e sem mudança de contrato de ação. Antes de enviar, informar que metadados ficam fixos.
+- Sem JavaScript, manter o formulário expansível e as validações nativas/servidor. Não prometer preservar campos em redirecionamento completo, pois o contrato existente não devolve valores.
+- Registro/correção de observações e demais formulários continuam na fila para entregas próprias, com validação humana entre fluxos.
