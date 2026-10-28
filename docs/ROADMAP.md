@@ -12,7 +12,7 @@
 | 6 | F5-T01 | Página pública de cotações por frigorífico e região | Nome e última cotação vigente por frigorífico/categoria; sem média; ausência de cotações tratada |
 | 7 | F6-T01 | Integrações externas e entrada manual de dados pelo gestor | Fontes disponíveis sincronizam; falhas não derrubam site; fallback manual |
 | 8 | F7-T01 | Dashboard completo, gráficos, indicadores e simulador | Filtros, fontes, fórmulas e cenários testados |
-| 9 | F8-T01 | Testes finais, revisão de segurança e deploy Vercel | Checklist de homologação e publicação aprovado |
+| 9 | F8-T01 | Testes finais, revisão de segurança | Checklist de homologação e publicação aprovado |
 
 ## Limites de cada etapa
 - Cada ID é **uma entrega com gate de aprovação**. Se ficar grande, subdividir em `F?-T??a`, `F?-T??b` etc., com autorização do usuário; **cada subetapa também exige teste, status, commit e aprovação antes da próxima**.
