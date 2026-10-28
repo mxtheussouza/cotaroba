@@ -783,7 +783,7 @@ Em `/gestor/dados`, **Nova série manual** abre o cadastro em duas etapas:
 **Série e localidade** (nome, informação/unidade, frequência e localidade) e
 **Fonte e atualização** (fonte, link HTTPS e prazo). A lista e os botões de
 sincronização permanecem na página; explicações da coleta ficam expansíveis.
-O formulário de registros/correções em `/gestor/dados/[id]` não foi migrado nesta etapa.
+O formulário de registros/correções em `/gestor/dados/[id]` foi migrado separadamente na F7-UX02c, descrita abaixo.
 
 Voltar, fechar/Escape e reabrir mantêm os sete campos. Se o servidor rejeitar um
 nome duplicado, o rascunho e a etapa permanecem disponíveis para correção. O estado
@@ -809,3 +809,36 @@ Usar um nome já existente para conferir erro de duplicidade sem perder o rascun
 corrigir o nome e cadastrar. Conferir a confirmação, os sete metadados no histórico
 e formulário vazio ao voltar para iniciar outro cadastro. Repetir sem JavaScript,
 com teclado e nas larguras 320/390/768/1280px. A revisão das demais telas continua pendente.
+
+## Registro e correção em modal — F7-UX02c
+
+No histórico de uma série manual (`/gestor/dados/[id]`), **Novo registro ou correção**
+abre uma janela com as seções **Período** e **Valor e validade**. Os quatro campos
+ficam disponíveis juntos; não há etapas adicionais. A página conserva os metadados,
+a fonte, a unidade e o histórico paginado, sem o formulário longo sempre aberto.
+Séries automáticas continuam somente para leitura, atualizadas por sincronização.
+
+Fechar/Escape e reabrir conservam o rascunho. Com JavaScript, erros de campos aparecem
+junto ao controle e o primeiro erro recebe foco. Erros do servidor mantêm os quatro
+valores, inclusive em tentativas seguidas; as regras de frequência, valores e revisões
+continuam validadas pelo serviço existente. Durante o envio, aparece **Salvando…** e
+edição/fechamento ficam bloqueados. Sucesso fecha a janela, confirma na página,
+atualiza o histórico e limpa os campos para o próximo registro. Enviar a versão
+atual continua sem duplicação; corrigir o mesmo período preserva as versões anteriores.
+
+O rascunho existe somente na memória React da rota: sair da série ou recarregar o
+descarta, sem armazenamento no navegador ou parâmetros com valores na URL. Sem
+JavaScript, a mesma ação expande o formulário e preserva o POST e a validação
+HTML/servidor. O contrato anterior não devolve valores em redirecionamentos completos
+de erro; nesse caso, pode ser necessário preencher novamente.
+
+Para validar como gestor:
+
+1. Abrir uma série manual, conferir fonte/unidade/histórico e abrir **Novo registro ou correção**.
+2. Tentar salvar vazio, inverter as datas, informar valor com milhar ou validade anterior ao fim; conferir erros e foco.
+3. Preencher um período encerrado compatível com a frequência, fechar/reabrir e conferir os quatro campos.
+4. Informar um período incompleto (como um mês começando no dia 2); após o erro do servidor, conferir que os dados permanecem e corrigir.
+5. Salvar, conferir confirmação e histórico; repetir os mesmos dados para verificar que não há duplicação. Corrigir o valor no mesmo período e conferir as duas versões.
+6. Reabrir após sucesso para conferir campos vazios. Repetir com teclado, em celular/tablet e sem JavaScript. Séries automáticas não oferecem cadastro manual.
+
+A revisão geral de formulários continua parcial; os próximos fluxos aguardam autorização.

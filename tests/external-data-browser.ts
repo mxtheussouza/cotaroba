@@ -70,6 +70,12 @@ export function registerExternalDataBrowserTests(resources: () => Resources) {
       );
       id = new URL(page.url()).pathname.split("/").at(-1)!;
       const fillRecord = async (value: string) => {
+        await page
+          .getByRole("button", {
+            name: "Novo registro ou correção",
+            exact: true,
+          })
+          .click();
         await page.getByLabel("Início do período").fill("2026-10-26");
         await page.getByLabel("Fim do período").fill("2026-10-26");
         await page.getByLabel("Valor (mm)", { exact: true }).fill(value);
@@ -417,6 +423,304 @@ export function registerExternalDataBrowserTests(resources: () => Resources) {
       await r.database.externalSeries.deleteMany({
         where: { id: { in: ids } },
       });
+    }
+  });
+
+  it("saves and corrects observations in a modal while retaining rejected drafts and clearing confirmed submissions", async () => {
+    const r = resources();
+    const series = await createManualSeries(r.database, r.fixtures.manager.id, {
+      name: `Observação modal ${randomUUID()}`,
+      metric: "CORN",
+      frequency: "MONTHLY",
+      geography: "Bahia sintética",
+      sourceName: "Fonte sintética",
+      sourceUrl: "https://example.invalid/observacao",
+      staleAfterDays: "7",
+    });
+    const context = await r.browser.newContext();
+    try {
+      const login = await context.request.post(
+        `${r.origin}/api/auth/sign-in/email`,
+        {
+          headers: { origin: r.origin, "x-forwarded-for": "198.18.10.248" },
+          data: {
+            email: r.fixtures.manager.email,
+            password: r.fixtures.password,
+          },
+        },
+      );
+      assert.equal(login.status(), 200);
+      const page = await context.newPage();
+      const browserErrors: string[] = [];
+      const remote: string[] = [];
+      page.on("pageerror", (error) => browserErrors.push(error.message));
+      page.on("request", (request) => {
+        if (new URL(request.url()).hostname !== "localhost")
+          remote.push(request.url());
+      });
+      await page.goto(`${r.origin}/gestor/dados/${series.id}`);
+      await page.waitForLoadState("networkidle");
+      const trigger = page.getByRole("button", {
+        name: "Novo registro ou correção",
+        exact: true,
+      });
+      const modal = page.getByRole("dialog", {
+        name: "Cadastrar registro ou correção",
+        exact: true,
+      });
+      const close = modal.getByRole("button", {
+        name: "Fechar Cadastrar registro ou correção",
+        exact: true,
+      });
+      const save = modal.getByRole("button", {
+        name: "Salvar registro",
+        exact: true,
+      });
+      assert.equal(await modal.count(), 0);
+      await trigger.click();
+      await modal.waitFor();
+      await page.getByLabel("Início do período").focus();
+      await page.keyboard.press("Shift+Tab");
+      assert.ok(
+        await close.evaluate((node) => node === document.activeElement),
+      );
+      await page.keyboard.press("Shift+Tab");
+      assert.ok(await save.evaluate((node) => node === document.activeElement));
+      await page.keyboard.press("Tab");
+      assert.ok(
+        await close.evaluate((node) => node === document.activeElement),
+      );
+      await save.click();
+      assert.equal(await modal.getByRole("alert").count(), 3);
+      assert.ok(
+        await page
+          .getByLabel("Início do período")
+          .evaluate((node) => node === document.activeElement),
+      );
+      await page.getByLabel("Início do período").fill("9999-12-31");
+      await page.getByLabel("Fim do período").fill("9999-12-31");
+      await page
+        .getByLabel("Valor (R$/saca de 60 kg)", { exact: true })
+        .fill("42");
+      await save.click();
+      assert.equal(await modal.getByRole("alert").count(), 2);
+      await page.getByLabel("Início do período").fill("2026-10-01");
+      await page.getByLabel("Fim do período").fill("2026-09-30");
+      await page
+        .getByLabel("Valor (R$/saca de 60 kg)", { exact: true })
+        .fill("1.234,50");
+      await save.click();
+      assert.equal(await modal.getByRole("alert").count(), 2);
+      await page.getByLabel("Início do período").fill("2026-09-01");
+      await page
+        .getByLabel("Valor (R$/saca de 60 kg)", { exact: true })
+        .fill("42,1234");
+      await page.getByLabel("Válido até (opcional)").fill("2026-09-29");
+      await save.click();
+      assert.equal(await modal.getByRole("alert").count(), 1);
+      await page.getByLabel("Válido até (opcional)").fill("2026-10-31");
+      await page.keyboard.press("Escape");
+      await modal.waitFor({ state: "hidden" });
+      assert.ok(
+        await trigger.evaluate((node) => node === document.activeElement),
+      );
+      await trigger.click();
+      assert.equal(
+        await page
+          .getByLabel("Valor (R$/saca de 60 kg)", { exact: true })
+          .inputValue(),
+        "42,1234",
+      );
+      // Frequency and metric rules remain authoritative on the unchanged server.
+      await page.getByLabel("Início do período").fill("2026-09-02");
+      await save.click();
+      await page.waitForURL((url) => url.searchParams.get("erro") === "dados");
+      await modal
+        .getByRole("alert")
+        .filter({ hasText: "Confira os campos" })
+        .waitFor();
+      await page.waitForFunction(
+        () =>
+          document.activeElement?.getAttribute("tabindex") === "-1" &&
+          document.activeElement?.textContent?.includes("Confira os campos"),
+      );
+      assert.equal(
+        await page.getByLabel("Início do período").inputValue(),
+        "2026-09-02",
+      );
+      assert.equal(
+        await page
+          .getByLabel("Valor (R$/saca de 60 kg)", { exact: true })
+          .inputValue(),
+        "42,1234",
+      );
+      assert.equal(
+        await page.getByLabel("Válido até (opcional)").inputValue(),
+        "2026-10-31",
+      );
+      await page.getByLabel("Início do período").fill("2026-09-01");
+      await page
+        .getByLabel("Valor (R$/saca de 60 kg)", { exact: true })
+        .fill("0");
+      await save.click();
+      // Also cover a second error redirect to the exact same URL.
+      await modal
+        .getByRole("button", { name: "Salvando…", exact: true })
+        .waitFor({ state: "hidden" });
+      await modal
+        .getByRole("alert")
+        .filter({ hasText: "Confira os campos" })
+        .waitFor();
+      assert.equal(
+        await page
+          .getByLabel("Valor (R$/saca de 60 kg)", { exact: true })
+          .inputValue(),
+        "0",
+      );
+      await page
+        .getByLabel("Valor (R$/saca de 60 kg)", { exact: true })
+        .fill("42,1234");
+      for (const width of [320, 390, 768, 1280]) {
+        await close.click();
+        await modal.waitFor({ state: "hidden" });
+        await page.setViewportSize({ width, height: 568 });
+        await trigger.click();
+        await modal.waitFor();
+        const bounds = await modal.boundingBox();
+        assert.ok(
+          bounds &&
+            bounds.x >= 0 &&
+            bounds.x + bounds.width <= width + 1 &&
+            bounds.height <= 537,
+        );
+        assert.ok(
+          await page.evaluate(
+            () => document.documentElement.scrollWidth <= innerWidth,
+          ),
+        );
+        assert.ok(
+          await modal.evaluate((node) => node.scrollWidth <= node.clientWidth),
+        );
+        if (process.env.TEST_SCREENSHOT_DIR) {
+          await mkdir(process.env.TEST_SCREENSHOT_DIR, { recursive: true });
+          await page.screenshot({
+            path: join(
+              process.env.TEST_SCREENSHOT_DIR,
+              `observation-modal-${width}.png`,
+            ),
+            animations: "disabled",
+          });
+        }
+      }
+      await page.route("**/gestor/dados/**", async (route) => {
+        if (route.request().method() === "POST")
+          await new Promise((resolve) => setTimeout(resolve, 500));
+        await route.continue();
+      });
+      await save.click();
+      await modal
+        .getByRole("button", { name: "Salvando…", exact: true })
+        .waitFor();
+      assert.ok(await close.isDisabled());
+      assert.ok(await page.getByLabel("Início do período").isDisabled());
+      await page.keyboard.press("Escape");
+      assert.ok(await modal.isVisible());
+      await page.waitForURL((url) => url.searchParams.get("aviso") === "salvo");
+      await modal.waitFor({ state: "hidden" });
+      await page.waitForFunction(
+        () =>
+          document.activeElement?.textContent?.trim() ===
+          "Novo registro ou correção",
+      );
+      await page
+        .getByRole("status")
+        .filter({ hasText: "Registro salvo" })
+        .waitFor();
+      assert.ok(
+        (await page.locator("main").innerText()).includes(
+          "42,1234 R$/saca de 60 kg · Versão 1",
+        ),
+      );
+      const fill = async (value: string) => {
+        await trigger.click();
+        await modal.waitFor();
+        for (const name of [
+          "Início do período",
+          "Fim do período",
+          "Valor (R$/saca de 60 kg)",
+          "Válido até (opcional)",
+        ]) {
+          assert.equal(
+            await page.getByLabel(name, { exact: true }).inputValue(),
+            "",
+          );
+        }
+        await page.getByLabel("Início do período").fill("2026-09-01");
+        await page.getByLabel("Fim do período").fill("2026-09-30");
+        await page
+          .getByLabel("Valor (R$/saca de 60 kg)", { exact: true })
+          .fill(value);
+        await page.getByLabel("Válido até (opcional)").fill("2026-10-31");
+        await save.click();
+        await modal.waitFor({ state: "hidden" });
+      };
+      await fill("42,1234");
+      await page.waitForURL(
+        (url) => url.searchParams.get("aviso") === "repetido",
+      );
+      await fill("42,1234");
+      // An idempotent save at the same success URL must still clear the draft.
+      await fill("43,5");
+      await page.waitForURL((url) => url.searchParams.get("aviso") === "salvo");
+      const rows = await r.database.externalObservation.findMany({
+        where: { seriesId: series.id },
+        orderBy: { revision: "asc" },
+      });
+      assert.equal(rows.length, 2);
+      assert.equal(rows[0].value.toString(), "42.1234");
+      assert.equal(rows[1].value.toString(), "43.5");
+      assert.equal(rows[1].revision, 2);
+      assert.equal(
+        rows[1].validUntil?.toISOString().slice(0, 10),
+        "2026-10-31",
+      );
+      await page
+        .getByText("43,5 R$/saca de 60 kg · Versão 2", { exact: true })
+        .waitFor();
+      await trigger.click();
+      await page
+        .getByLabel("Valor (R$/saca de 60 kg)", { exact: true })
+        .fill("99");
+      await close.click();
+      await page
+        .getByRole("link", { name: "Voltar aos dados externos", exact: true })
+        .click();
+      await page.waitForURL((url) => url.pathname === "/gestor/dados");
+      await page
+        .getByRole("listitem")
+        .filter({
+          has: page.getByRole("heading", {
+            name: `Observação modal`,
+            exact: false,
+          }),
+        })
+        .getByRole("link", { name: "Cadastrar registro e ver histórico" })
+        .click();
+      await trigger.click();
+      assert.equal(
+        await page
+          .getByLabel("Valor (R$/saca de 60 kg)", { exact: true })
+          .inputValue(),
+        "",
+      );
+      assert.deepEqual(browserErrors, []);
+      assert.deepEqual(remote, []);
+    } finally {
+      await context.close();
+      await r.database.externalObservation.deleteMany({
+        where: { seriesId: series.id },
+      });
+      await r.database.externalSeries.delete({ where: { id: series.id } });
     }
   });
 

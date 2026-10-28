@@ -5,7 +5,7 @@
 ## Estado atual
 - Data de referência: 2026-10-27.
 - Fase atual: **F7 — dashboard, gráficos, indicadores e simulador**.
-- Etapa atual: **F7-UX02b — IMPLEMENTADA_AGUARDANDO_VALIDACAO**, cadastro de série manual em modal/etapas. Revisão geral de formulários ainda parcial.
+- Etapa atual: **F7-UX02c — IMPLEMENTADA_AGUARDANDO_VALIDACAO**, registro/correção de observações em modal. Revisão geral de formulários ainda parcial.
 - Aprovação do usuário: **F0-T01 a F6-T01 VALIDADAS**; F6 aprovada explicitamente para o MVP em 2026-10-27.
 - Implementações concluídas: **F0-T01 a F6-T01 VALIDADAS; F7-T01 e sua refatoração F7-UX01 implementadas e aguardando validação**.
 - Commit da F0-T01: `d42c693` — `chore(setup): initialize Next.js project foundation`.
@@ -28,8 +28,10 @@
 - Verificação F7-UX02a: **6 testes de cálculo + 16 jornadas de navegador aprovados (22 distintos)**; navegador em desenvolvimento e produção local, incluindo modal/etapas/erros/pendência/teclado/sem JavaScript e 320/390/768/1280px. Lint, typecheck, formatação e build aprovados.
 - Commit F7-UX02a: `cd618a7c` — `refactor(simulator): move inputs into a modal wizard`.
 - Verificação F7-UX02b: **20 dados externos + 17 jornadas de navegador aprovados (37 distintos)**; navegador em desenvolvimento e produção local, com/sem JavaScript e 320/390/768/1280px. Lint, typecheck, formatação e build aprovados.
-- Commit F7-UX02b: `refactor(external-data): move series creation into a modal wizard`; hash: consultar Git após criação.
-- Próxima ação: aguardar teste e validação explícita de F7-UX02b antes de migrar outro fluxo. Próximo inventariado: registro/correção de observações em `/gestor/dados/[id]`. O avanço atual foi expressamente autorizado por “Execute a proxima etapa”, sem relato de teste manual anterior; não se presume validação global da F7. Demais fluxos e F8 permanecem pendentes.
+- Commit F7-UX02b: `eba9130f` — `refactor(external-data): move series creation into a modal wizard`.
+- Verificação F7-UX02c: **20 dados externos + 18 jornadas de navegador aprovados (38 distintos)**; navegador em desenvolvimento e produção local, com/sem JavaScript e 320/390/768/1280px. Lint, typecheck, formatação e build aprovados.
+- Commit F7-UX02c: `refactor(external-data): move observation entry into a modal`; hash: consultar Git após criação.
+- Próxima ação: aguardar teste e validação explícita de F7-UX02c antes de migrar outro fluxo. Próximo inventariado: cadastro de frigorífico em `/gestor/frigorificos/novo`. O avanço desta entrega foi autorizado por “Prossiga”, sem relato de teste manual anterior; não se presume validação global da F7. Demais fluxos e F8 permanecem pendentes.
 
 ## Quadro de etapas
 | ID | Etapa | Estado | Commit | Validação do usuário |
@@ -44,7 +46,8 @@
 | F7-T01 | Gráficos, indicadores e simulador | IMPLEMENTADA_AGUARDANDO_VALIDACAO | `c1fc534` + `47f5c9a` | PENDENTE |
 | F7-UX01 | Refatoração da UX/UI do dashboard | IMPLEMENTADA_AGUARDANDO_VALIDACAO | `13186ace` | PENDENTE |
 | F7-UX02a | Simulador em modal e etapas | IMPLEMENTADA_AGUARDANDO_VALIDACAO | `cd618a7c` | Avanço autorizado; teste manual não relatado |
-| F7-UX02b | Cadastro de série manual em modal e etapas | IMPLEMENTADA_AGUARDANDO_VALIDACAO | `refactor(external-data)`; consultar Git | PENDENTE |
+| F7-UX02b | Cadastro de série manual em modal e etapas | IMPLEMENTADA_AGUARDANDO_VALIDACAO | `eba9130f` | Avanço autorizado; teste manual não relatado |
+| F7-UX02c | Registro/correção de observações em modal | IMPLEMENTADA_AGUARDANDO_VALIDACAO | `refactor(external-data)`; consultar Git | PENDENTE |
 | F8-T01 | Homologação e deploy | PENDENTE | — | PENDENTE |
 
 Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUARDANDO_VALIDACAO`, `VALIDADA`.
@@ -803,3 +806,36 @@ Estados permitidos: `PENDENTE`, `EM_ANDAMENTO`, `BLOQUEADA`, `IMPLEMENTADA_AGUAR
 - **Como testar manualmente:** entrar como gestor, abrir `/gestor/dados`, usar Nova série manual; testar continuar vazio, preencher os quatro primeiros campos, avançar e conferir erro para URL inválida/HTTP e prazo 731. Usar fonte própria/autorizada, HTTPS e prazo válido; voltar, fechar/Escape/reabrir e conferir os campos. Usar nome já cadastrado para verificar erro sem perder o rascunho, corrigir o nome e cadastrar; conferir confirmação, metadados no histórico e formulário novo vazio ao retornar. Repetir com teclado, celular e sem JavaScript; não iniciar sincronização como parte desse teste.
 - **Aprovação:** PENDENTE para a entrega atual. **Próximo passo:** parar e aguardar teste/aprovação explícita de F7-UX02b antes de migrar o registro/correção de observações. Revisão global de front-end e F8 continuam pendentes.
 - **Conferência final do isolamento:** Node/Prisma com `getTestDatabaseUrl()` após a suíte final → **0 usuários, regiões, frigoríficos, categorias, cotações, séries, observações e sincronizações**; fixtures removidas. `git diff --check` aprovado após este registro.
+
+### 2026-10-27 — F7-UX02c — Autorização e início do registro em modal
+- **Estado:** EM_ANDAMENTO.
+- **Autorização:** “Prossiga” autoriza o próximo fluxo inventariado, registro/correção de observações em `/gestor/dados/[id]`. Não houve relato de teste manual da entrega anterior; manter a distinção entre avanço autorizado e validação humana.
+- **Plano e aceite:** reutilizar ActionModal para quatro campos em duas seções, em uma única janela; manter metadados/histórico visíveis, frequência/unidade e instrução de revisão. Validação de campos, erros do servidor, pendência, confirmação e rascunho durante fechamento/retorno de erro; teclado, responsividade e POST sem JavaScript. Sem wizard, pois quatro campos não justificam etapa adicional.
+- **Arquivos previstos:** página e layout de histórico, formulário/contexto visual de observação, testes de navegador, README, Design System e status. Backend, contratos, schema e integrações preservados.
+- **Inspeção/testes iniciais:** Git limpo em `eba9130f`; documentos do contrato lidos; `docker compose ps` confirma PostgreSQL local saudável. Verificações da implementação em andamento.
+- **Commit:** não realizado. **Pendências:** concluir testes/correções, documentação e commit; validação humana posterior obrigatória.
+
+### 2026-10-27 — F7-UX02c — Registro/correção em modal concluído tecnicamente
+- **Estado:** IMPLEMENTADA_AGUARDANDO_VALIDACAO. Somente o fluxo de observações manuais em `/gestor/dados/[id]` foi migrado; revisão geral de formulários continua parcial.
+- **Arquivos alterados:** `src/app/(private)/gestor/dados/[id]/{page,layout}.tsx`, `src/features/external-data/observation-{form,draft}.tsx`, `tests/external-data-browser.ts`, `README.md`, `docs/DESIGN_SYSTEM.md` e `PROJECTS_STATUS.md`.
+- **Implementação e decisões:**
+  - Ação Novo registro ou correção reutiliza ActionModal, campo e SubmitButton existentes. Quatro campos em duas seções (Período; Valor e validade), juntos na mesma janela, sem wizard ou confirmação adicional. Grid em desktop e empilhamento no celular; rolagem interna, fundo inerte, Escape/Fechar, foco e limites de Tab do componente existente.
+  - Fonte, unidade, frequência, prazo e histórico paginado continuam visíveis na página. Orientações de correção/preenchimento ficam dentro da janela; séries automáticas continuam sem formulário manual. Autoria permanece privada; nenhuma mudança na publicação.
+  - Validação HTML e schema existentes verificam campos/datas/precisão/relações entre datas; erros por campo e foco no primeiro inválido. Frequência e regras numéricas de domínio continuam no serviço existente, sem reproduzir cálculos Decimal no cliente. Erros retornados pelo servidor aparecem dentro do modal e recebem foco após a abertura.
+  - Contexto React no layout visual da série conserva quatro valores em redirecionamentos de erro, inclusive duas falhas na mesma URL. Fechar/reabrir mantém o rascunho. Sucesso fecha a janela, confirma no histórico, retorna foco à ação e limpa os campos, inclusive em duas respostas idempotentes consecutivas na mesma URL. Sair da série/recarregar descarta o estado; sem storage, campos em URL ou rascunho no banco.
+  - Formulário mantém diretamente `saveObservationAction.bind(null, id)` e os quatro nomes/limites anteriores. Durante envio, edição/fechamento ficam bloqueados e o botão mostra Salvando. Sem JavaScript, a ação expande o mesmo formulário com POST e validação HTML/servidor; o contrato anterior não conserva valores em um redirecionamento completo de erro, limitação documentada.
+  - Backend, contratos, persistência, integrações e modal compartilhado preservados: `git diff --exit-code -- src/features/external-data/actions.ts src/features/external-data/schema.ts src/features/external-data/service.ts src/features/external-data/connectors.ts prisma src/app/api src/components/action-modal.tsx` → **exit 0**. Sem dependências, migrations, coleta real, deploy ou push.
+- **Testes executados (comando → resultado):**
+  - `npm run test:external-data` → **20/20 aprovados**, sem falhas/skips: precisão/datas, autorização, frequência, preços/inteiros, revisões, repetição/concorrência, paginação, privacidade, conectores e falhas simuladas. Não é um probe de APIs reais.
+  - `PLAYWRIGHT_CHANNEL=chrome TEST_SCREENSHOT_DIR=/private/tmp/cotaroba-observation-modal-qa node --conditions=react-server --env-file-if-exists=.env --import tsx --test --test-name-pattern='saves and corrects observations in a modal' tests/login-browser.test.ts` → **1/1 aprovado** na primeira implementação do fluxo.
+  - `PLAYWRIGHT_CHANNEL=chrome TEST_SCREENSHOT_DIR=/private/tmp/cotaroba-observation-modal-qa npm run test:browser` → **18/18 aprovados**; repetido após ajustes finais de apresentação/foco, novamente **18/18**. A nova jornada verifica campos vazios, futuro, ordem das datas, precisão/validade, Escape/Tab/foco, dois erros de domínio e preservação de rascunho na mesma URL, pendência/edição/fechamento, sucesso com limpeza/foco, duas repetições idempotentes, correção com duas versões e descarte ao sair. Jornada sem JavaScript adaptada à ação expansível mantém criação/correção e publicação somente do último valor.
+  - `npm run build` → **exit 0**, compilação/TypeScript e geração de páginas concluídas.
+  - `TEST_APP_MODE=production PLAYWRIGHT_CHANNEL=chrome TEST_SCREENSHOT_DIR=/private/tmp/cotaroba-observation-modal-qa npm run test:browser` → **18/18 aprovados** na versão de produção local. **38 casos distintos** no total (20 + 18), sem somar repetições/ambientes. Regressões de login, gestão, cotações, dashboard, simulador e autorização de Server Actions aprovadas.
+  - `npm run lint`, `npm run typecheck`, `npm run format:check` e `git diff --check` → **exit 0**; typecheck repetido após build. A primeira execução de lint apontou a nomenclatura de um ref vindo do contexto; corrigido para sufixo Ref sem desabilitar regras e lint final aprovado.
+  - Modal verificado em **320/390/768/1280px**, com altura de viewport 568px, limites internos e ausência de rolagem horizontal. Capturas desktop/celular inspecionadas em `/private/tmp/cotaroba-observation-modal-qa` (fora do Git). Os navegadores de teste foram encerrados pelo harness.
+  - Node/Prisma com `getTestDatabaseUrl()` após a última suíte → **0 usuários, regiões, frigoríficos, categorias, cotações, séries, observações e sincronizações**. Fixtures isoladas removidas; sem dados de teste no banco de desenvolvimento.
+- **Testes não executados:** outros navegadores/dispositivos físicos e teste manual do usuário permanecem pendentes; APIs reais, migrations e auditoria de dependências não repetidas, pois não foram alteradas nesta entrega.
+- **Commit Conventional Commits:** `refactor(external-data): move observation entry into a modal`; hash: consultar Git após criação, conforme `docs/GIT_WORKFLOW.md`. Código, testes e status integram o mesmo commit.
+- **Como validar manualmente:** como gestor, abrir uma série manual e Novo registro ou correção. Salvar vazio, inverter datas e informar validade anterior; conferir erros/foco. Preencher período encerrado conforme frequência, fechar/reabrir, testar período incompleto e conferir rascunho após erro. Corrigir e salvar; conferir confirmação, histórico e formulário vazio. Repetir o mesmo registro para conferir ausência de duplicação, depois alterar valor no mesmo período e conferir ambas as versões. Repetir com teclado/celular e sem JavaScript; automático continua sem ação manual.
+- **Pendências/aprovação:** validação humana de F7-UX02c **PENDENTE**, sem bloqueio técnico conhecido. Demais formulários e F8 não iniciados. Próximo inventariado: cadastro de frigorífico em `/gestor/frigorificos/novo`.
+- **Próximo passo autorizado:** parar e aguardar teste/aprovação explícita antes de migrar outro fluxo, conforme AGENTS.md.

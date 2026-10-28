@@ -60,4 +60,10 @@ Privadas: gestor (frigoríficos, usuários e dados manuais), frigorífico (preç
 - Duas etapas: Série/localidade e Fonte/atualização. Sete campos sempre montados, validação HTML e schema existentes; erros por campo, pendência e retorno do servidor. Foco, Escape, limite de Tab e rolagem interna seguem o modal compartilhado.
 - O rascunho é apenas estado React no layout visual da rota: conserva campos/etapa em redirecionamento de erro na mesma página e descarta ao mudar de caminho, salvar ou recarregar. Sem armazenamento local e sem mudança de contrato de ação. Antes de enviar, informar que metadados ficam fixos.
 - Sem JavaScript, manter o formulário expansível e as validações nativas/servidor. Não prometer preservar campos em redirecionamento completo, pois o contrato existente não devolve valores.
-- Registro/correção de observações e demais formulários continuam na fila para entregas próprias, com validação humana entre fluxos.
+- Registro/correção de observações foi migrado na F7-UX02c, descrita abaixo. Demais formulários continuam na fila para entregas próprias, com validação humana entre fluxos.
+
+## Observação manual sob demanda — F7-UX02c
+- No histórico de série manual, a ação Novo registro ou correção abre o mesmo `ActionModal`, com quatro campos nas seções Período e Valor/validade. Campos lado a lado a partir de `sm`, empilhados no celular; janela com rolagem interna. Sem wizard para este formulário curto.
+- Metadados, fonte/unidade e histórico ficam na página; orientações de preenchimento e revisão ficam no formulário. Séries automáticas continuam sem ação manual.
+- Reutilizar schema, campo e SubmitButton existentes. Mostrar erros junto aos campos com foco no primeiro inválido e erros de gravação dentro da janela. Durante envio, bloquear edição/fechamento; sucesso confirma na página e fecha/limpa o formulário, inclusive em resposta idempotente.
+- Contexto React limitado à rota da série conserva rascunho em redirecionamentos de erro; sair/recarregar ou salvar descarta o rascunho. Sem storage ou alteração dos contratos. Sem JavaScript, formulário expansível com POST e validações anteriores; redirecionamentos completos não conservam os campos.

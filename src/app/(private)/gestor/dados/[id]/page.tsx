@@ -2,22 +2,20 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { requireRole } from "@/features/auth/session";
-import { saveObservationAction } from "@/features/external-data/actions";
 import {
   ExternalFeedback,
   ExternalPagination,
   externalPage,
-  fieldClass,
   formatCollectedAt,
   formatExternalValue,
   linkClass,
   type ExternalSearch,
 } from "@/features/external-data/components";
+import { ObservationForm } from "@/features/external-data/observation-form";
 import { frequencies, metrics } from "@/features/external-data/schema";
 import { getExternalHistory } from "@/features/external-data/service";
 import { formatReferenceDate, todayInBahia } from "@/features/quotes/format";
 import { ManagerShell } from "@/features/slaughterhouses/manager-shell";
-import { SubmitButton } from "@/features/slaughterhouses/submit-button";
 import { getDatabase } from "@/lib/db";
 
 export default async function ExternalHistoryPage({
@@ -54,87 +52,18 @@ export default async function ExternalHistoryPage({
         </a>{" "}
         · Prazo de atualização: {series.staleAfterDays} dias após a referência.
       </p>
-      <ExternalFeedback search={search} />
+      <ExternalFeedback
+        search={series.connector ? search : { aviso: search.aviso }}
+      />
       {!series.connector && (
-        <section
-          className="mt-8 max-w-2xl rounded-xl border border-border bg-surface p-6 sm:p-8"
-          aria-labelledby="new-record-title"
-        >
-          <h2 id="new-record-title" className="text-2xl font-bold">
-            Cadastrar registro ou correção
-          </h2>
-          <p className="mt-3 text-sm text-muted">
-            Para corrigir, informe o mesmo período e o valor correto. A versão
-            anterior será preservada. Use um dia para frequência diária, sete
-            dias para semanal ou o mês/trimestre completo. O período deve estar
-            encerrado.
-          </p>
-          <form
-            action={saveObservationAction.bind(null, id)}
-            className="mt-6 space-y-6"
-          >
-            <div>
-              <label htmlFor="period-start" className="text-sm font-semibold">
-                Início do período
-              </label>
-              <input
-                id="period-start"
-                name="periodStart"
-                type="date"
-                required
-                min="0001-01-01"
-                max={todayInBahia()}
-                className={fieldClass}
-              />
-            </div>
-            <div>
-              <label htmlFor="period-end" className="text-sm font-semibold">
-                Fim do período
-              </label>
-              <input
-                id="period-end"
-                name="periodEnd"
-                type="date"
-                required
-                min="0001-01-01"
-                max={todayInBahia()}
-                className={fieldClass}
-              />
-            </div>
-            <div>
-              <label htmlFor="external-value" className="text-sm font-semibold">
-                Valor ({metrics[series.metric].unit})
-              </label>
-              <input
-                id="external-value"
-                name="value"
-                type="text"
-                inputMode="decimal"
-                required
-                maxLength={19}
-                className={fieldClass}
-              />
-              <p className="mt-2 text-sm text-muted">
-                Sem milhar e com até quatro casas decimais. Zero permitido
-                apenas para chuva e abates; abates devem ser inteiros.
-              </p>
-            </div>
-            <div>
-              <label htmlFor="valid-until" className="text-sm font-semibold">
-                Válido até (opcional)
-              </label>
-              <input
-                id="valid-until"
-                name="validUntil"
-                type="date"
-                min="0001-01-01"
-                max="9999-12-31"
-                className={fieldClass}
-              />
-            </div>
-            <SubmitButton>Salvar registro</SubmitButton>
-          </form>
-        </section>
+        <ObservationForm
+          seriesId={id}
+          metric={series.metric}
+          frequency={series.frequency}
+          today={todayInBahia()}
+          errorCode={typeof search.erro === "string" ? search.erro : undefined}
+          notice={typeof search.aviso === "string" ? search.aviso : undefined}
+        />
       )}
       <section className="mt-10" aria-labelledby="history-title">
         <h2 id="history-title" className="text-2xl font-bold">
