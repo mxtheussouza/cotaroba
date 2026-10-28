@@ -47,3 +47,10 @@ Privadas: gestor (frigoríficos, usuários e dados manuais), frigorífico (preç
 - Preços individuais em linhas compactas, com referência e atualização próprias; mostrar cinco inicialmente e expandir os demais, mantendo acesso à lista completa. Não criar médias ou novos indicadores.
 - Gráficos: linha contínua/círculos para cotações, tracejada/quadrados para referências externas, barras para totais de chuva/abates por período. Sem misturar unidades; cor acompanha papel da série, nunca sinal de valorização/desvalorização sozinho. Fonte/unidade, observações, período e tabela equivalente presentes.
 - Consulta de pontos por ponteiro/toque e controle de observações operável por teclado, com valor/data/unidade anunciados. SVG e tabela permanecem legíveis sem JavaScript; explicações extensas são expansíveis.
+
+## Formulários sob demanda — primeira entrega F7-UX02a
+- `ActionModal` usa `<dialog>` nativo e os tokens existentes, sem biblioteca adicional. Botão de ação abre a janela; título e Fechar ficam visíveis, conteúdo tem rolagem interna e o fundo fica inerte. Teclado permanece nos controles da janela; Escape fecha quando não há envio pendente e o foco retorna à ação de origem.
+- O mesmo DOM de formulário permanece montado ao fechar/reabrir ou trocar etapas. Sem JavaScript, a ação expande o formulário com suas seções; não duplicar campos nem impedir o POST existente.
+- Simulador: duas etapas, Animal (peso/rendimento) e Preços e custos (preço/custo/alternativa opcional). Validação por campo usa o schema existente, preserva rascunho e direciona ao primeiro erro. Voltar não apaga valores; envio mostra estado pendente e confirmação no resultado. Não acrescentar confirmação bloqueante para um cálculo reversível.
+- Conteúdo inicial da página: resumo, ação e resultado quando existente; metodologia e detalhes de precisão expansíveis. No envio, impedir ações concorrentes de edição/fechamento até a resposta.
+- Este padrão está implementado somente no simulador nesta entrega. Demais formulários seguem na fila registrada no status, com validação humana entre fluxos. Filtros curtos de consulta continuam diretos, conforme a regra de menor número de cliques.

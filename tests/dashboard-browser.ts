@@ -448,6 +448,9 @@ export function registerDashboardBrowserTests(resources: () => Resources) {
             ?.getAttribute("aria-busy") === "false",
       );
       await page.goBack();
+      await page.waitForURL(
+        (url) => url.searchParams.get("visao") === "precos",
+      );
       assert.equal(
         new URL(page.url()).searchParams.get("visao"),
         "precos",
@@ -633,6 +636,9 @@ export function registerDashboardBrowserTests(resources: () => Resources) {
       });
       await page.goto(`${r.origin}/simulador`);
       await page
+        .getByRole("button", { name: "Simular cenário", exact: true })
+        .click();
+      await page
         .getByLabel("Peso vivo por animal (kg)", { exact: true })
         .fill("500");
       await page
@@ -683,6 +689,9 @@ export function registerDashboardBrowserTests(resources: () => Resources) {
           });
       }
       await page
+        .getByRole("button", { name: "Editar premissas", exact: true })
+        .click();
+      await page
         .getByLabel("Rendimento de carcaça (%)", { exact: true })
         .fill("101");
       await page.getByRole("button", { name: "Calcular cenário" }).click();
@@ -698,30 +707,243 @@ export function registerDashboardBrowserTests(resources: () => Resources) {
     }
   });
 
-  it("keeps the enhanced simulator interactive and shows a negative margin explicitly", async () => {
+  it("keeps simulator drafts through modal steps, validates fields, traps focus and confirms a negative scenario", async () => {
     const r = resources();
     const context = await r.browser.newContext();
     try {
       const page = await context.newPage();
+      const errors: string[] = [];
+      const sensitiveUrls: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      page.on("request", (request) => {
+        if (
+          ["liveWeight", "yieldPercent", "arrobaPrice", "totalCost"].some(
+            (key) => new URL(request.url()).searchParams.has(key),
+          )
+        )
+          sensitiveUrls.push(request.url());
+      });
       await page.goto(`${r.origin}/simulador`);
       await page.waitForLoadState("networkidle");
+      const trigger = page.getByRole("button", {
+        name: "Simular cenário",
+        exact: true,
+      });
+      const modal = page.getByRole("dialog", {
+        name: "Premissas da simulação",
+        exact: true,
+      });
+      assert.equal(await modal.count(), 0);
+      await trigger.click();
+      await modal.waitFor({ state: "visible" });
+      await modal
+        .getByRole("button", { name: "Continuar", exact: true })
+        .click();
+      assert.equal(await modal.getByRole("alert").count(), 2);
       await page
         .getByLabel("Peso vivo por animal (kg)", { exact: true })
         .fill("500");
       await page
         .getByLabel("Rendimento de carcaça (%)", { exact: true })
+        .fill("101");
+      await modal
+        .getByRole("button", { name: "Continuar", exact: true })
+        .click();
+      assert.equal(
+        await page
+          .getByLabel("Rendimento de carcaça (%)", { exact: true })
+          .getAttribute("aria-invalid"),
+        "true",
+      );
+      assert.equal(
+        await page
+          .getByLabel("Preço da arroba (R$/@)", { exact: true })
+          .isVisible(),
+        false,
+      );
+      await page
+        .getByLabel("Rendimento de carcaça (%)", { exact: true })
         .fill("55");
+      await modal
+        .getByRole("button", { name: "Continuar", exact: true })
+        .click();
       await page
         .getByLabel("Preço da arroba (R$/@)", { exact: true })
         .fill("300");
       await page
         .getByLabel("Custo total por animal (R$)", { exact: true })
         .fill("6000");
-      await page.getByRole("button", { name: "Calcular cenário" }).click();
+      await page
+        .getByLabel("Preço alternativo da arroba (R$/@, opcional)", {
+          exact: true,
+        })
+        .fill("270");
+      await modal.getByRole("button", { name: "Voltar", exact: true }).click();
+      assert.equal(
+        await page
+          .getByLabel("Peso vivo por animal (kg)", { exact: true })
+          .inputValue(),
+        "500",
+      );
+      assert.equal(
+        await page
+          .getByLabel("Rendimento de carcaça (%)", { exact: true })
+          .inputValue(),
+        "55",
+      );
+      await modal
+        .getByRole("button", { name: "Continuar", exact: true })
+        .click();
+      assert.equal(
+        await page
+          .getByLabel("Custo total por animal (R$)", { exact: true })
+          .inputValue(),
+        "6000",
+      );
+      await modal
+        .getByRole("button", {
+          name: "Fechar Premissas da simulação",
+          exact: true,
+        })
+        .click();
+      await modal.waitFor({ state: "hidden" });
+      assert.ok(
+        await trigger.evaluate((node) => node === document.activeElement),
+      );
+      await trigger.click();
+      assert.equal(
+        await page
+          .getByLabel("Custo total por animal (R$)", { exact: true })
+          .inputValue(),
+        "6000",
+      );
+      await page.keyboard.press("Escape");
+      await modal.waitFor({ state: "hidden" });
+      await trigger.click();
+      await page.waitForFunction(() =>
+        document.activeElement?.closest("dialog")?.hasAttribute("open"),
+      );
+      await page
+        .locator("header a")
+        .first()
+        .evaluate((node) => (node as HTMLElement).focus());
+      assert.ok(
+        await modal.evaluate((node) => node.contains(document.activeElement)),
+        JSON.stringify(
+          await modal.evaluate((node) => ({
+            modal: node.matches(":modal"),
+            open: node.hasAttribute("open"),
+            expanded: node.closest("details")?.open,
+            active: document.activeElement?.outerHTML.slice(0, 220),
+          })),
+        ),
+      );
+      const close = modal.getByRole("button", {
+        name: "Fechar Premissas da simulação",
+        exact: true,
+      });
+      await close.focus();
+      await page.keyboard.press("Shift+Tab");
+      assert.ok(
+        await modal.evaluate((node) => node.contains(document.activeElement)),
+      );
+      for (const width of [320, 390, 768, 1280]) {
+        await page.setViewportSize({ width, height: 568 });
+        // Fresh paint avoids Chrome top-layer capture artifacts after resizing.
+        await page.reload();
+        await page.waitForLoadState("networkidle");
+        await trigger.click();
+        await page.waitForFunction(
+          () =>
+            document.querySelector("dialog")?.matches(":modal") &&
+            document.activeElement?.getAttribute("name") === "liveWeight",
+        );
+        await page
+          .getByLabel("Peso vivo por animal (kg)", { exact: true })
+          .fill("500");
+        await page
+          .getByLabel("Rendimento de carcaça (%)", { exact: true })
+          .fill("55");
+        await modal
+          .getByRole("button", { name: "Continuar", exact: true })
+          .click();
+        await page
+          .getByLabel("Preço da arroba (R$/@)", { exact: true })
+          .fill("300");
+        await page
+          .getByLabel("Custo total por animal (R$)", { exact: true })
+          .fill("6000");
+        await page
+          .getByLabel("Preço alternativo da arroba (R$/@, opcional)", {
+            exact: true,
+          })
+          .fill("270");
+        const bounds = await modal.boundingBox();
+        assert.ok(
+          bounds &&
+            bounds.x >= 0 &&
+            bounds.x + bounds.width <= width + 1 &&
+            bounds.height <= 537,
+        );
+        assert.ok(
+          await page.evaluate(
+            () => document.documentElement.scrollWidth <= innerWidth,
+          ),
+        );
+        if (width === 320)
+          assert.ok(
+            await modal
+              .locator("div")
+              .first()
+              .evaluate((node) => node.scrollHeight > node.clientHeight),
+          );
+        if (process.env.TEST_SCREENSHOT_DIR) {
+          await mkdir(process.env.TEST_SCREENSHOT_DIR, { recursive: true });
+          await page.screenshot({
+            path: join(
+              process.env.TEST_SCREENSHOT_DIR,
+              `simulation-modal-${width}.png`,
+            ),
+            animations: "disabled",
+          });
+        }
+      }
+      await page.route("**/simulador", async (route) => {
+        if (route.request().method() === "POST")
+          await new Promise((resolve) => setTimeout(resolve, 400));
+        await route.continue();
+      });
+      await modal
+        .getByRole("button", { name: "Calcular cenário", exact: true })
+        .click();
+      await modal
+        .getByRole("button", { name: "Calculando…", exact: true })
+        .waitFor();
+      assert.ok(await close.isDisabled());
+      await page.keyboard.press("Escape");
+      assert.ok(await modal.isVisible());
       await page
         .getByText("O cenário apresenta margem negativa.", { exact: true })
         .waitFor();
+      await modal.waitFor({ state: "hidden" });
       assert.ok((await page.locator("main").innerText()).includes("-500,00"));
+      assert.ok(
+        await page
+          .locator("#simulation-result")
+          .evaluate((node) => node.parentElement === document.activeElement),
+      );
+      await page
+        .getByRole("button", { name: "Editar premissas", exact: true })
+        .click();
+      assert.equal(
+        await page
+          .getByLabel("Custo total por animal (R$)", { exact: true })
+          .inputValue(),
+        "6000",
+      );
+      assert.deepEqual(sensitiveUrls, []);
+      assert.deepEqual(errors, []);
+      await page.unrouteAll({ behavior: "wait" });
     } finally {
       await context.close();
     }

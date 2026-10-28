@@ -745,3 +745,34 @@ Roteiro manual:
 4. Explore pontos por mouse, toque e setas no controle de observações. Em **Contexto**, confira unidades e gráficos de linhas para preços/câmbio, barras para chuva/abates. Abra a tabela para conferir valores exatos e datas completas.
 5. Recarregue/compartilhe a URL, use voltar/avançar e repita em 320/390/768/1280px. Desative JavaScript: abas, envio **Aplicar filtros**, atalhos e tabelas devem continuar utilizáveis.
 6. Confira estados sem dados/período inválido, privacidade de correções e o simulador existente. Aprovação humana continua pendente; esta refatoração não inicia F8.
+
+## Formulários em modais — F7-UX02a (primeira entrega)
+
+A revisão geral foi mapeada no `PROJECTS_STATUS.md`. Esta entrega migra somente
+`/simulador`; dados externos, gestão de frigoríficos/acessos e cotações permanecem
+na fila, com validação por fluxo exigida pelo `AGENTS.md`.
+
+Use **Simular cenário** para abrir o modal. Preencha **Animal**, use **Continuar**
+e informe **Preços e custos**. **Voltar**, **Fechar** e Escape preservam os campos
+na página atual; reabrir continua na etapa em que você parou. Recarregar ou sair
+da página não guarda o rascunho. Não há persistência em banco ou storage do navegador.
+Os erros aparecem junto aos campos, usando o mesmo schema do servidor. Nenhuma
+fórmula, limite ou contrato de Server Action foi alterado.
+
+**Calcular cenário** envia o mesmo POST existente. Durante a resposta, os controles
+e o fechamento ficam bloqueados e aparece **Calculando…**. Ao concluir, a janela
+fecha e o foco vai ao resultado, com confirmação. **Editar premissas** reabre os
+valores enviados. Um rascunho só substitui o último resultado ao calcular novamente.
+Metodologia e precisão ficam em detalhes expansíveis.
+
+O modal adapta-se à viewport e rola internamente, preservando o cabeçalho com
+**Fechar**. Tab/Shift+Tab ficam na janela; Escape fecha quando não há cálculo
+pendente. Sem JavaScript, a mesma ação expande um único formulário com as duas
+seções e **Calcular cenário**, mantendo validação do servidor, resultado e erros.
+
+Para validar: abrir/fechar/reabrir, navegar entre etapas, testar rendimento 101%
+e campos vazios, conferir valores preservados, usar teclado e larguras 320/390/768/1280px.
+Exemplo: 500 kg, 55%, R$ 300/@ e R$ 4.000 de custo → receita R$ 5.500, margem R$ 1.500;
+custo R$ 6.000 → margem −R$ 500. Repetir sem JavaScript e conferir que valores não
+aparecem na URL. Testes do simulador permanecem em `tests/simulation.test.ts` e as
+jornadas no navegador em `tests/dashboard-browser.ts`.

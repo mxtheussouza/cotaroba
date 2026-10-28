@@ -50,3 +50,44 @@ body {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
+
+/* The same dialog/form is an inline, collapsed fallback before hydration. */
+.action-dialog:not([data-enhanced]) {
+  position: static;
+  display: block;
+  width: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 1rem 0 0;
+  box-shadow: none;
+}
+.action-dialog:not([data-enhanced]) [data-modal-close],
+[data-wizard-navigation] {
+  display: none;
+}
+.action-dialog[data-enhanced] {
+  width: calc(100% - 2rem);
+  max-width: 42rem;
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
+}
+.action-dialog[data-enhanced][open] {
+  display: flex;
+  flex-direction: column;
+}
+.action-dialog::backdrop {
+  background: rgb(23 37 28 / 55%);
+}
+html:has(.action-dialog[data-enhanced][open]) {
+  overflow: hidden;
+}
+.action-dialog[data-enhanced] [data-wizard-step]:not([data-current="true"]) {
+  display: none;
+}
+.action-dialog[data-enhanced] [data-wizard-navigation] {
+  display: flex;
+}
+
+.action-dialog:not([data-enhanced]) [data-wizard-step] + [data-wizard-step] {
+  margin-top: 1.5rem;
+}
